@@ -2,7 +2,7 @@
 // Nothing here can sign or send a transaction: there is no wallet code at all.
 
 import { CHAINS, explorerAddressUrl } from './chains.js';
-import { TIP_ADDRESS, TIP_ENS, TIP_CHAINS, PRICE_API } from './config.js';
+import { TIP_ADDRESS, TIP_ENS, PRICE_API } from './config.js';
 import { loadRegistry, scanChain, analyzeFinding, outSymbol, outDecimals, amountsMatch } from './lib/scan.js';
 import { checkAddress, isAddress, toChecksumAddress, formatUnits, parseFraction } from './lib/evm.js';
 import qrcode from './lib/vendor/qrcode.mjs';
@@ -93,7 +93,6 @@ async function loadStats() {
 /* ------------------------------------------------------------- tip jar */
 
 function renderTip() {
-  $('#tip-chains').textContent = listJoin(TIP_CHAINS);
   const card = $('#tip-card');
   const addr = TIP_ADDRESS && isAddress(TIP_ADDRESS) ? toChecksumAddress(TIP_ADDRESS) : null;
   if (!addr) {
@@ -103,13 +102,13 @@ function renderTip() {
     $('.tip-how').hidden = true;
     const nav = document.querySelector('.top nav a[href="#tip"]');
     if (nav) nav.hidden = true;
-    card.innerHTML = `<p class="tip-unset"><strong>The tip address isn't live yet.</strong> Check back soon. The checker stays free either way.</p>`;
+    card.innerHTML = `<p class="tip-unset"><strong>The coffee jar isn't open yet.</strong> Check back soon. The checker stays free either way.</p>`;
     return;
   }
   card.innerHTML = `
     <a class="qr" href="ethereum:${esc(addr)}" aria-label="Open tip address in a wallet app">${qrSvg(addr)}</a>
     <div>
-      <p class="tip-addr-label">Tip address · any EVM chain</p>
+      <p class="tip-addr-label">Coffee fund · any EVM chain</p>
       ${TIP_ENS ? `<p class="tip-ens">${esc(TIP_ENS)}</p>` : ''}
       <p class="tip-addr" id="tip-addr">${esc(addr)}</p>
       <div class="tip-actions">
@@ -290,7 +289,7 @@ function renderSummary(all, users, prices) {
       ? `${all.length === 1 ? 'It can' : all.length === 2 ? 'Both can' : `All ${num(all.length)} can`} be migrated by you right now.`
       : `${num(ready.length)} can be migrated by you right now; ${num(blocked)} need${blocked === 1 ? 's' : ''} a closer look.`}
       Each one below has step-by-step instructions.</p>
-    ${ready.length && tipsOpen() ? '<p class="tip-nudge">If this found something for you, the <a href="#tip">tip jar</a> keeps the list verified.</p>' : ''}`;
+    ${ready.length && tipsOpen() ? '<p class="tip-nudge">Nice find. If it made your day, <a href="#tip">buy me a coffee</a>.</p>' : ''}`;
   if (ready.length) celebrate(el);
 }
 

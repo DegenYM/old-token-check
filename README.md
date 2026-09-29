@@ -50,7 +50,7 @@ Only ever migrate through the official contracts listed on a result. Nobody need
 
 ## Support
 
-Free to use. If it found something for you, tips are welcome at `0x17D70f1Bd8900f7253283f5eb9f1832DEc888888` (any EVM chain).
+Free to use. If it found something you forgot about, buy me a coffee: `0x17D70f1Bd8900f7253283f5eb9f1832DEc888888` (any EVM chain, any token).
 
 ## License
 

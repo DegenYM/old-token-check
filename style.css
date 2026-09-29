@@ -86,6 +86,8 @@ p { margin: 0; }
 .brand:hover { text-decoration: none; }
 .top nav { display: flex; gap: 22px; font-size: 15px; }
 .top nav a { color: var(--text-2); }
+.top nav a, .brand { white-space: nowrap; }
+.nav-short { display: none; }
 .top nav a:hover { color: var(--text); text-decoration: none; }
 
 /* ---------------------------------------------------------------- layout */
@@ -545,6 +547,8 @@ p { margin: 0; }
 @media (max-width: 600px) {
   body { font-size: 16px; }
   .top nav { gap: 16px; font-size: 14px; }
+  .nav-long { display: none; }
+  .nav-short { display: inline; }
   .intro { text-align: left; margin-top: 40px; }
   .lede { margin-left: 0; }
   .search { padding: 8px 8px 8px 14px; gap: 8px; border-radius: 16px; }
