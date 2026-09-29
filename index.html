@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Old Token Check</title>
+  <meta name="description" content="Paste a wallet address to find legacy tokens you can still migrate through official contracts. Every result is proven by simulation. Read-only: no wallet connection, no signatures.">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b0d13">
+  <link rel="canonical" href="https://oldtokencheck.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Old Token Check">
+  <meta property="og:url" content="https://oldtokencheck.com/">
+  <meta property="og:title" content="Old Token Check: find old tokens you can still migrate">
+  <meta property="og:description" content="Paste a wallet address. Every result is proven by a simulation from it. Read-only, no wallet connection.">
+  <meta property="og:image" content="https://oldtokencheck.com/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Old Token Check: $360M in old tokens not yet migrated">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Old Token Check: find old tokens you can still migrate">
+  <meta name="twitter:description" content="Paste a wallet address. Every result is proven by a simulation from it. Read-only, no wallet connection.">
+  <meta name="twitter:image" content="https://oldtokencheck.com/og.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https:; img-src 'self' data:; style-src 'self'; script-src 'self' https://static.cloudflareinsights.com; base-uri 'none'; form-action 'none'">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23111419'/%3E%3Ccircle cx='14' cy='14' r='7' fill='none' stroke='%232dd4bf' stroke-width='3'/%3E%3Cpath d='M19 19l6 6' stroke='%232dd4bf' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#results">Skip to results</a>
+
+  <header class="top">
+    <a class="brand" href="./" aria-label="Old Token Check, home">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15 15l5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 10.5h5m-2-2l2 2-2 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Old Token Check</span>
+    </a>
+    <nav aria-label="Page">
+      <a href="#how">How it works</a>
+      <a href="#tip">Tip jar</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="intro" aria-labelledby="page-title">
+      <h1 id="page-title">Still holding a token that got upgraded?</h1>
+      <p class="lede">Paste a wallet address. Every result is proven by a simulation from it.</p>
+    </section>
+
+    <form id="form" class="search" novalidate>
+      <label for="addresses" class="sr-only">Wallet address</label>
+      <svg class="search-icon" aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <textarea id="addresses" name="addresses" rows="1" spellcheck="false" autocomplete="off" autocapitalize="off"
+        placeholder="0x… wallet address" aria-describedby="search-note input-error"></textarea>
+      <button id="submit" type="submit" class="btn-check" disabled>Check</button>
+    </form>
+    <p id="input-error" class="field-error" role="alert" hidden></p>
+    <p id="search-note" class="search-note">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+      <span>Read-only. No wallet connection, no signatures. EVM addresses; several at once works too.</span>
+    </p>
+
+    <section class="stats" aria-label="What this checker covers">
+      <div class="stat">
+        <p class="stat-num" id="stat-usd">—</p>
+        <p class="stat-label">in old tokens not yet migrated</p>
+        <p class="stat-desc" id="stat-usd-desc">Across the paths we track, at today's prices and capped by what each migrator can pay. Some of it is lost or locked.</p>
+      </div>
+      <div class="stat">
+        <p class="stat-num" id="stat-paths">—</p>
+        <p class="stat-label">migration paths checked</p>
+        <p class="stat-desc">Each one simulated from a real holder before it was listed.</p>
+      </div>
+      <div class="stat">
+        <p class="stat-num" id="stat-chains">—</p>
+        <p class="stat-label">chains scanned</p>
+        <p class="stat-desc" id="stat-chains-desc">Ethereum and the chains where official migrations still run.</p>
+      </div>
+      <div class="stat">
+        <p class="stat-num" id="stat-rejected">—</p>
+        <p class="stat-label">candidates rejected</p>
+        <p class="stat-desc">Closed, paused, defunded or unverifiable. Never shown as ready.</p>
+      </div>
+    </section>
+
+    <section id="progress" class="progress" aria-live="polite" hidden>
+      <ul id="chain-list" class="chain-list"></ul>
+      <p id="progress-note" class="progress-note"></p>
+    </section>
+
+    <section id="results" class="results" aria-live="polite" tabindex="-1"></section>
+
+    <section id="tip" class="tip" aria-labelledby="tip-title">
+      <div class="tip-copy">
+        <h2 id="tip-title">Found something? Leave a tip.</h2>
+        <p>Old Token Check is free, and because it never touches your wallet there's no fee to take. Tips pay for keeping every path re-verified as contracts close, deadlines pass and new migrations appear.</p>
+        <p class="tip-how">Send any token from your own wallet to the address here. The same address works on <span id="tip-chains"></span>.</p>
+      </div>
+      <div class="tip-card" id="tip-card"></div>
+    </section>
+
+    <section id="how" class="how" aria-labelledby="how-title">
+      <h2 id="how-title">How it works</h2>
+      <ol class="how-steps">
+        <li><strong>A verified list, not a guess.</strong> Official migrations such as MATIC&nbsp;→&nbsp;POL, MKR&nbsp;→&nbsp;SKY and GNT&nbsp;→&nbsp;GLM. Every path in the registry names the old token, the new one, the official migrator and the exact calls. Before listing, each was simulated from a real holder and checked against official docs. Candidates that failed are kept out.</li>
+        <li><strong>Balances straight from the chain.</strong> We read your old-token balances with <code>balanceOf</code> through Multicall3 on each chain. Explorer holder lists for old tokens are often stale, so we never rely on them.</li>
+        <li><strong>A dry run from your address.</strong> For every balance we find, we simulate the full migration (usually approve, then migrate) from your address with your whole balance, using <code>eth_simulateV1</code> or, where a chain doesn't support it, <code>eth_call</code> with a state override. You only see "Ready" when the simulation succeeds and you receive the new token.</li>
+        <li><strong>You send the transactions.</strong> Each result lists the Etherscan pages, functions and values to paste, plus the official app when one exists. This site never asks to connect.</li>
+      </ol>
+      <p class="how-note">Simulations run on the latest block. If a contract is paused, closed or runs out of payout balance after that, a real transaction can still fail.</p>
+      <details class="routes-details">
+        <summary><span>All <span id="routes-count">—</span> migration paths</span></summary>
+        <div id="routes" class="routes"></div>
+      </details>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p class="foot-safety">Only ever migrate through the official contracts listed here. Nobody needs your seed phrase, and approvals only ever go to the listed migrator.</p>
+    <p class="foot-meta" id="foot-meta">Not investment advice.</p>
+    <p class="foot-meta"><a href="https://github.com/DegenYM/old-token-check" target="_blank" rel="noopener noreferrer">Open source on GitHub</a>. Every migration path, check and simulation is in the code.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

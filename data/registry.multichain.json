@@ -1,0 +1,1549 @@
+[
+ {
+  "id": "quick-old-to-new-polygon",
+  "name": "QUICK (old) → QUICK (new)",
+  "project": "QuickSwap",
+  "chainId": 137,
+  "oldToken": {
+   "address": "0x831753DD7087CaC61aB5644b308642cc1c33Dc13",
+   "symbol": "QUICK",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xB5C064F955D8e7F38fE0460C556a72987494eE17",
+   "symbol": "QUICK",
+   "decimals": 18
+  },
+  "migrator": "0x333068D06563a8DfDBF330A0e04A9d128e98bf5a",
+  "ratio": {
+   "num": "1000",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x333068D06563a8DfDBF330A0e04A9d128e98bf5a"
+   },
+   {
+    "type": "call",
+    "to": "0x333068D06563a8DfDBF330A0e04A9d128e98bf5a",
+    "signature": "quickToQuickX(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": "2027-02-05",
+  "statusCheck": null,
+  "officialUi": "https://dapp.quickswap.exchange/dashboard?chainId=137&tab=convert",
+  "sources": [
+   "https://docs.quickswap.exchange/",
+   "https://blog.quickswap.exchange/posts/convert-old-quick-to-new-quick",
+   "https://cryptobriefing.com/quickswap-quick-token-migration-schedule/"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 94633672,
+   "holderUsed": "0x6DE23246cc9784287EF1D108dA882372Cb7bc73A",
+   "simulatedIn": "816151847199247411238",
+   "simulatedOut": "816151847199247411238000",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation:false",
+   "notes": "TokenSwap address listed in QuickSwap docs ('TokenSwap (swap QUICK OLD for NEW)'). Verified source: SWAP_RATIO constant 1000, old QUICK sent to 0xdead, new QUICK paid from contract balance (~67.98M new QUICK at simulation). Actively used (quickToQuickX txs on 2026-09-25/28). withdrawTimeout (block 35486210) has passed, so owner can withdraw liquidity at any time. Press reports of an Aug-2026 DAO vote: ratio 1:1000 until 2026-11-04, then 1:750 / 1:500 / 1:250 monthly, contract closing 2027-02-05; the deployed contract's ratio is a constant, so the reduced ratios would require a new/updated contract — re-verify after 2026-11-04."
+  },
+  "warnings": [
+   {
+    "level": "warn",
+    "text": "Reported: the conversion rate drops after 2026-11-04 and the converter closes on 2027-02-05."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0x333068d06563a8dfdbf330a0e04a9d128e98bf5a"
+  }
+ },
+ {
+  "id": "gnosis-usdc-to-usdce",
+  "name": "USDC (Omnibridge) → USDC.e",
+  "project": "Gnosis Chain",
+  "chainId": 100,
+  "oldToken": {
+   "address": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
+   "symbol": "USDC",
+   "decimals": 6
+  },
+  "newToken": {
+   "address": "0x2a22f9c3b484c3629090FeED35F17Ff8F88f76F0",
+   "symbol": "USDC.e",
+   "decimals": 6
+  },
+  "migrator": "0x0392A2F5Ac47388945D8c84212469F545fAE52B2",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x0392A2F5Ac47388945D8c84212469F545fAE52B2"
+   },
+   {
+    "type": "call",
+    "to": "0x0392A2F5Ac47388945D8c84212469F545fAE52B2",
+    "signature": "deposit(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": {
+   "to": "0x0392A2F5Ac47388945D8c84212469F545fAE52B2",
+   "signature": "isEnabled()",
+   "expect": "0x0000000000000000000000000000000000000000000000000000000000000001"
+  },
+  "officialUi": "https://bridge.gnosischain.com/usdc",
+  "sources": [
+   "https://docs.gnosischain.com/bridges/About%20Token%20Bridges/omnibridge"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 48493617,
+   "holderUsed": "0x167B95399EE0618e4D01AA253089f190E30ECdCe",
+   "simulatedIn": "41972948",
+   "simulatedOut": "41972948",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation:false",
+   "notes": "USDC Transmuter (address from Gnosis docs) locks legacy Omnibridge USDC and mints Circle-standard bridged USDC.e. isEnabled()=true. Transmuter is two-way (withdraw(uint256) reverses), so this is an upgrade to the canonical representation rather than a one-way burn. ~4.4M legacy USDC remained outside the transmuter at check time."
+  },
+  "warnings": [],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-dai-to-daie",
+  "name": "DAI (AEB) → DAI.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0xbA7dEebBFC5fA1100Fb055a87773e1E99Cd3507a",
+   "symbol": "DAI",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xd586E7F844cEa2F87f50152665BCbc2C279D8d70",
+   "symbol": "DAI.e",
+   "decimals": 18
+  },
+  "migrator": "0xd586E7F844cEa2F87f50152665BCbc2C279D8d70",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xd586E7F844cEa2F87f50152665BCbc2C279D8d70"
+   },
+   {
+    "type": "call",
+    "to": "0xd586E7F844cEa2F87f50152665BCbc2C279D8d70",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0xbA7dEebBFC5fA1100Fb055a87773e1E99Cd3507a",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367400,
+   "holderUsed": "0x808cE8deC9E10beD8d0892aCEEf9F1B8ec2F52Bd",
+   "simulatedIn": "10222166850602243112",
+   "simulatedOut": "10222166850602243112",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-usdt-to-usdte",
+  "name": "USDT (AEB) → USDT.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0xde3A24028580884448a5397872046a019649b084",
+   "symbol": "USDT",
+   "decimals": 6
+  },
+  "newToken": {
+   "address": "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
+   "symbol": "USDT.e",
+   "decimals": 6
+  },
+  "migrator": "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xc7198437980c041c805A1EDcbA50c1Ce5db95118"
+   },
+   {
+    "type": "call",
+    "to": "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0xde3A24028580884448a5397872046a019649b084",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367414,
+   "holderUsed": "0xEa052bF0b879834A8C9D0f1cCAcbD87D9d932303",
+   "simulatedIn": "1000000000",
+   "simulatedOut": "1000000000",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-weth-to-wethe",
+  "name": "ETH (AEB) → WETH.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0xf20d962a6c8f70c731bd838a3a388D7d48fA6e15",
+   "symbol": "ETH",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+   "symbol": "WETH.e",
+   "decimals": 18
+  },
+  "migrator": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB"
+   },
+   {
+    "type": "call",
+    "to": "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0xf20d962a6c8f70c731bd838a3a388D7d48fA6e15",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367432,
+   "holderUsed": "0xb9CB3c2AB977faCBc52Ab180F43c2648681D4662",
+   "simulatedIn": "1000000000000000000",
+   "simulatedOut": "1000000000000000000",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-wbtc-to-wbtce",
+  "name": "WBTC (AEB) → WBTC.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0x408D4cD0ADb7ceBd1F1A1C33A0Ba2098E1295bAB",
+   "symbol": "WBTC",
+   "decimals": 8
+  },
+  "newToken": {
+   "address": "0x50b7545627a5162F82A992c33b87aDc75187B218",
+   "symbol": "WBTC.e",
+   "decimals": 8
+  },
+  "migrator": "0x50b7545627a5162F82A992c33b87aDc75187B218",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x50b7545627a5162F82A992c33b87aDc75187B218"
+   },
+   {
+    "type": "call",
+    "to": "0x50b7545627a5162F82A992c33b87aDc75187B218",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0x408D4cD0ADb7ceBd1F1A1C33A0Ba2098E1295bAB",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367442,
+   "holderUsed": "0x7371EB3504f74f058a1dC2E12D768d276C9688E0",
+   "simulatedIn": "132931",
+   "simulatedOut": "132931",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-link-to-linke",
+  "name": "LINK (AEB) → LINK.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0xB3fe5374F67D7a22886A0eE082b2E2f9d2651651",
+   "symbol": "LINK",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x5947BB275c521040051D82396192181b413227A3",
+   "symbol": "LINK.e",
+   "decimals": 18
+  },
+  "migrator": "0x5947BB275c521040051D82396192181b413227A3",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x5947BB275c521040051D82396192181b413227A3"
+   },
+   {
+    "type": "call",
+    "to": "0x5947BB275c521040051D82396192181b413227A3",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0xB3fe5374F67D7a22886A0eE082b2E2f9d2651651",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367456,
+   "holderUsed": "0x863A3bD6f28f4F4A131c88708dA91076fDC362C7",
+   "simulatedIn": "14255226761774400",
+   "simulatedOut": "14255226761774400",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-aave-to-aavee",
+  "name": "AAVE (AEB) → AAVE.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0x8cE2Dee54bB9921a2AE0A63dBb2DF8eD88B91dD9",
+   "symbol": "AAVE",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x63a72806098Bd3D9520cC43356dD78afe5D386D9",
+   "symbol": "AAVE.e",
+   "decimals": 18
+  },
+  "migrator": "0x63a72806098Bd3D9520cC43356dD78afe5D386D9",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x63a72806098Bd3D9520cC43356dD78afe5D386D9"
+   },
+   {
+    "type": "call",
+    "to": "0x63a72806098Bd3D9520cC43356dD78afe5D386D9",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0x8cE2Dee54bB9921a2AE0A63dBb2DF8eD88B91dD9",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367462,
+   "holderUsed": "0x808cE8deC9E10beD8d0892aCEEf9F1B8ec2F52Bd",
+   "simulatedIn": "2010000000000000",
+   "simulatedOut": "2010000000000000",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-sushi-to-sushie",
+  "name": "SUSHI (AEB) → SUSHI.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0x39cf1BD5f15fb22eC3D9Ff86b0727aFc203427cc",
+   "symbol": "SUSHI",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x37B608519F91f70F2EeB0e5Ed9AF4061722e4F76",
+   "symbol": "SUSHI.e",
+   "decimals": 18
+  },
+  "migrator": "0x37B608519F91f70F2EeB0e5Ed9AF4061722e4F76",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x37B608519F91f70F2EeB0e5Ed9AF4061722e4F76"
+   },
+   {
+    "type": "call",
+    "to": "0x37B608519F91f70F2EeB0e5Ed9AF4061722e4F76",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0x39cf1BD5f15fb22eC3D9Ff86b0727aFc203427cc",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367477,
+   "holderUsed": "0x9022BC8774AebC343De33423570b5285981bd9E1",
+   "simulatedIn": "2000000000000000000",
+   "simulatedOut": "2000000000000000000",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-uni-to-unie",
+  "name": "UNI (AEB) → UNI.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0xf39f9671906d8630812f9d9863bBEf5D523c84Ab",
+   "symbol": "UNI",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x8eBAf22B6F053dFFeaf46f4Dd9eFA95D89ba8580",
+   "symbol": "UNI.e",
+   "decimals": 18
+  },
+  "migrator": "0x8eBAf22B6F053dFFeaf46f4Dd9eFA95D89ba8580",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x8eBAf22B6F053dFFeaf46f4Dd9eFA95D89ba8580"
+   },
+   {
+    "type": "call",
+    "to": "0x8eBAf22B6F053dFFeaf46f4Dd9eFA95D89ba8580",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0xf39f9671906d8630812f9d9863bBEf5D523c84Ab",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367498,
+   "holderUsed": "0x6a76274F50711486Ab0799e75150130746ab542B",
+   "simulatedIn": "2000000000000000000",
+   "simulatedOut": "2000000000000000000",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-yfi-to-yfie",
+  "name": "YFI (AEB) → YFI.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0x99519AcB025a0e0d44c3875A4BbF03af65933627",
+   "symbol": "YFI",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x9eAaC1B23d935365bD7b542Fe22cEEe2922f52dc",
+   "symbol": "YFI.e",
+   "decimals": 18
+  },
+  "migrator": "0x9eAaC1B23d935365bD7b542Fe22cEEe2922f52dc",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x9eAaC1B23d935365bD7b542Fe22cEEe2922f52dc"
+   },
+   {
+    "type": "call",
+    "to": "0x9eAaC1B23d935365bD7b542Fe22cEEe2922f52dc",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0x99519AcB025a0e0d44c3875A4BbF03af65933627",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367509,
+   "holderUsed": "0x0a30cE46a7D9bB46F171dA6bD8f1515b72De846f",
+   "simulatedIn": "100000000000000",
+   "simulatedOut": "100000000000000",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-1inch-to-1inche",
+  "name": "1INCH (AEB) → 1INCH.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0xE54EB2C3009Fa411BF24fB017F9725b973CE36F0",
+   "symbol": "1INCH",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xd501281565bf7789224523144Fe5D98e8B28f267",
+   "symbol": "1INCH.e",
+   "decimals": 18
+  },
+  "migrator": "0xd501281565bf7789224523144Fe5D98e8B28f267",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xd501281565bf7789224523144Fe5D98e8B28f267"
+   },
+   {
+    "type": "call",
+    "to": "0xd501281565bf7789224523144Fe5D98e8B28f267",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0xE54EB2C3009Fa411BF24fB017F9725b973CE36F0",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367528,
+   "holderUsed": "0x1c8AeB702C81EC0da67A279908EE247CDd2A210f",
+   "simulatedIn": "3856474567246627894",
+   "simulatedOut": "3856474567246627894",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-bat-to-bate",
+  "name": "BAT (AEB) → BAT.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0x6b329326E0F6b95B93b52229b213334278D6f277",
+   "symbol": "BAT",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x98443B96EA4b0858FDF3219Cd13e98C7A4690588",
+   "symbol": "BAT.e",
+   "decimals": 18
+  },
+  "migrator": "0x98443B96EA4b0858FDF3219Cd13e98C7A4690588",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x98443B96EA4b0858FDF3219Cd13e98C7A4690588"
+   },
+   {
+    "type": "call",
+    "to": "0x98443B96EA4b0858FDF3219Cd13e98C7A4690588",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0x6b329326E0F6b95B93b52229b213334278D6f277",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367541,
+   "holderUsed": "0x15965EF4652E57BF527dB460a9891C4D891E716a",
+   "simulatedIn": "31226550169319199178",
+   "simulatedOut": "31226550169319199178",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-busd-to-busde",
+  "name": "BUSD (AEB) → BUSD.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0xaEb044650278731Ef3DC244692AB9F64C78FfaEA",
+   "symbol": "BUSD",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x19860CCB0A68fd4213aB9D8266F7bBf05A8dDe98",
+   "symbol": "BUSD.e",
+   "decimals": 18
+  },
+  "migrator": "0x19860CCB0A68fd4213aB9D8266F7bBf05A8dDe98",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x19860CCB0A68fd4213aB9D8266F7bBf05A8dDe98"
+   },
+   {
+    "type": "call",
+    "to": "0x19860CCB0A68fd4213aB9D8266F7bBf05A8dDe98",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0xaEb044650278731Ef3DC244692AB9F64C78FfaEA",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367567,
+   "holderUsed": "0x3B7631F8E3428dEaB77634BF799b622ce412e9Ea",
+   "simulatedIn": "117629350169400591046",
+   "simulatedOut": "117629350169400591046",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-comp-to-compe",
+  "name": "COMP (AEB) → COMP.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0x53CEedB4f6f277edfDDEdB91373B044FE6AB5958",
+   "symbol": "COMP",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xc3048E19E76CB9a3Aa9d77D8C03c29Fc906e2437",
+   "symbol": "COMP.e",
+   "decimals": 18
+  },
+  "migrator": "0xc3048E19E76CB9a3Aa9d77D8C03c29Fc906e2437",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xc3048E19E76CB9a3Aa9d77D8C03c29Fc906e2437"
+   },
+   {
+    "type": "call",
+    "to": "0xc3048E19E76CB9a3Aa9d77D8C03c29Fc906e2437",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0x53CEedB4f6f277edfDDEdB91373B044FE6AB5958",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367569,
+   "holderUsed": "0xd33a97De61e09d26937dd8Cf5F7Fb511B82Ddcc6",
+   "simulatedIn": "28225266836300",
+   "simulatedOut": "28225266836300",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null). Only dust (~0.000028 COMP) remains in the AEB token."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-grt-to-grte",
+  "name": "GRT (AEB) → GRT.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0x46C54b16aF7747067f412c78eBaDaE203a26aDa0",
+   "symbol": "GRT",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x8a0cAc13c7da965a312f08ea4229c37869e85cB9",
+   "symbol": "GRT.e",
+   "decimals": 18
+  },
+  "migrator": "0x8a0cAc13c7da965a312f08ea4229c37869e85cB9",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x8a0cAc13c7da965a312f08ea4229c37869e85cB9"
+   },
+   {
+    "type": "call",
+    "to": "0x8a0cAc13c7da965a312f08ea4229c37869e85cB9",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0x46C54b16aF7747067f412c78eBaDaE203a26aDa0",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367584,
+   "holderUsed": "0xb963Bd0FDae4080BfD27eCa90168336BA488e548",
+   "simulatedIn": "91764078671992451817",
+   "simulatedOut": "91764078671992451817",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-snx-to-snxe",
+  "name": "SNX (AEB) → SNX.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0x68e44C4619db40ae1a0725e77C02587bC8fBD1c9",
+   "symbol": "SNX",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xBeC243C995409E6520D7C41E404da5dEba4b209B",
+   "symbol": "SNX.e",
+   "decimals": 18
+  },
+  "migrator": "0xBeC243C995409E6520D7C41E404da5dEba4b209B",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xBeC243C995409E6520D7C41E404da5dEba4b209B"
+   },
+   {
+    "type": "call",
+    "to": "0xBeC243C995409E6520D7C41E404da5dEba4b209B",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0x68e44C4619db40ae1a0725e77C02587bC8fBD1c9",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367594,
+   "holderUsed": "0x5E09f0C5de2dE753EC8F6fbF4314B56379eF45E5",
+   "simulatedIn": "5000000000000000000",
+   "simulatedOut": "5000000000000000000",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "avalanche-aeb-uma-to-umae",
+  "name": "UMA (AEB) → UMA.e",
+  "project": "Avalanche Bridge",
+  "chainId": 43114,
+  "oldToken": {
+   "address": "0xC84d7bfF2555955b44BDF6A307180810412D751B",
+   "symbol": "UMA",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x3Bd2B1c7ED8D396dbb98DED3aEbb41350a5b2339",
+   "symbol": "UMA.e",
+   "decimals": 18
+  },
+  "migrator": "0x3Bd2B1c7ED8D396dbb98DED3aEbb41350a5b2339",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x3Bd2B1c7ED8D396dbb98DED3aEbb41350a5b2339"
+   },
+   {
+    "type": "call",
+    "to": "0x3Bd2B1c7ED8D396dbb98DED3aEbb41350a5b2339",
+    "signature": "swap(address,uint256)",
+    "args": [
+     "0xC84d7bfF2555955b44BDF6A307180810412D751B",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/ava-labs/avalanche-bridge-resources/blob/main/avalanche_contract_address.json",
+   "https://medium.com/avalancheavax/the-avalanche-ethereum-bridge-what-you-need-to-know-b450d2ece03c",
+   "https://support.avax.network/en/articles/6092559-avalanche-bridge-faq"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 96367600,
+   "holderUsed": "0x7bB0F4314dB3a242B98D789b756e88C0C6d26042",
+   "simulatedIn": "383782487099999998614",
+   "simulatedOut": "383782487099999998614",
+   "method": "eth_call at a pinned block on api.avax.network (no eth_simulateV1/debug_traceCall on public Avalanche RPCs): holder's code overridden with a runner that executes old.approve(.e,amount) then .e.swap(old,amount) as the holder, then staticcalls both balanceOf; reverts are propagated. simulatedOut = new-token balance after − before; old balance after = 0.",
+   "notes": "Deprecated Avalanche-Ethereum Bridge (AEB) token → Avalanche Bridge (AB) '.e' token. Converter is the .e token itself: swap(oldToken, amount) burnFrom()s the AEB token (needs allowance to the .e contract) and mints the same amount 1:1, capped by swapSupply(oldToken) (≥ old totalSupply at check time). Pair enumerated from AddSwapToken events on the .e contract; .e address from ava-labs/avalanche-bridge-resources. bridge.avax.network/convert now redirects to core.app/bridge, so no confirmed live UI (officialUi null)."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "The old AEB token is burned and the same amount of the new .e token is minted 1:1 (Avalanche Bridge)."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "thales-to-over-optimism",
+  "name": "THALES → OVER",
+  "project": "Overtime (ex-Thales)",
+  "chainId": 10,
+  "oldToken": {
+   "address": "0x217D47011b23BB961eB6D93cA9945B7501a5BB11",
+   "symbol": "THALES",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xedF38688b27036816A50185cAA430D5479e1C63e",
+   "symbol": "OVER",
+   "decimals": 18
+  },
+  "migrator": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6"
+   },
+   {
+    "type": "call",
+    "to": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6",
+    "signature": "migrateThalesToOver(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": {
+   "to": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6",
+   "signature": "paused()",
+   "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "officialUi": "https://www.overtime.io",
+  "sources": [
+   "https://chainwire.org/2025/04/02/overtime-launches-over-token-and-full-account-abstraction-ux/",
+   "https://docs.overtime.io/"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 157529903,
+   "holderUsed": "0x19BeBE4d8C466d75De20EBEec726f274de264E0a",
+   "simulatedIn": "39921696268595145661175",
+   "simulatedOut": "39921696268595145661175",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation:false",
+   "notes": "ThalesToOverMigration: transferFrom THALES into contract, transfer same amount of OVER out; requires OVER balance ≥ amount (liquidity ~84.7k OVER at check time — larger holders may exceed it; frontend should check overToken.balanceOf(migrator)). No deadline in contract; owner can withdraw/pause. Recent migrateThalesToOver txs seen on Optimism (2026-09-28/29)."
+  },
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6"
+  }
+ },
+ {
+  "id": "thales-to-over-arbitrum",
+  "name": "THALES → OVER",
+  "project": "Overtime (ex-Thales)",
+  "chainId": 42161,
+  "oldToken": {
+   "address": "0xE85B662Fe97e8562f4099d8A1d5A92D4B453bF30",
+   "symbol": "THALES",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x5829D6FE7528bc8E92c4e81CC8F20a528820B51a",
+   "symbol": "OVER",
+   "decimals": 18
+  },
+  "migrator": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8"
+   },
+   {
+    "type": "call",
+    "to": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8",
+    "signature": "migrateThalesToOver(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": {
+   "to": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8",
+   "signature": "paused()",
+   "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "officialUi": "https://www.overtime.io",
+  "sources": [
+   "https://chainwire.org/2025/04/02/overtime-launches-over-token-and-full-account-abstraction-ux/",
+   "https://docs.overtime.io/"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 509930801,
+   "holderUsed": "0x19BeBE4d8C466d75De20EBEec726f274de264E0a",
+   "simulatedIn": "67966901562598687339095",
+   "simulatedOut": "67966901562598687339095",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation:false",
+   "notes": "ThalesToOverMigration: transferFrom THALES into contract, transfer same amount of OVER out; requires OVER balance ≥ amount (liquidity ~320.5k OVER at check time — larger holders may exceed it; frontend should check overToken.balanceOf(migrator)). No deadline in contract; owner can withdraw/pause. Recent migrateThalesToOver txs seen on Optimism (2026-09-28/29). OVER address taken from the migrator's overToken() (Arbitrum implementation verified on Blockscout as ThalesToOverMigration); not independently listed in Overtime docs."
+  },
+  "warnings": [],
+  "payoutReserve": {
+   "holder": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8"
+  }
+ },
+ {
+  "id": "thales-to-over-base",
+  "name": "THALES → OVER",
+  "project": "Overtime (ex-Thales)",
+  "chainId": 8453,
+  "oldToken": {
+   "address": "0xf34e0cff046e154CAfCae502C7541b9E5FD8C249",
+   "symbol": "THALES",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x7750C092e284e2c7366f50C8306F43c7EB2e82a2",
+   "symbol": "OVER",
+   "decimals": 18
+  },
+  "migrator": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D"
+   },
+   {
+    "type": "call",
+    "to": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D",
+    "signature": "migrateThalesToOver(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": {
+   "to": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D",
+   "signature": "paused()",
+   "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "officialUi": "https://www.overtime.io",
+  "sources": [
+   "https://chainwire.org/2025/04/02/overtime-launches-over-token-and-full-account-abstraction-ux/",
+   "https://docs.overtime.io/"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 51934782,
+   "holderUsed": "0xEBEF1a7dF33D510278B70aAb5b086B75188FFf52",
+   "simulatedIn": "23995112929600000000000",
+   "simulatedOut": "23995112929600000000000",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation:false",
+   "notes": "ThalesToOverMigration: transferFrom THALES into contract, transfer same amount of OVER out; requires OVER balance ≥ amount (liquidity ~139.7k OVER at check time — larger holders may exceed it; frontend should check overToken.balanceOf(migrator)). No deadline in contract; owner can withdraw/pause. Recent migrateThalesToOver txs seen on Optimism (2026-09-28/29). Migrator found as a THALES-holding proxy exposing thalesToken()/overToken(); Base implementation verified on Blockscout as ThalesToOverMigration (0xA67A7A3d0C3166feEA63944f70870a7C115a5516), but the proxy→implementation link could not be read from a standard slot. OVER address from overToken()."
+  },
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+   },
+   {
+    "level": "info",
+    "text": "The Base migrator was identified from its on-chain behaviour; no official proxy link could be read."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D"
+  }
+ },
+ {
+  "id": "kwenta-to-snx-optimism",
+  "name": "KWENTA → SNX",
+  "project": "Synthetix / Kwenta",
+  "chainId": 10,
+  "oldToken": {
+   "address": "0x920Cf626a271321C151D027030D5d08aF699456b",
+   "symbol": "KWENTA",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4",
+   "symbol": "SNX",
+   "decimals": 18
+  },
+  "migrator": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+  "ratio": {
+   "num": "17",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8"
+   },
+   {
+    "type": "call",
+    "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+    "signature": "lockAndConvert()",
+    "args": []
+   },
+   {
+    "type": "call",
+    "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+    "signature": "vest()",
+    "args": []
+   }
+  ],
+  "status": "open",
+  "deadline": "2026-11-15",
+  "statusCheck": null,
+  "officialUi": "https://kwenta-migration.synthetix.io/",
+  "sources": [
+   "https://sips.synthetix.io/sips/sip-411/",
+   "https://kwenta-migration.synthetix.io/"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 157530135,
+   "holderUsed": "0xDF90C9B995a3b10A5b8570a47101e6c6a29eb945",
+   "simulatedIn": "818757873713681594824",
+   "simulatedOut": "13918883853132587112008",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation:false",
+   "notes": "Conversion contract (address from the official migration site bundle; verified source 'Conversion'). lockAndConvert() takes the caller's ENTIRE KWENTA balance (no amount arg; approve ≥ balance). Lock (90d) and linear vest (270d) from 2024-11-15 have fully elapsed, so vest() pays the full 17× SNX immediately. Deadline: withdrawSNX() lets the Synthetix treasury sweep all SNX from VESTING_START_TIME+WITHDRAW_START = 2026-11-15; after that conversions yield nothing. SNX liquidity ~1.06M at check time."
+  },
+  "warnings": [
+   {
+    "level": "warn",
+    "text": "Converts your whole KWENTA balance at once — no partial swaps. Hard deadline 2026-11-15."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8"
+  }
+ },
+ {
+  "id": "velo-v1-to-v2-optimism",
+  "name": "VELO v1 → VELO v2",
+  "project": "Velodrome",
+  "chainId": 10,
+  "oldToken": {
+   "address": "0x3c8B650257cFb5f272f799F5e2b4e65093a11a05",
+   "symbol": "VELO",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db",
+   "symbol": "VELO",
+   "decimals": 18
+  },
+  "migrator": "0x5aeE5F0E6C2055EbD776DB25F48f6c9A68ABcdaE",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x5aeE5F0E6C2055EbD776DB25F48f6c9A68ABcdaE"
+   },
+   {
+    "type": "call",
+    "to": "0x5aeE5F0E6C2055EbD776DB25F48f6c9A68ABcdaE",
+    "signature": "convertVELO(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": "https://velodrome.finance",
+  "sources": [
+   "https://paragraph.com/@velodrome/v2",
+   "https://github.com/velodrome-finance/contracts/tree/v2-optimism"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 157530222,
+   "holderUsed": "0x67d538eab0d612CEd08D678f972856b35A5CEf7D",
+   "simulatedIn": "1055573148844188854616804",
+   "simulatedOut": "1055573148844188854616804",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation:false",
+   "notes": "SinkManager address read on-chain from VELO v2 sinkManager(); PoolFactory v2 sinkConverter() = 0x585Af0b397AC42dbeF7f18395426BF878634f18D (router-facing 'fake pool'). convertVELO locks v1 VELO into the SinkManager's v1 veNFT and mints v2 VELO 1:1 (no liquidity cap, no deadline in code). Both tokens use symbol 'VELO'. v1 veNFTs have a separate convertVe(tokenId) path not covered here."
+  },
+  "warnings": [],
+  "payoutReserve": null
+ },
+ {
+  "id": "eps-to-epx-bsc",
+  "name": "EPS → EPX",
+  "project": "Ellipsis Finance",
+  "chainId": 56,
+  "oldToken": {
+   "address": "0xA7f552078dcC247C2684336020c03648500C6d9F",
+   "symbol": "EPS",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xAf41054C1487b0e5E2B9250C0332eCBCe6CE9d71",
+   "symbol": "EPX",
+   "decimals": 18
+  },
+  "migrator": "0xAf41054C1487b0e5E2B9250C0332eCBCe6CE9d71",
+  "ratio": {
+   "num": "88",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xAf41054C1487b0e5E2B9250C0332eCBCe6CE9d71"
+   },
+   {
+    "type": "call",
+    "to": "0xAf41054C1487b0e5E2B9250C0332eCBCe6CE9d71",
+    "signature": "migrate(address,uint256)",
+    "args": [
+     "$user",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://docs.ellipsis.finance/the-epx-token/migrating-eps-to-epx",
+   "https://docs.ellipsis.finance/dev/deployment-links"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 124660248,
+   "holderUsed": "0x631Fc1EA2270e98fbD9D92658eCe0F5a269Aa161",
+   "simulatedIn": "31754188527643516103",
+   "simulatedOut": "2794368590432629417064",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation:false",
+   "notes": "Migration is built into the EPX token: migrate(receiver, amount) burns EPS and mints 88× EPX (oldToken()/migrationRatio()=88 read on-chain). Docs: 'The migration contract will never close.' Official frontend ellipsis.finance/migration currently returns 'DEPLOYMENT_DISABLED' (officialUi null). Holder used is an EOA found by probing known BSC addresses (likely an exchange hot wallet); public BSC RPCs blocked historical log scans."
+  },
+  "warnings": [
+   {
+    "level": "warn",
+    "text": "The official site is offline, but the contract still works."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "vcow-to-cow-gnosis",
+  "name": "vCOW → COW",
+  "project": "CoW DAO",
+  "chainId": 100,
+  "oldToken": {
+   "address": "0xc20C9C13E853fc64d054b73fF21d3636B2d97eaB",
+   "symbol": "vCOW",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x177127622c4A00F3d409B75571e12cB3c8973d3c",
+   "symbol": "COW",
+   "decimals": 18
+  },
+  "migrator": "0xc20C9C13E853fc64d054b73fF21d3636B2d97eaB",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "call",
+    "to": "0xc20C9C13E853fc64d054b73fF21d3636B2d97eaB",
+    "signature": "swapAll()",
+    "args": []
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": "https://swap.cow.fi/#/account",
+  "sources": [
+   "https://docs.cow.fi/governance/token",
+   "https://github.com/cowprotocol/token"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 48494248,
+   "holderUsed": "0x424a46612794dbb8000194937834250Dc723fFa5",
+   "simulatedIn": "103976681392959313429",
+   "simulatedOut": "103976681392959313429",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation:false",
+   "notes": "Non-transferable virtual COW from the 2022 airdrop; the 4-year vesting (from 2022-02-11) has ended, so swapAll() burns the full vCOW balance and transfers COW 1:1. No approval needed. COW is paid from the vCOW contract's balance (~4.08M COW vs ~5.70M vCOW supply at check time) — liquidity may not cover every holder. Addresses from CoW docs; holder found via vCOW Transfer (claim) logs."
+  },
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0xc20c9c13e853fc64d054b73ff21d3636b2d97eab"
+  }
+ }
+]

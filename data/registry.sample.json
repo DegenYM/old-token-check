@@ -1,0 +1,34 @@
+[
+  {
+    "id": "matic-to-pol",
+    "name": "MATIC → POL",
+    "project": "Polygon",
+    "chainId": 1,
+    "oldToken": { "address": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0", "symbol": "MATIC", "decimals": 18 },
+    "newToken": { "address": "0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6", "symbol": "POL", "decimals": 18 },
+    "migrator": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e",
+    "ratio": { "num": "1", "den": "1" },
+    "steps": [
+      { "type": "approve", "token": "old", "spender": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e" },
+      { "type": "call", "to": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e", "signature": "migrate(uint256)", "args": ["$amount"], "argNames": ["amount"] }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://portal.polygon.technology/pol-upgrade",
+    "sources": [
+      "https://polygon.technology/blog/save-the-date-matic-pol-migration-coming-september-4th-everything-you-need-to-know",
+      "https://github.com/0xPolygon/pol-token",
+      "https://etherscan.io/address/0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e"
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 26080705,
+      "holderUsed": "0x39c696CE999f7C9Ad4d1Ac41bD204FA136f09AAa",
+      "simulatedIn": "5757998462354434495659267",
+      "simulatedOut": "5757998462354434495659267",
+      "method": "eth_simulateV1 approve+migrate(uint256) from holder, traceTransfers (frontend dev sample)",
+      "notes": "DEVELOPMENT SAMPLE, used only when no data/registry.*.json loads. Migrator is an EIP-1967 proxy; matic() returns 0x7D1A…eBB0 and polygon() returns 0x455e…C3F6 on-chain."
+    }
+  }
+]

@@ -1,0 +1,14 @@
+.DS_Store
+.claude/
+.env
+.env.*
+.impeccable/
+.impeccable/review/
+.wrangler/
+dist/
+node_modules/
+
+# personal / stale files copied in from an earlier session: never publish
+exit_proof.txt
+linea_claim_etherscan.txt
+migration-checker/

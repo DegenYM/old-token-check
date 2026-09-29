@@ -1,0 +1,106 @@
+[
+  {
+    "id": "ftm-to-s-opera-upgrade",
+    "reason": "Open (OperaBridge 0x3561607590e28e0848ba3B67074C676D6D1C9953 on Fantom Opera: paused()=false, min 1 FTM, fee 0.1 FTM; reverse direction paused on Sonic) but it is a cross-chain bridge: native FTM is deposited on Opera and S is delivered on Sonic after validator-signed resolve(). Old asset is native (no ERC-20) and the output cannot be simulated on one chain — needs a special 'bridge upgrade' entry type."
+  },
+  {
+    "id": "matic-to-pol-polygon-native",
+    "reason": "Polygon PoS gas token changed MATIC→POL automatically in place (native 0x…1010); no user action or converter."
+  },
+  {
+    "id": "usdce-to-usdc-polygon",
+    "reason": "No official on-chain converter for bridged USDC.e → native USDC; DEX swap only."
+  },
+  {
+    "id": "usdce-to-usdc-arbitrum",
+    "reason": "No official on-chain converter for bridged USDC.e → native USDC; DEX swap only."
+  },
+  {
+    "id": "usdce-to-usdc-optimism",
+    "reason": "No official on-chain converter for bridged USDC.e → native USDC; DEX swap only."
+  },
+  {
+    "id": "usdce-to-usdc-avalanche",
+    "reason": "No official on-chain converter for USDC.e → native USDC; DEX swap only."
+  },
+  {
+    "id": "usdbc-to-usdc-base",
+    "reason": "No official on-chain converter for USDbC → native USDC; DEX swap only."
+  },
+  {
+    "id": "usdt-to-usdt0-optimism",
+    "reason": "No official 1:1 converter found for bridged USDT → USDT0 on OP Mainnet; swaps go via DEXs/bridges."
+  },
+  {
+    "id": "bit-to-mnt-mantle",
+    "reason": "BIT→MNT conversion exists only on Ethereum L1 (other agent's scope); Mantle L2 native BIT became MNT automatically."
+  },
+  {
+    "id": "stake-to-gno-gnosis",
+    "reason": "GIP-16 STAKE→GNO swap window closed in 2022; forum requests to reopen it were never actioned."
+  },
+  {
+    "id": "rdnt-v1-to-v2-arbitrum",
+    "reason": "Radiant docs: v1→v2 migration wizard deprecated and no longer funded (v1 sunset 2024-10-30); only DEX swaps remain."
+  },
+  {
+    "id": "dpx-to-syk-arbitrum",
+    "reason": "SykMigrator 0x65b1ca92a017ecfa4060231dfc28f69264daa3b0 migrationPeriodEnd = 2025-10-01; recent migrate() calls revert."
+  },
+  {
+    "id": "rdpx-to-syk-arbitrum",
+    "reason": "Same SykMigrator as DPX; migration period ended 2025-10-01."
+  },
+  {
+    "id": "beets-opera-to-sonic",
+    "reason": "SonicBeetsMigrator 0x5f9a5CD0B77155AC1814EF6Cd9D82dA53d05E386: operaToSonicEnabled() = false (and sonicToOperaEnabled() = false)."
+  },
+  {
+    "id": "lyra-to-drv",
+    "reason": "LYRA→DRV was snapshot/airdrop based (snapshot 2024-05-08); no on-chain converter."
+  },
+  {
+    "id": "next-to-clear-l2s",
+    "reason": "Everclear: NEXT on L2s (Arbitrum, Optimism, Polygon, BNB, Gnosis) was upgraded to CLEAR automatically; manual migration only on Ethereum."
+  },
+  {
+    "id": "stg-to-zro-l2s",
+    "reason": "STG→ZRO conversion executes on Ethereum only (L2/BNB/Avalanche STG must first be transferred to Ethereum; whole-balance only; deadline 2026-12-15). Hand off to the Ethereum agent."
+  },
+  {
+    "id": "wormhole-well-to-well-base",
+    "reason": "Base Wormhole-WELL → native WELL requires a Wormhole round trip via Moonbeam; no same-chain converter to simulate."
+  },
+  {
+    "id": "well-to-xwell-moonbeam",
+    "reason": "Moonbeam WELL↔xWELL is a reversible xERC20 lockbox wrap, not a deprecation migration."
+  },
+  {
+    "id": "dg-classic-to-dg-polygon",
+    "reason": "DG goLight converter exists only on Ethereum; Polygon DG tokens are plain PoS-bridged UChildERC20s with no conversion function."
+  },
+  {
+    "id": "vrt-to-xvs-bsc",
+    "reason": "Venus VRT swap could only be initialised until end of March 2023; VRT is deprecated and gone from current docs (not re-verified on-chain)."
+  },
+  {
+    "id": "gal-to-g-bsc",
+    "reason": "Unverified: official portal (g.xyz/GAL-G-Portal) now 404s and the BNB Chain migrator address could not be found in official sources; public BSC RPCs blocked log scans."
+  },
+  {
+    "id": "mute-to-koi-zksync",
+    "reason": "Official MUTE→KOI deadline was 2024-06-01 and no converter contract could be identified on zkSync Era."
+  },
+  {
+    "id": "avalanche-aeb-mkr-to-mkre",
+    "reason": "AEB MKR totalSupply and swapSupply are both 0; nothing left to convert."
+  },
+  {
+    "id": "avalanche-aeb-zrx-to-zrxe",
+    "reason": "AEB ZRX totalSupply and swapSupply are both 0; nothing left to convert."
+  },
+  {
+    "id": "multichain-anytoken-redemptions",
+    "reason": "Multichain collapsed in 2023; no official contract still redeems anyTokens."
+  }
+]

@@ -1,0 +1,94 @@
+[
+  {
+    "id": "lend-to-aave",
+    "reason": "LendToAaveMigrator 0x317625234562B1526Ea2FaC4030Ea499C5291de4 upgraded to revision 3: migrateFromLEND() always reverts MigrationClosed() (0x012d817c); remaining AAVE swept to Ecosystem Reserve (migrator AAVE balance 0). Simulated at block 26080687."
+  },
+  {
+    "id": "mkr-to-sky-legacy-converter",
+    "reason": "Original MkrSky converter 0xBDcFCA946b6CDd965f99a839e4435Bcdc1bc470B reverts 'Sky/not-authorized' (SKY minting rights revoked in the 2025 upgrade). Use accepted entry mkr-to-sky (0xA1Ea1bA18E88C381C724a75F23a130420C403f9a) instead."
+  },
+  {
+    "id": "dai-to-usds",
+    "reason": "DaiUsds 0x3225737a9Bbb6473CB4a45b7244ACa2BeFdB276A is a two-way 1:1 converter (usdsToDai exists); DAI is not a deprecated/legacy token, so not a one-way migration. Out of scope for a forgotten-migration checker."
+  },
+  {
+    "id": "sai-to-dai",
+    "reason": "ScdMcdMigration 0xc73e0383F3Aff3215E6f04B0331D58CeCf0Ab849 swapSaiToDai() reverts 'AuthGemJoin/not-live' (SCD shut down May 2020). SAI holders should use accepted entry sai-to-weth (SaiTap.cash) instead."
+  },
+  {
+    "id": "rep-v1-to-repv2",
+    "reason": "REPv2.migrateFromLegacyReputationToken() still succeeds 1:1 (simulated block 26080696), BUT the REPv2 genesis universe forked in 2026 (isForking()=true, fork ended 2026-08-03 01:00 UTC, winning child universe 0x281171519fB41540528398d8eD3Ea257F0f32a9f / token REPv2_Yes_1 0xCf6A0A7826fa124B7705d6f3c675eAD76f1e540D). Continuing REPv2 -> REPv2_Yes_1 via migrateOutByPayout now reverts, so migrating legacy REP only yields obsolete genesis REPv2. Not recommendable; flag REP v1 holders as 'migration window missed'."
+  },
+  {
+    "id": "rep-v0-to-rep-v1",
+    "reason": "REP v0 0xE94327D07Fc17907b4DB788E5aDf2ed424adDff6 is paused; the 2017 migration copied balances into REP v1 by the Augur team (no user-callable migrator). Moot anyway given rep-v1-to-repv2 above. (Balance-copy mechanism from memory, not re-verified.)"
+  },
+  {
+    "id": "agix-to-fet",
+    "reason": "AGIX token 0x5B7533812759B45C2B44C19e320ba2cD2681b542 is paused (paused()=true); migrator 0x33784Ed688e507A2086B4E8793E126c8deE9e863 migrateTokens() reverts 'ERC20Pausable: token transfer while paused', and the migrator holds only ~0.017 FET. Also: a widely-copied 'ASI migration contract' 0x695B704DbBc467517CEc52596C0179704313F2B9 is an EOA with no code — do not use."
+  },
+  {
+    "id": "ant-v2-to-eth",
+    "reason": "Aragon ANT redemption 0x80fBB6122b8E023988e640dB1ae348a10A7933E8: endingTimestamp 2024-11-02 23:59 UTC, contract ETH balance 0; redeem() reverts (0xdd7b4809)."
+  },
+  {
+    "id": "npxs-to-pundix",
+    "reason": "Pundi X SwapToken 0x5AE1b41D1598Ae6c3AD716eCf14f55cf301c3bD0: open()=false, swap() reverts 'swap not started'; holds 0 PUNDIX."
+  },
+  {
+    "id": "chsb-to-borg",
+    "reason": "SwissBorg ChsbToBorgMigrator proxy 0xaA854688caAB725fe17b7D21b46fDA5AF365985a: paused()=true, impl V2 migrate() hard-reverts 'MIGRATION_CLOSED'; BORG balance 0."
+  },
+  {
+    "id": "bit-to-mnt",
+    "reason": "MantleTokenMigrator 0xfFb94c81D9A283aB4373ab4Ba3534DC4FB8d1295: halted()=true, migrateBIT() reverts (0x16ffb99d), holds ~0 MNT. Window was 6 months from 2023-07-17."
+  },
+  {
+    "id": "mpl-to-syrup",
+    "reason": "Maple Migrator 0x9c9499edD0cd2dCBc3C9Dd5070bAf54777AD8F2C: active()=false, migrate() reverts 'M:M:INACTIVE'. Official deadline was 2025-04-30."
+  },
+  {
+    "id": "ohm-v1-to-gohm",
+    "reason": "OlympusTokenMigrator 0x184f3FAd8618a6F458C16bae63F70C426fE784B3 is defunded (gOHM balance ~4e-10); migrate() reverts TRANSFER_FAILED / 'ERC20: burn amount exceeds balance'. Olympus docs: replacement 'V1Migrator' policy is allowlist-gated, not permissionless — not simulatable generically."
+  },
+  {
+    "id": "rgt-to-tribe",
+    "reason": "Fei/Rari PegExchanger 0xc09BB5ECf865e6f69Fe62A43c27f036A426909f7: isExpired()=true (expiry 2022-08-01); exchange() reverts 'Redemption period is over'."
+  },
+  {
+    "id": "loom-legacy-to-loom",
+    "reason": "Loom TokenSwap 0x7711863244783348Ae78c2BDebb9802b297DCE56 not paused but holds only ~48.5 new LOOM; swap() for a real holder (29.48M LOOM) reverts 'ERC20: transfer amount exceeds balance'. Effectively defunded."
+  },
+  {
+    "id": "gro-redeem",
+    "reason": "Gro DAO RedemptionPool 0x204d9DE758217A39149767731a87Bcc32427b6ef: DEADLINE 2023-10-25; deposit() reverts (0x559895a3)."
+  },
+  {
+    "id": "rook-redeem",
+    "reason": "Rook ExchangeROOK 0x548Ba7f573806d415Edf410d30bE61C4396795fb: paused()=true, 0 USDC; exchange() reverts 'Pausable: paused'."
+  },
+  {
+    "id": "cqt-to-cxt",
+    "reason": "Covalent migrated CQT->CXT by airdrop/snapshot (July 2024); no user-callable migration contract exists on Ethereum."
+  },
+  {
+    "id": "lrc-legacy-to-lrc",
+    "reason": "Old LRC 0xEF68e7C694F40c8202821eDF525dE3782458639f -> LRC v2 0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD (May 2019): no user-callable migration contract found; LRC v2 has no swap function. Unverified — could not load Loopring's announcement."
+  },
+  {
+    "id": "rndr-to-render",
+    "reason": "Out of scope: RNDR (Ethereum) -> RENDER upgrade goes to Solana via the Render upgrade portal/bridge (cross-chain)."
+  },
+  {
+    "id": "ftm-to-s",
+    "reason": "Out of scope: FTM ERC-20 -> S is a cross-chain (Sonic) upgrade."
+  },
+  {
+    "id": "bnt-vbnt",
+    "reason": "Not a migration: vBNT is Bancor's governance/staking receipt, not a successor to a legacy token; no legacy BNT -> BNT migrator applies today."
+  },
+  {
+    "id": "bond-barnbridge",
+    "reason": "No official on-chain migration or redemption contract found for BarnBridge BOND."
+  }
+]

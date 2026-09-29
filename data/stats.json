@@ -1,0 +1,21 @@
+{
+ "unmigratedUsd": 360082954,
+ "paths": 44,
+ "chains": [
+  1,
+  10,
+  56,
+  100,
+  137,
+  8453,
+  42161,
+  43114
+ ],
+ "rejected": 49,
+ "unpriced": [
+  "eps-to-epx-bsc"
+ ],
+ "asOf": "2026-09-29",
+ "ethBlock": 26082528,
+ "method": "Per path: min(outstanding old supply x ratio, payout reserve) x DefiLlama price. Outstanding = totalSupply minus migrator and burn-address balances."
+}
