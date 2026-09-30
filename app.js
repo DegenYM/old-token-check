@@ -92,32 +92,16 @@ async function loadStats() {
 
 /* ------------------------------------------------------------- tip jar */
 
+/** A single quiet footer line; stays hidden until TIP_ADDRESS is set in config.js. */
 function renderTip() {
-  const card = $('#tip-card');
   const addr = TIP_ADDRESS && isAddress(TIP_ADDRESS) ? toChecksumAddress(TIP_ADDRESS) : null;
-  if (!addr) {
-    // No address configured yet: a visitor-facing note (the setup note lives in config.js).
-    // The nav link and the summary nudge stay hidden until there is somewhere to send tips.
-    $('#tip').dataset.state = 'closed';
-    $('.tip-how').hidden = true;
-    const nav = document.querySelector('.top nav a[href="#tip"]');
-    if (nav) nav.hidden = true;
-    card.innerHTML = `<p class="tip-unset"><strong>The coffee jar isn't open yet.</strong> Check back soon. The checker stays free either way.</p>`;
-    return;
-  }
-  card.innerHTML = `
-    <a class="qr" href="ethereum:${esc(addr)}" aria-label="Open tip address in a wallet app">${qrSvg(addr)}</a>
-    <div>
-      <p class="tip-addr-label">Coffee fund · any EVM chain</p>
-      ${TIP_ENS ? `<p class="tip-ens">${esc(TIP_ENS)}</p>` : ''}
-      <p class="tip-addr" id="tip-addr">${esc(addr)}</p>
-      <div class="tip-actions">
-        <button type="button" class="btn-soft copy-tip" data-copy="${esc(addr)}">Copy address</button>
-      </div>
-    </div>`;
+  if (!addr) return;
+  const el = $('#tip');
+  el.innerHTML = `Useful? Coffee fund, any EVM chain: <span class="tip-addr mono" id="tip-addr">${esc(TIP_ENS || addr)}</span>
+    <button type="button" class="copy" data-copy="${esc(addr)}">Copy</button>
+    <details class="tip-qr"><summary>QR</summary><a class="qr" href="ethereum:${esc(addr)}" aria-label="Open the coffee fund address in a wallet app">${qrSvg(addr)}</a></details>`;
+  el.hidden = false;
 }
-
-function tipsOpen() { return !!(TIP_ADDRESS && isAddress(TIP_ADDRESS)); }
 
 function qrSvg(text) {
   const qr = qrcode(0, 'M');
@@ -289,7 +273,7 @@ function renderSummary(all, users, prices) {
       ? `${all.length === 1 ? 'It can' : all.length === 2 ? 'Both can' : `All ${num(all.length)} can`} be migrated by you right now.`
       : `${num(ready.length)} can be migrated by you right now; ${num(blocked)} need${blocked === 1 ? 's' : ''} a closer look.`}
       Each one below has step-by-step instructions.</p>
-    ${ready.length && tipsOpen() ? '<p class="tip-nudge">Nice find. If it made your day, <a href="#tip">buy me a coffee</a>.</p>' : ''}`;
+`;
   if (ready.length) celebrate(el);
 }
 
