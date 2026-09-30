@@ -1368,7 +1368,7 @@
   "warnings": [
    {
     "level": "warn",
-    "text": "Converts your whole KWENTA balance at once — no partial swaps. Hard deadline 2026-11-15."
+    "text": "Converts your whole KWENTA balance at once — no partial swaps. Hard deadline Nov 15, 2026, 00:00 UTC."
    }
   ],
   "payoutReserve": {

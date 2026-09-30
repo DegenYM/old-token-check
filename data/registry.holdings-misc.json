@@ -627,7 +627,7 @@
     "warnings": [
       {
         "level": "warn",
-        "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
+        "text": "Hard deadline Nov 15, 2026, 00:00 UTC: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
       }
     ],
     "verification": {
@@ -737,7 +737,7 @@
     "warnings": [
       {
         "level": "warn",
-        "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
+        "text": "Hard deadline Nov 15, 2026, 00:00 UTC: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
       }
     ],
     "verification": {
@@ -875,7 +875,7 @@
     "warnings": [
       {
         "level": "warn",
-        "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
+        "text": "Hard deadline Nov 15, 2026, 00:00 UTC: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
       }
     ],
     "verification": {
@@ -1011,7 +1011,7 @@
     "warnings": [
       {
         "level": "warn",
-        "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
+        "text": "Hard deadline Nov 15, 2026, 00:00 UTC: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
       }
     ],
     "verification": {
@@ -1080,7 +1080,7 @@
     "warnings": [
       {
         "level": "warn",
-        "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX that hasn't been claimed. You already converted this KWENTA; this last step sends the SNX to your wallet."
+        "text": "Hard deadline Nov 15, 2026, 00:00 UTC: after that the Synthetix treasury can sweep the SNX that hasn't been claimed. You already converted this KWENTA; this last step sends the SNX to your wallet."
       }
     ],
     "verification": {

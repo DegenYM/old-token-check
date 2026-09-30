@@ -665,8 +665,11 @@ function rateText(ratio) {
 function deadlineNote(iso, simOk) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso));
   if (!m) return '';
-  const end = Date.UTC(+m[1], +m[2] - 1, +m[3], 23, 59, 59); // end of that day, UTC
-  const txt = `${m[1]}-${m[2]}-${m[3]}`;
+  // A full timestamp is used as-is; a bare date counts to the START of that day (UTC). Some
+  // deadlines are enforced on-chain at 00:00 UTC, so ending the countdown later would mislead.
+  const end = /T\d{2}:\d{2}/.test(String(iso)) ? Date.parse(iso) : Date.UTC(+m[1], +m[2] - 1, +m[3]);
+  if (!Number.isFinite(end)) return '';
+  const txt = fmtDate(end / 1000, true);
   const ms = end - Date.now();
   if (ms < 0) {
     return note(simOk ? 'warn' : 'danger', simOk
