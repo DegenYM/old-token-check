@@ -8,8 +8,9 @@
 
 - **Read-only.** The site has no wallet code at all. It never asks you to connect or sign anything. You send every transaction yourself, from your own wallet.
 - **Proven, not guessed.** For every balance it finds, it simulates the full migration (usually `approve` then the migrate call) from your address with your whole balance, using `eth_simulateV1` — or `eth_call` with a state override on chains whose public RPCs lack it. A result is only marked **Ready** when that simulation succeeds and you actually receive the new token.
-- **A verified list.** Each of the 44 paths in [`data/`](data) names the old token, the new one, the official migrator and the exact calls. Before listing, every path was simulated from a real holder and checked against official docs. The 49 candidates that failed (closed, paused, defunded, unverifiable) are in `data/rejected.*.json` and are never shown as claimable.
+- **A verified list.** Each of the 70 open paths in [`data/`](data) names the old token, the new one, the official migrator and the exact calls. Before listing, every path was simulated from a real holder and checked against official docs. The 49 candidates that failed (closed, paused, defunded, unverifiable) are in `data/rejected.*.json` and are never shown as claimable.
 - **Balances straight from the chain.** Explorer holder lists for old tokens are often stale, so balances are read with `balanceOf` through Multicall3.
+- **Staked and locked tokens too.** Old tokens often sit in a staking, vote-escrow, escrow or grant contract instead of the wallet: MKR in Maker's chiefs, vote proxies, vote delegates and LockStake; veOCEAN and Velodrome v1 veNFTs; staked or escrowed KWENTA; OGV lockups; KEEP stakes and grants; NU, KNC, RBN, dQUICK, TRIBE rewards. Each is described as a small read program (see [research/HOLDINGS.md](research/HOLDINGS.md)), and the full exit plus migration is simulated from your address. Locks that end in the future are simulated at their unlock date and shown as **Unlocks on &lt;date&gt;**.
 
 ## How it works
 

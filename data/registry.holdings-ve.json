@@ -4,19 +4,58 @@
     "name": "Locked OCEAN (veOCEAN) → FET (ASI)",
     "project": "Ocean Protocol / Artificial Superintelligence Alliance",
     "chainId": 1,
-    "oldToken": { "address": "0x967da4048cD07aB37855c090aAF366e4ce1b9F48", "symbol": "OCEAN", "decimals": 18 },
-    "newToken": { "address": "0xaea46A60368A7bD060eec7DF8CBa43b7EF41Ad85", "symbol": "FET", "decimals": 18 },
+    "oldToken": {
+      "address": "0x967da4048cD07aB37855c090aAF366e4ce1b9F48",
+      "symbol": "OCEAN",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xaea46A60368A7bD060eec7DF8CBa43b7EF41Ad85",
+      "symbol": "FET",
+      "decimals": 18
+    },
     "migrator": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
-    "ratio": { "num": "433226", "den": "1000000" },
+    "ratio": {
+      "num": "433226",
+      "den": "1000000"
+    },
     "holding": {
-      "contract": "0xE86Bf3B0D3a20444DE7c78932ACe6e5EfFE92379",
-      "signature": "locked(address)",
+      "reads": [
+        {
+          "call": "0xE86Bf3B0D3a20444DE7c78932ACe6e5EfFE92379",
+          "signature": "locked(address)",
+          "args": [
+            "$user"
+          ],
+          "out": {
+            "amount": "int256@0",
+            "unlock": 1
+          }
+        }
+      ],
       "label": "locked in veOCEAN"
     },
     "steps": [
-      { "type": "call", "to": "0xE86Bf3B0D3a20444DE7c78932ACe6e5EfFE92379", "signature": "withdraw()", "args": [], "contractLabel": "veOCEAN (Ocean Protocol vote-escrow)" },
-      { "type": "approve", "token": "old", "spender": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663" },
-      { "type": "call", "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663", "signature": "migrateTokens(uint256)", "args": ["$amount"] }
+      {
+        "type": "call",
+        "to": "0xE86Bf3B0D3a20444DE7c78932ACe6e5EfFE92379",
+        "signature": "withdraw()",
+        "args": [],
+        "contractLabel": "veOCEAN (Ocean Protocol vote-escrow)"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663"
+      },
+      {
+        "type": "call",
+        "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+        "signature": "migrateTokens(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
     ],
     "status": "open",
     "deadline": null,
@@ -25,7 +64,9 @@
       "signature": "paused()",
       "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
     },
-    "payoutReserve": { "holder": "0x664d2f142cbc89ee9ed20c8e4eeb66c63b9ce663" },
+    "payoutReserve": {
+      "holder": "0x664d2f142cbc89ee9ed20c8e4eeb66c63b9ce663"
+    },
     "officialUi": "https://df.oceandao.org",
     "sources": [
       "https://docs.oceanprotocol.com/data-farming",
@@ -34,8 +75,8 @@
     ],
     "warnings": [
       {
-        "level": "warn",
-        "text": "veOCEAN was retired on 3 May 2024, but locks were not released early: each lock unlocks on its own end date (most end in Dec 2027 to Feb 2028). If your lock hasn't ended yet, this check fails with \"The lock didn't expire\". Nothing is wrong; come back after your unlock date."
+        "level": "info",
+        "text": "veOCEAN was retired on 3 May 2024, but locks were not released early: each lock unlocks on its own end date. Until then the withdraw step fails; the card shows your date."
       },
       {
         "level": "danger",
@@ -54,6 +95,143 @@
       "simulatedOut": "90772977328000000000000",
       "method": "eth_simulateV1 withdraw()+approve+migrateTokens from holder (EOA, lock ended 2026-07-30) at block 26087755, time pinned, traceTransfers, validation:false",
       "notes": "veOCEAN = Curve-style Vyper VotingEscrow (one lock per address). locked(address) returns (int128 amount, uint256 end); the engine reads word 0 = raw OCEAN. withdraw() has no args, pays the full lock, and asserts block.timestamp >= end. No admin early-unlock exists in the verified source. 386 open locks = 26,572,646 OCEAN (equals supply() and the contract's OCEAN balance); 120 locks / 1,136,715 OCEAN already expired. Unexpired lock (0xc1b8…5f63, 2,714,573 OCEAN, end 2028-02-10) reverts \"The lock didn't expire\" today; the same three steps succeed in a block pinned to end+60s (-> 1,176,023.6 FET). Migrator FET reserve 5,595,726 FET (~12.9M OCEAN) is less than the 26.6M OCEAN locked."
+    }
+  },
+  {
+    "id": "velo-v1-venft-optimism",
+    "name": "VELO v1 locked in a veNFT → VELO v2",
+    "project": "Velodrome",
+    "chainId": 10,
+    "oldToken": {
+      "address": "0x3c8B650257cFb5f272f799F5e2b4e65093a11a05",
+      "symbol": "VELO",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db",
+      "symbol": "VELO",
+      "decimals": 18
+    },
+    "migrator": "0x5aeE5F0E6C2055EbD776DB25F48f6c9A68ABcdaE",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "if": "$voted",
+        "to": "0x09236cfF45047DBee6B921e00704bed6D6B8Cf7e",
+        "signature": "reset(uint256 _tokenId)",
+        "args": [
+          "$tokenId"
+        ],
+        "contractLabel": "Velodrome v1 Voter",
+        "title": "Clear your old votes"
+      },
+      {
+        "type": "call",
+        "to": "0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26",
+        "signature": "withdraw(uint256 _tokenId)",
+        "args": [
+          "$tokenId"
+        ],
+        "contractLabel": "Velodrome v1 veNFT (VotingEscrow)",
+        "title": "Withdraw the VELO v1 from your veNFT"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x5aeE5F0E6C2055EbD776DB25F48f6c9A68ABcdaE"
+      },
+      {
+        "type": "call",
+        "to": "0x5aeE5F0E6C2055EbD776DB25F48f6c9A68ABcdaE",
+        "signature": "convertVELO(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://velodrome.finance",
+    "sources": [
+      "https://paragraph.com/@velodrome/v2",
+      "https://github.com/velodrome-finance/contracts/tree/v2-optimism"
+    ],
+    "payoutReserve": null,
+    "holding": {
+      "reads": [
+        {
+          "call": "0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "n"
+        },
+        {
+          "each": "index",
+          "range": "$n"
+        },
+        {
+          "call": "0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26",
+          "signature": "tokenOfOwnerByIndex(address,uint256)",
+          "args": [
+            "$user",
+            "$index"
+          ],
+          "out": "tokenId"
+        },
+        {
+          "call": "0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26",
+          "signature": "locked(uint256)",
+          "args": [
+            "$tokenId"
+          ],
+          "out": {
+            "amount": "int256@0",
+            "unlock": 1
+          }
+        },
+        {
+          "call": "0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26",
+          "signature": "attachments(uint256)",
+          "args": [
+            "$tokenId"
+          ],
+          "out": "attachments"
+        },
+        {
+          "require": "$attachments",
+          "is": "zero"
+        },
+        {
+          "call": "0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26",
+          "signature": "voted(uint256)",
+          "args": [
+            "$tokenId"
+          ],
+          "out": {
+            "voted": "bool"
+          }
+        }
+      ],
+      "label": "locked in v1 veNFT #$tokenId"
+    },
+    "warnings": [
+      {
+        "level": "info",
+        "text": "If your lock hasn't ended, you can also convert the veNFT itself into a Velodrome v2 veNFT today (same amount and end date) at velodrome.finance. Claim any v1 rebase first; after the lock ends it can't be claimed."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x12311fe66e429d39dc37aede0539fe4634d0446e",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "VotingEscrow v1 0x9c73…2e26. balanceOf/tokenOfOwnerByIndex enumerate the user's veNFTs; locked(id) = (int128 amount, uint256 end). Voted NFTs need Voter.reset first; NFTs attached to a gauge are skipped (they need a gauge detach first). withdraw needs end passed; the engine simulates unexpired locks at their end date. 2.88M VELO v1 in 9,368 user veNFTs, 79% already unlocked."
     }
   }
 ]

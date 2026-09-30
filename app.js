@@ -3,7 +3,7 @@
 
 import { CHAINS, explorerAddressUrl } from './chains.js';
 import { TIP_ADDRESS, TIP_ENS, PRICE_API } from './config.js';
-import { loadRegistry, scanChain, analyzeFinding, outSymbol, outDecimals, amountsMatch } from './lib/scan.js';
+import { loadRegistry, scanChain, analyzeFinding, outSymbol, outDecimals, amountsMatch, heldToken, holdingLabel } from './lib/scan.js';
 import { checkAddress, isAddress, toChecksumAddress, formatUnits, parseFraction } from './lib/evm.js';
 import qrcode from './lib/vendor/qrcode.mjs';
 
@@ -273,12 +273,17 @@ function renderSummary(all, users, prices) {
   // Only what can actually be migrated now counts toward the headline figure
   const total = ready.reduce((a, r) => a + (usdFor(r, prices).usd || 0), 0);
   const noun = all.length === 1 ? 'old token to migrate' : 'old tokens to migrate';
-  const blocked = all.length - ready.length;
+  const locked = all.filter((r) => r.status === 'locked').length;
+  const blocked = all.length - ready.length - locked;
+  const parts = [];
+  if (ready.length) parts.push(`${num(ready.length)} can be migrated by you right now`);
+  if (locked) parts.push(`${num(locked)} unlock${locked === 1 ? 's' : ''} later (the date is on the card)`);
+  if (blocked) parts.push(`${num(blocked)} need${blocked === 1 ? 's' : ''} a closer look`);
   el.innerHTML = `
     <h2>${num(all.length)} ${noun} found${total > 0 ? `, ${total < 0.01 ? '' : 'about '}<span class="count" data-to="${total}">${usdCompact(total, true)}</span> ${ready.length === all.length ? 'in total' : 'ready to migrate'}` : ''}.</h2>
     <p>${ready.length === all.length
       ? `${all.length === 1 ? 'It can' : all.length === 2 ? 'Both can' : `All ${num(all.length)} can`} be migrated by you right now.`
-      : `${num(ready.length)} can be migrated by you right now; ${num(blocked)} need${blocked === 1 ? 's' : ''} a closer look.`}
+      : `${parts.join('; ')}.`}
       Each one below has step-by-step instructions.</p>
 `;
   if (ready.length) celebrate(el);
@@ -388,7 +393,7 @@ function setChain(chainId, state, text, title) {
   if (title) li.title = title;
 }
 
-function cardId(f) { return `card-${f.user}-${f.entry.id}`; }
+function cardId(f) { return `card-${f.user}-${f.entry.id}${f.rowKey ? `-${String(f.rowKey).replace(/[^\w-]/g, '_')}` : ''}`; }
 
 function insertCard(f, html, animate = false) {
   const existing = document.getElementById(cardId(f));
@@ -461,10 +466,11 @@ const ICON = {
 
 function pendingCard(f) {
   const e = f.entry;
+  const held = heldToken(e);
   return `
     <article class="card" id="${esc(cardId(f))}" data-status="pending" aria-busy="true">
       <div class="card-top">
-        <div class="card-amount"><strong>${esc(fmtAmount(f.balance, e.oldToken.decimals))} ${esc(e.oldToken.symbol)}</strong>${e.holding ? `<span class="usd">${esc(e.holding.label)}</span>` : ''}</div>
+        <div class="card-amount"><strong>${esc(fmtAmount(f.balance, held.decimals))} ${esc(held.symbol)}</strong>${e.holding ? `<span class="usd">${esc(holdingLabel(e, shortVars(f.vars)))}</span>` : ''}</div>
         <span class="pill" data-tone="pending">Simulating…</span>
       </div>
       <p class="card-meta"><b>${esc(e.name)}</b><span class="sep">·</span>${esc(chainName(e.chainId))}${e.project ? `<span class="sep">·</span>${esc(e.project)}` : ''}</p>
@@ -480,6 +486,7 @@ const STATUS = {
   'sim-mismatch': { tone: 'warn', label: 'Amount differs' },
   'check-failed': { tone: 'bad', label: 'Paused or closed' },
   'build-error': { tone: 'bad', label: 'Data error' },
+  locked: { tone: 'later', label: 'Unlocks later' },
 };
 
 const METHOD_LABEL = {
@@ -497,7 +504,7 @@ function copyBtn(value) {
 }
 
 function note(level, html) {
-  const icon = level === 'good' ? ICON.check : level === 'info' ? ICON.info : level === 'clock' ? ICON.clock : ICON.warn;
+  const icon = level === 'good' ? ICON.check : level === 'info' ? ICON.info : level === 'clock' || level === 'later' ? ICON.clock : ICON.warn;
   const lvl = level === 'clock' ? 'warn' : level;
   return `<li class="note" data-level="${esc(lvl)}">${icon}<span>${html}</span></li>`;
 }
@@ -505,8 +512,12 @@ function note(level, html) {
 function resultCard(r, prices) {
   const e = r.entry;
   const chain = CHAINS[e.chainId];
-  const blockedByProtocol = e.status === 'blocked' && r.status !== 'ready';
-  const st = blockedByProtocol ? { tone: 'warn', label: 'Blocked for now' } : STATUS[r.status] || { tone: 'warn', label: r.status };
+  const blockedByProtocol = e.status === 'blocked' && r.status !== 'ready' && r.status !== 'locked';
+  const st = blockedByProtocol ? { tone: 'warn', label: 'Blocked for now' }
+    : r.status === 'locked' ? { tone: 'later', label: `Unlocks ${fmtDate(r.lockedUntil)}` }
+      : STATUS[r.status] || { tone: 'warn', label: r.status };
+  const held = heldToken(e);
+  const label = e.holding ? holdingLabel(e, shortVars(r.vars)) : '';
   const sym = outSymbol(e);
   const dec = outDecimals(e);
   const ready = r.status === 'ready';
@@ -517,12 +528,12 @@ function resultCard(r, prices) {
   const lead = outs[0];
   const { usd, partial } = usdFor(r, prices);
   const newAmt = lead ? `${lead.approx ? '~' : ''}${esc(fmtAmount(lead.amount, lead.decimals))} ${esc(lead.symbol)}` : '';
-  const oldAmt = `${esc(fmtAmount(r.balance, e.oldToken.decimals))} ${esc(e.oldToken.symbol)}`;
+  const oldAmt = `${esc(fmtAmount(r.balance, held.decimals))} ${esc(held.symbol)}`;
   const headline = lead
-    ? `${ready ? `<strong class="roll"><span class="roll-old" aria-hidden="true">${oldAmt}</span><span class="roll-new">${newAmt}</span></strong>` : `<strong>${newAmt}</strong>`}${outs.length > 1 ? `<span class="plus">+ ${esc(outs.slice(1).map((o) => o.symbol).join(', '))}</span>` : ''}${usd != null ? `<span class="usd">${usd > 0 && usd < 0.01 ? '' : '≈ '}${esc(usdCompact(usd, true))}${partial ? '+' : ''}</span>` : ''}`
-    : `<strong>${esc(fmtAmount(r.balance, e.oldToken.decimals))} ${esc(e.oldToken.symbol)}</strong>`;
+    ? `${ready && held !== e.newToken ? `<strong class="roll"><span class="roll-old" aria-hidden="true">${oldAmt}</span><span class="roll-new">${newAmt}</span></strong>` : `<strong>${newAmt}</strong>`}${outs.length > 1 ? `<span class="plus">+ ${esc(outs.slice(1).map((o) => o.symbol).join(', '))}</span>` : ''}${usd != null ? `<span class="usd">${usd > 0 && usd < 0.01 ? '' : '≈ '}${esc(usdCompact(usd, true))}${partial ? '+' : ''}</span>` : ''}`
+    : `<strong>${oldAmt}</strong>`;
 
-  const meta = `<b>${esc(e.oldToken.symbol)} → ${esc(e.newToken ? e.newToken.symbol : sym)}</b><span class="sep">·</span>${esc(chain.name)}<span class="sep">·</span>${e.holding ? 'you have' : 'you hold'} ${esc(fmtAmount(r.balance, e.oldToken.decimals))} ${esc(e.oldToken.symbol)}${e.holding ? ` ${esc(e.holding.label)}` : ''}<span class="sep">·</span>migrator`;
+  const meta = `<b>${esc(e.oldToken.symbol)} → ${esc(e.newToken ? e.newToken.symbol : sym)}</b><span class="sep">·</span>${esc(chain.name)}<span class="sep">·</span>${e.holding ? 'you have' : 'you hold'} ${oldAmt}${label ? ` ${esc(label)}` : ''}<span class="sep">·</span>migrator`;
   const monoLine = `<p class="card-mono">${explorerLink(e.chainId, e.migrator)}</p>`;
 
   // notes: verification first, then registry warnings, then deadline
@@ -533,6 +544,8 @@ function resultCard(r, prices) {
   if (ready) {
     const match = amountsMatch(r.received, r.expected);
     notes.push(note('good', `Simulated from your address at <a href="${esc(blockUrl)}" target="_blank" rel="noopener noreferrer">block <span class="num">${esc(num(r.simBlock))}</span></a> with your full balance: ${stepsText} succeeded and you'd receive ${gotText}.${match ? '' : ` That differs slightly from the ${esc(rateText(e.ratio))} ratio; the simulated amount is what counts.`} <span class="muted">Checked with ${esc(METHOD_LABEL[r.method] || 'a simulation')}.</span>`));
+  } else if (r.status === 'locked') {
+    notes.push(note('later', `Locked until <strong>${esc(fmtDate(r.lockedUntil, true))}</strong> (${esc(timeLeft(r.lockedUntil * 1000 - Date.now()))} from now). We simulated the full exit from your address as if it were that day: ${stepsText} succeeded and you'd receive ${gotText} at today's rate. <span class="muted">Checked with ${esc(METHOD_LABEL[r.method] || 'a simulation')} at a pinned future time.</span>`));
   } else if (r.status === 'reserve-low') {
     notes.push(note('danger', `The payout contract ${explorerLink(e.chainId, r.reserve.holder, short(r.reserve.holder))} holds only ${esc(fmtAmount(r.reserve.amount, dec))} ${esc(sym)}, less than the ${esc(fmtAmount(r.expected, dec))} ${esc(sym)} your balance would convert to. ${simOk ? `The simulation still returned ${gotText}.` : r.sim && r.sim.calls && r.sim.calls.some((c) => !c.ok) ? `The simulation failed: <span class="mono">${esc((r.sim.calls.find((c) => !c.ok) || {}).error || '')}</span>.` : ''} Consider migrating part of your balance, and expect a failed transaction to cost gas.`));
   } else if (r.status === 'sim-mismatch') {
@@ -540,7 +553,7 @@ function resultCard(r, prices) {
   } else if (r.status === 'sim-failed') {
     const bad = r.sim.calls.findIndex((c) => !c.ok);
     const step = r.steps[bad];
-    notes.push(note('danger', `The simulation failed at step ${bad + 1} (${esc(step ? step.fnName : '?')}): <span class="mono">${esc(r.sim.calls[bad] ? r.sim.calls[bad].error : '')}</span>. A real transaction would most likely fail and waste gas.${blockedByProtocol ? '' : ' The migration may be paused or closed.'}`));
+    notes.push(note('danger', `The simulation${r.lockedUntil ? ` (run as if it were ${esc(fmtDate(r.lockedUntil))}, when your lock ends)` : ''} failed at step ${bad + 1} (${esc(step ? step.fnName : '?')}): <span class="mono">${esc(r.sim.calls[bad] ? r.sim.calls[bad].error : '')}</span>. A real transaction would most likely fail and waste gas.${blockedByProtocol ? '' : ' The migration may be paused or closed.'}`));
   } else if (r.status === 'sim-unavailable') {
     notes.push(note('warn', `We couldn't simulate this on ${esc(chain.name)}: its public RPCs support neither <code>eth_simulateV1</code> nor state overrides${r.sim && r.sim.error ? ` (${esc(r.sim.error)})` : ''}. <strong>This result is unverified</strong> — confirm on the official site first.`));
   } else if (r.status === 'sim-no-output') {
@@ -556,6 +569,15 @@ function resultCard(r, prices) {
     .filter((w) => !(r.status === 'reserve-low' && w.level === 'danger'))
     .sort((a, b) => (order[a.level] ?? 1) - (order[b.level] ?? 1));
   for (const w of warnings) notes.push(note(order[w.level] != null ? w.level : 'warn', esc(w.text)));
+  if (r.sweptExtra) {
+    const w = r.vars && typeof r.vars.wallet === 'bigint' ? `${esc(fmtAmount(r.vars.wallet, e.oldToken.decimals))} ` : '';
+    notes.push(note('info', `The same transactions also convert the ${w}${esc(e.oldToken.symbol)} already in your wallet, for another ${esc(fmtAmount(r.sweptExtra, dec))} ${esc(sym)}. That part has its own card, so it isn't counted twice.`));
+  }
+  const waitAt = (r.steps || []).findIndex((s) => s.waitSeconds >= 86400);
+  if (waitAt > 0 && r.status !== 'locked') {
+    const w = r.steps[waitAt];
+    notes.push(note('later', `This takes time: after <span class="mono">${esc(r.steps[waitAt - 1].fnName)}</span> the contract makes you wait ${esc(humanDuration(w.waitSeconds))} before <span class="mono">${esc(w.fnName)}</span>. The simulation already fast-forwarded through that wait.`));
+  }
   if (e.deadline) notes.push(deadlineNote(e.deadline, simOk));
 
   // action line
@@ -566,8 +588,11 @@ function resultCard(r, prices) {
   if (!r.steps) {
     action = `<p class="card-action"><span class="muted">No steps available.</span>${officialLink}</p>`;
   } else {
+    const txs = nTx === 1 ? 'one transaction' : `${num(nTx)} transactions`;
     const lead = ready
-      ? `You can migrate this with ${nTx === 1 ? 'one transaction' : `${num(nTx)} transactions`}.`
+      ? `You can migrate this with ${txs}.`
+      : r.status === 'locked'
+        ? `After ${esc(fmtDate(r.lockedUntil))}, you can migrate this with ${txs}.`
       : r.status === 'reserve-low'
         ? `Migrating is possible, but payout is limited.`
         : `<span class="muted">Not verified — only proceed after checking the official announcement.</span>`;
@@ -686,7 +711,7 @@ function howToHtml(r, chain) {
       <li class="step">
         <h4>${title}</h4>
         <ol class="step-list">
-          ${s.waitSeconds ? `<li><strong>Wait at least ${esc(String(s.waitSeconds))} seconds</strong> after the previous step confirms (the cooldown), then continue.</li>` : ''}
+          ${s.waitSeconds ? `<li><strong>Wait at least ${esc(humanDuration(s.waitSeconds))}</strong> after the previous step confirms (the contract's waiting period), then continue.</li>` : ''}
           <li>Open <a href="${esc(url)}" target="_blank" rel="noopener noreferrer">the ${esc(s.contractLabel || (s.kind === 'approve' ? `${sym} token` : 'migrator'))} contract on ${esc(chain.explorerName)}</a> (${esc(tab)}).${i === 0 ? ` Press <strong>Connect to Web3</strong> and make sure your wallet is on ${esc(chain.name)}.` : ''}</li>
           <li>Check the address in the URL is <span class="mono">${esc(s.to)}</span> ${copyBtn(s.to)}</li>
           <li>${s.fields.length
@@ -710,7 +735,8 @@ function howToHtml(r, chain) {
       </ol>
       <p class="fine">If your wallet doesn't show it, add the token manually with the contract address above. ${hasAmountField ? 'The amounts above are your full balance at the time of this check. If your balance changes, use the same new amount in both the approve and the migrate step.' : 'This migration handles your whole current balance in one go.'}</p>
     </li>`;
-  return `<ol class="steps">${items}${done}</ol>`;
+  const when = r.lockedUntil ? `<p class="fine when">These steps only work after your lock ends on <strong>${esc(fmtDate(r.lockedUntil, true))}</strong>. Before that, the first step fails.</p>` : '';
+  return `${when}<ol class="steps">${items}${done}</ol>`;
 }
 
 function tickCountdowns() {
@@ -760,6 +786,27 @@ function toast(msg) {
 }
 
 /* ------------------------------------------------------------ formatting */
+
+/** Holding variables for labels: addresses shortened */
+function shortVars(vars) {
+  if (!vars) return {};
+  return Object.fromEntries(Object.entries(vars).map(([k, v]) => [k, isAddress(String(v)) ? short(String(v)) : v]));
+}
+
+/** unix seconds -> "Feb 10, 2028" (UTC); withTime adds "14:05 UTC" */
+function fmtDate(unix, withTime = false) {
+  const d = new Date(Number(unix) * 1000);
+  const day = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+  return withTime ? `${day}, ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })} UTC` : day;
+}
+
+function humanDuration(sec) {
+  const s = Number(sec);
+  if (s >= 86400) return plural(Math.round(s / 86400), 'day');
+  if (s >= 3600) return plural(Math.round(s / 3600), 'hour');
+  if (s >= 60) return plural(Math.round(s / 60), 'minute');
+  return plural(s, 'second');
+}
 
 function toFloat(raw, decimals) {
   const s = formatUnits(BigInt(raw), decimals, Math.min(decimals, 12)).replace(/,/g, '');

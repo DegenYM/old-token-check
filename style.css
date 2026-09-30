@@ -12,6 +12,7 @@
   --teal: #2dd4bf;
   --teal-ink: #5eead4;
   --teal-bg: #0e2b29;
+  --teal-line: #1f4a45;
   --amber: #f3b75f;
   --amber-bg: #2b2112;
   --red: #f58b8b;
@@ -297,6 +298,7 @@ p { margin: 0; }
 .pill[data-tone="good"] { background: var(--teal-bg); color: var(--teal-ink); }
 .pill[data-tone="warn"] { background: var(--amber-bg); color: var(--amber); }
 .pill[data-tone="bad"] { background: var(--red-bg); color: var(--red); }
+.pill[data-tone="later"] { background: transparent; color: var(--teal-ink); box-shadow: inset 0 0 0 1px var(--teal-line); }
 .pill[data-tone="pending"] { color: var(--text-3); }
 .pill[data-tone="pending"]::before {
   content: ""; width: 12px; height: 12px; border-radius: 50%;
@@ -318,6 +320,7 @@ p { margin: 0; }
 .note[data-level="warn"] svg { color: var(--amber); }
 .note[data-level="info"] svg { color: var(--text-3); }
 .note[data-level="good"] svg { color: var(--teal); }
+.note[data-level="later"] svg { color: var(--teal); }
 .note .num { font-variant-numeric: tabular-nums; }
 
 .card-rule { margin: 24px 0 20px; border: 0; border-top: 1px dashed var(--line-2); }

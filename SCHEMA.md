@@ -36,5 +36,9 @@ One entry = one migration path (old token -> new asset) on one chain.
 }
 ```
 
+Optional fields: `minAmount` (raw old-token amount below which a balance is ignored, for migrators that floor
+small amounts to zero), `warnings`, `payoutReserve`, `statsExclude`, and `holding` for positions that aren't a
+plain wallet balance (see `research/HOLDINGS.md`).
+
 Only entries with `status: "open"` AND a successful simulation belong in the registry. Put
 closed / unverifiable candidates in `data/rejected.<part>.json` as `{ "id", "reason" }`.

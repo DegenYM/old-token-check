@@ -387,7 +387,8 @@
       "simulatedOut": "16296212465803725000000000",
       "method": "eth_simulateV1 withdraw+approve+wrap from holder at latest, traceTransfers, validation:false",
       "notes": "StakingEscrow Dispatcher → impl StakingEscrow 0x939f82a1Aa8560E7a6Ef5Ae5C3752618fbA75698 (solc 0.8.23, verified). Current impl removed sub-stake locks: withdraw(uint256) only checks stakerInfo.value >= amount (onlyStaker), no lock/vesting check, also works for stakers linked to a T staking provider (simulated 1.5M NU for 0x04670e07…, OK). getAllTokens(address) = stakerInfo.value. 232 of 2,155 stakers still hold 27.30M NU. The other ~2.50B NU in the contract is the unminted reward reserve, not user stakes. Vending machine holds 629.3M T = 193.09M NU worth, which equals NU outside escrow+machine (165.8M) plus these stakes (27.3M): fully covered. Also simulated from the largest staker 0x7fff5512… (6.99M NU, a contract): OK."
-    }
+    },
+    "minAmount": "1000000000000000"
   },
   {
     "id": "rbn-verbn-to-aevo",
@@ -550,9 +551,33 @@
       "den": "1"
     },
     "holding": {
-      "contract": "0x6e56A5D49F775BA08041e28030bc7826b13489e0",
-      "signature": "nonEscrowedBalanceOf(address)",
-      "label": "staked in Kwenta staking v1"
+      "reads": [
+        {
+          "call": "0x6e56A5D49F775BA08041e28030bc7826b13489e0",
+          "signature": "nonEscrowedBalanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "amount"
+        },
+        {
+          "call": "0x920Cf626a271321C151D027030D5d08aF699456b",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "wallet"
+        },
+        {
+          "set": "total",
+          "sum": [
+            "$wallet",
+            "$amount"
+          ]
+        }
+      ],
+      "label": "staked in Kwenta staking v1",
+      "sweepsWallet": "$wallet"
     },
     "steps": [
       {
@@ -567,19 +592,24 @@
       {
         "type": "approve",
         "token": "old",
-        "spender": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8"
+        "spender": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "amount": "$total",
+        "title": "Approve the conversion contract to take your KWENTA"
       },
       {
         "type": "call",
         "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
         "signature": "lockAndConvert()",
-        "args": []
+        "args": [],
+        "contractLabel": "KWENTA → SNX conversion"
       },
       {
         "type": "call",
         "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
         "signature": "vest()",
-        "args": []
+        "args": [],
+        "contractLabel": "KWENTA → SNX conversion",
+        "title": "Claim your SNX"
       }
     ],
     "status": "open",
@@ -598,10 +628,6 @@
       {
         "level": "warn",
         "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
-      },
-      {
-        "level": "warn",
-        "text": "lockAndConvert takes your whole KWENTA wallet balance. If you already hold KWENTA in your wallet, convert that first (the wallet check), or approve your wallet plus staked total, or this step fails."
       }
     ],
     "verification": {
@@ -635,9 +661,33 @@
       "den": "1"
     },
     "holding": {
-      "contract": "0x61294940CE7cD1BDA10e349adC5B538B722CeB88",
-      "signature": "nonEscrowedBalanceOf(address)",
-      "label": "staked in Kwenta staking v2"
+      "reads": [
+        {
+          "call": "0x61294940CE7cD1BDA10e349adC5B538B722CeB88",
+          "signature": "nonEscrowedBalanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "amount"
+        },
+        {
+          "call": "0x920Cf626a271321C151D027030D5d08aF699456b",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "wallet"
+        },
+        {
+          "set": "total",
+          "sum": [
+            "$wallet",
+            "$amount"
+          ]
+        }
+      ],
+      "label": "staked in Kwenta staking v2",
+      "sweepsWallet": "$wallet"
     },
     "steps": [
       {
@@ -652,19 +702,24 @@
       {
         "type": "approve",
         "token": "old",
-        "spender": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8"
+        "spender": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "amount": "$total",
+        "title": "Approve the conversion contract to take your KWENTA"
       },
       {
         "type": "call",
         "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
         "signature": "lockAndConvert()",
-        "args": []
+        "args": [],
+        "contractLabel": "KWENTA → SNX conversion"
       },
       {
         "type": "call",
         "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
         "signature": "vest()",
-        "args": []
+        "args": [],
+        "contractLabel": "KWENTA → SNX conversion",
+        "title": "Claim your SNX"
       }
     ],
     "status": "open",
@@ -683,10 +738,6 @@
       {
         "level": "warn",
         "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
-      },
-      {
-        "level": "warn",
-        "text": "lockAndConvert takes your whole KWENTA wallet balance. If you already hold KWENTA in your wallet, convert that first (the wallet check), or approve your wallet plus staked total, or this step fails."
       }
     ],
     "verification": {
@@ -697,6 +748,707 @@
       "simulatedOut": "13506956637562353432475",
       "method": "eth_simulateV1 unstake+approve+lockAndConvert+vest from holder at latest, traceTransfers, validation:false",
       "notes": "Address from Kwenta deployed-contracts docs. nonEscrowedBalanceOf(address) = liquid staked KWENTA (escrowed stake is separate and needs RewardEscrow.vest(entryIDs[]), not expressible). unstake(uint256) is not paused; v2 cooldownPeriod() = 7 days from userLastStakeTime; staking rewards ended 2024-11-15, so every holder is past it. Contract holds 9,852 liquid KWENTA. Conversion lock+linear vest have fully elapsed, so vest() pays 17x SNX immediately. A holder who also had wallet KWENTA failed at lockAndConvert (allowance < balance) in simulation: see warning."
+    }
+  },
+  {
+    "id": "kwenta-escrowed-v2-optimism",
+    "name": "Escrowed KWENTA (RewardEscrow v2) → SNX",
+    "project": "Synthetix / Kwenta",
+    "chainId": 10,
+    "oldToken": {
+      "address": "0x920Cf626a271321C151D027030D5d08aF699456b",
+      "symbol": "KWENTA",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4",
+      "symbol": "SNX",
+      "decimals": 18
+    },
+    "migrator": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+    "ratio": {
+      "num": "17",
+      "den": "1"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0xb2A20fCdc506a685122847b21E34536359E94C56",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "n"
+        },
+        {
+          "require": "$n",
+          "is": "nonzero"
+        },
+        {
+          "call": "0xb2A20fCdc506a685122847b21E34536359E94C56",
+          "signature": "getAccountVestingEntryIDs(address,uint256,uint256)",
+          "args": [
+            "$user",
+            0,
+            "$n"
+          ],
+          "out": {
+            "ids": "uint256[]@0"
+          }
+        },
+        {
+          "call": "0xb2A20fCdc506a685122847b21E34536359E94C56",
+          "signature": "getVestingQuantity(uint256[])",
+          "args": [
+            "$ids"
+          ],
+          "out": {
+            "amount": 0,
+            "fee": 1
+          }
+        },
+        {
+          "call": "0x920Cf626a271321C151D027030D5d08aF699456b",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "wallet"
+        },
+        {
+          "set": "total",
+          "sum": [
+            "$wallet",
+            "$amount"
+          ]
+        }
+      ],
+      "label": "in Kwenta reward escrow v2",
+      "sweepsWallet": "$wallet"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0xb2A20fCdc506a685122847b21E34536359E94C56",
+        "signature": "vest(uint256[] entryIDs)",
+        "args": [
+          "$ids"
+        ],
+        "contractLabel": "Kwenta RewardEscrow v2",
+        "title": "Release your escrowed KWENTA"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "amount": "$total",
+        "title": "Approve the conversion contract to take your KWENTA"
+      },
+      {
+        "type": "call",
+        "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "signature": "lockAndConvert()",
+        "args": [],
+        "contractLabel": "KWENTA → SNX conversion"
+      },
+      {
+        "type": "call",
+        "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "signature": "vest()",
+        "args": [],
+        "contractLabel": "KWENTA → SNX conversion",
+        "title": "Claim your SNX"
+      }
+    ],
+    "status": "open",
+    "deadline": "2026-11-15",
+    "statusCheck": null,
+    "payoutReserve": {
+      "holder": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8"
+    },
+    "officialUi": "https://kwenta-migration.synthetix.io/",
+    "sources": [
+      "https://docs.kwenta.io/developers/deployed-contracts",
+      "https://sips.synthetix.io/sips/sip-411/",
+      "https://kwenta-migration.synthetix.io/"
+    ],
+    "warnings": [
+      {
+        "level": "warn",
+        "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x040a5efd0f091693806829def5e6040a2e8178b1",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "RewardEscrowV2 (ERC-721 vesting entries). balanceOf = entry count; getAccountVestingEntryIDs(user,0,n) lists them; getVestingQuantity(ids) returns (KWENTA paid, early-vest fee). Every entry is past its end, so the fee is 0. vest(ids) also unstakes escrow that is still staked. Contract holds ~10,096 KWENTA."
+    }
+  },
+  {
+    "id": "kwenta-escrowed-v1-optimism",
+    "name": "Escrowed KWENTA (RewardEscrow v1) → SNX",
+    "project": "Synthetix / Kwenta",
+    "chainId": 10,
+    "oldToken": {
+      "address": "0x920Cf626a271321C151D027030D5d08aF699456b",
+      "symbol": "KWENTA",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4",
+      "symbol": "SNX",
+      "decimals": 18
+    },
+    "migrator": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+    "ratio": {
+      "num": "17",
+      "den": "1"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0x1066A8eB3d90Af0Ad3F89839b974658577e75BE2",
+          "signature": "numVestingEntries(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "n"
+        },
+        {
+          "require": "$n",
+          "is": "nonzero"
+        },
+        {
+          "call": "0x1066A8eB3d90Af0Ad3F89839b974658577e75BE2",
+          "signature": "getAccountVestingEntryIDs(address,uint256,uint256)",
+          "args": [
+            "$user",
+            0,
+            "$n"
+          ],
+          "out": {
+            "ids": "uint256[]@0"
+          }
+        },
+        {
+          "call": "0x1066A8eB3d90Af0Ad3F89839b974658577e75BE2",
+          "signature": "getVestingQuantity(address,uint256[])",
+          "args": [
+            "$user",
+            "$ids"
+          ],
+          "out": {
+            "amount": 0,
+            "fee": 1
+          }
+        },
+        {
+          "call": "0x920Cf626a271321C151D027030D5d08aF699456b",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "wallet"
+        },
+        {
+          "set": "total",
+          "sum": [
+            "$wallet",
+            "$amount"
+          ]
+        }
+      ],
+      "label": "in Kwenta reward escrow v1",
+      "sweepsWallet": "$wallet"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x1066A8eB3d90Af0Ad3F89839b974658577e75BE2",
+        "signature": "vest(uint256[] entryIDs)",
+        "args": [
+          "$ids"
+        ],
+        "contractLabel": "Kwenta RewardEscrow v1",
+        "title": "Release your escrowed KWENTA"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "amount": "$total",
+        "title": "Approve the conversion contract to take your KWENTA"
+      },
+      {
+        "type": "call",
+        "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "signature": "lockAndConvert()",
+        "args": [],
+        "contractLabel": "KWENTA → SNX conversion"
+      },
+      {
+        "type": "call",
+        "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "signature": "vest()",
+        "args": [],
+        "contractLabel": "KWENTA → SNX conversion",
+        "title": "Claim your SNX"
+      }
+    ],
+    "status": "open",
+    "deadline": "2026-11-15",
+    "statusCheck": null,
+    "payoutReserve": {
+      "holder": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8"
+    },
+    "officialUi": "https://kwenta-migration.synthetix.io/",
+    "sources": [
+      "https://docs.kwenta.io/developers/deployed-contracts",
+      "https://sips.synthetix.io/sips/sip-411/",
+      "https://kwenta-migration.synthetix.io/"
+    ],
+    "warnings": [
+      {
+        "level": "warn",
+        "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0xc54570b8eb8138ace95132b944b7b6bb391976dc",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "RewardEscrow v1. numVestingEntries = entry count; getAccountVestingEntryIDs(user,0,n); getVestingQuantity(user, ids) returns (KWENTA paid, fee), fee 0 since all entries ended. vest(ids) unstakes staked escrow automatically. The v1→v2 EscrowMigrator isn't needed. Contract holds ~4,238 KWENTA."
+    }
+  },
+  {
+    "id": "kwenta-snx-unclaimed-optimism",
+    "name": "SNX from converted KWENTA, not yet claimed",
+    "project": "Synthetix / Kwenta",
+    "chainId": 10,
+    "oldToken": {
+      "address": "0x920Cf626a271321C151D027030D5d08aF699456b",
+      "symbol": "KWENTA",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4",
+      "symbol": "SNX",
+      "decimals": 18
+    },
+    "migrator": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+    "ratio": {
+      "num": "17",
+      "den": "1"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+          "signature": "vestableAmount(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "amount"
+        }
+      ],
+      "unit": "new",
+      "label": "from KWENTA you already converted, not yet claimed"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "signature": "vest()",
+        "args": [],
+        "contractLabel": "KWENTA → SNX conversion",
+        "title": "Claim your SNX"
+      }
+    ],
+    "status": "open",
+    "deadline": "2026-11-15",
+    "statusCheck": null,
+    "payoutReserve": {
+      "holder": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8"
+    },
+    "officialUi": "https://kwenta-migration.synthetix.io/",
+    "sources": [
+      "https://docs.kwenta.io/developers/deployed-contracts",
+      "https://sips.synthetix.io/sips/sip-411/",
+      "https://kwenta-migration.synthetix.io/"
+    ],
+    "warnings": [
+      {
+        "level": "warn",
+        "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX that hasn't been claimed. You already converted this KWENTA; this last step sends the SNX to your wallet."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x1ddb367720ed4b2d79d6eaab82c14b70ae1253bc",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Conversion.vestableAmount(user) is SNX (new-token units) that finished vesting but wasn't claimed. 228 addresses hold 333,386 SNX. vest() pays it. Conversion's SNX balance covers owed SNX plus 17x all unconverted KWENTA."
+    }
+  },
+  {
+    "id": "dquick-v1-to-quick-polygon",
+    "name": "Old dQUICK (Dragon’s Lair v1) → QUICK",
+    "project": "QuickSwap",
+    "chainId": 137,
+    "oldToken": {
+      "address": "0x831753DD7087CaC61aB5644b308642cc1c33Dc13",
+      "symbol": "QUICK",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xB5C064F955D8e7F38fE0460C556a72987494eE17",
+      "symbol": "QUICK",
+      "decimals": 18
+    },
+    "migrator": "0x333068D06563a8DfDBF330A0e04A9d128e98bf5a",
+    "ratio": {
+      "num": "1000",
+      "den": "1"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0xf28164A485B0B2C90639E47b0f377b4A438a16B1",
+        "signature": "leave(uint256 _dQuickAmount)",
+        "args": [
+          "$shares"
+        ],
+        "contractLabel": "old Dragon’s Lair (dQUICK v1)",
+        "title": "Unstake: turn your old dQUICK back into old QUICK"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x333068D06563a8DfDBF330A0e04A9d128e98bf5a"
+      },
+      {
+        "type": "call",
+        "to": "0x333068D06563a8DfDBF330A0e04A9d128e98bf5a",
+        "signature": "quickToQuickX(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": "2027-02-05",
+    "statusCheck": null,
+    "officialUi": "https://dapp.quickswap.exchange/dashboard?chainId=137&tab=convert",
+    "sources": [
+      "https://docs.quickswap.exchange/",
+      "https://blog.quickswap.exchange/posts/convert-old-quick-to-new-quick",
+      "https://cryptobriefing.com/quickswap-quick-token-migration-schedule/"
+    ],
+    "payoutReserve": {
+      "holder": "0x333068d06563a8dfdbf330a0e04a9d128e98bf5a"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0xf28164A485B0B2C90639E47b0f377b4A438a16B1",
+          "signature": "QUICKBalance(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "amount"
+        },
+        {
+          "call": "0xf28164A485B0B2C90639E47b0f377b4A438a16B1",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "shares"
+        }
+      ],
+      "label": "staked as old dQUICK",
+      "amountVars": {
+        "$shares": {
+          "symbol": "dQUICK",
+          "decimals": 18
+        }
+      }
+    },
+    "warnings": [
+      {
+        "level": "warn",
+        "text": "Reported: the conversion rate drops after 2026-11-04 and the converter closes on 2027-02-05."
+      },
+      {
+        "level": "info",
+        "text": "Old dQUICK is the staked form of the old QUICK. There is no direct dQUICK conversion: leave the old Dragon’s Lair first, then convert the old QUICK 1:1000."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x7ba7f4773fa7890bad57879f0a1faa0edffb3520",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "DragonLair v1 0xf281…16B1 (quick() = old QUICK). QUICKBalance(user) = old QUICK the user's dQUICK is worth; leave(shares) pays it. 1 dQUICK = 1.7472 old QUICK, fixed. Holds 11,184 old QUICK."
+    }
+  },
+  {
+    "id": "tribe-tribalchief-rewards",
+    "name": "Unclaimed TRIBE rewards (TribalChief) → redeem",
+    "project": "Fei Protocol / Tribe DAO",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B",
+      "symbol": "TRIBE",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "symbol": "DAI",
+      "decimals": 18
+    },
+    "migrator": "0x4d9629e80118082B939e3D59E69c82A2ec08b4d5",
+    "ratio": {
+      "num": "1791819867795069337060605",
+      "den": "25040971014379239118687254"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x9e1076cc0D19F9B0b8019F384B0a29E48Ee46f7f",
+        "signature": "harvest(uint256 pid, address to)",
+        "args": [
+          "$pid",
+          "$user"
+        ],
+        "contractLabel": "Fei TribalChief",
+        "title": "Claim your TRIBE rewards"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x4d9629e80118082B939e3D59E69c82A2ec08b4d5"
+      },
+      {
+        "type": "call",
+        "to": "0x4d9629e80118082B939e3D59E69c82A2ec08b4d5",
+        "signature": "redeem(address to, uint256 amountIn)",
+        "args": [
+          "$user",
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": null,
+    "sources": [
+      "https://github.com/fei-protocol/fei-protocol-core/blob/develop/protocol-configuration/mainnetAddresses.ts",
+      "https://github.com/code-423n4/2022-09-tribe",
+      "https://code4rena.com/reports/2022-09-tribe"
+    ],
+    "payoutReserve": {
+      "holder": "0x4d9629e80118082b939e3d59e69c82a2ec08b4d5"
+    },
+    "holding": {
+      "reads": [
+        {
+          "each": "pid",
+          "in": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ]
+        },
+        {
+          "call": "0x9e1076cc0D19F9B0b8019F384B0a29E48Ee46f7f",
+          "signature": "pendingRewards(uint256,address)",
+          "args": [
+            "$pid",
+            "$user"
+          ],
+          "out": "amount"
+        }
+      ],
+      "label": "in unclaimed TribalChief rewards (pool $pid)"
+    },
+    "warnings": [
+      {
+        "level": "danger",
+        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+      },
+      {
+        "level": "info",
+        "text": "Fei Protocol wound down. TRIBE redeems pro rata for a basket of DAI, stETH, LQTY and FOX."
+      },
+      {
+        "level": "info",
+        "text": "These are TRIBE rewards you earned in Fei's TribalChief and never claimed. Claim them, then redeem them like any TRIBE. The LP tokens you staked there are separate and aren't covered here."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x0a7e57d4f8bbd77a0d2135c33c01f4a4f326fb72",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "TribalChief proxy 0x9e10…6f7f, unpaused, holds 171,844 TRIBE. pendingRewards(pid, user) over pools 0-17: 137,582 TRIBE across 101 user/pool pairs. harvest(pid, to) then redeem works."
+    }
+  },
+  {
+    "id": "ogv-staked-to-ogn",
+    "name": "Staked OGV (veOGV lockups) → OGN",
+    "project": "Origin Protocol",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x9c354503C38481a7A7a51629142963F98eCC12D0",
+      "symbol": "OGV",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x8207c1FfC5B6804F6024322CcF34F29c3541Ae26",
+      "symbol": "OGN",
+      "decimals": 18
+    },
+    "migrator": "0x95c347D6214614A780847b8aAF4f96Eb84f4da6d",
+    "ratio": {
+      "num": "9137",
+      "den": "100000"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x0C4576Ca1c365868E162554AF8e385dc3e7C66D9",
+        "signature": "unstake(uint256[] lockupIds)",
+        "args": [
+          "$ids"
+        ],
+        "contractLabel": "OGV staking (veOGV)",
+        "title": "Unstake your OGV lockups"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x95c347D6214614A780847b8aAF4f96Eb84f4da6d"
+      },
+      {
+        "type": "call",
+        "to": "0x95c347D6214614A780847b8aAF4f96Eb84f4da6d",
+        "signature": "migrate(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://app.originprotocol.com",
+    "sources": [
+      "https://www.originprotocol.com/token-migration-guide",
+      "https://x.com/OriginProtocol/status/1795549181911748763"
+    ],
+    "payoutReserve": {
+      "holder": "0x95c347d6214614a780847b8aaf4f96eb84f4da6d"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0x0C4576Ca1c365868E162554AF8e385dc3e7C66D9",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "points"
+        },
+        {
+          "require": "$points",
+          "is": "nonzero"
+        },
+        {
+          "each": "index",
+          "range": 100
+        },
+        {
+          "call": "0x0C4576Ca1c365868E162554AF8e385dc3e7C66D9",
+          "signature": "lockups(address,uint256)",
+          "args": [
+            "$user",
+            "$index"
+          ],
+          "out": {
+            "amount": 0,
+            "end": 1
+          }
+        },
+        {
+          "require": "$amount",
+          "is": "nonzero"
+        },
+        {
+          "collect": {
+            "ids": "$index"
+          },
+          "sum": [
+            "amount"
+          ]
+        },
+        {
+          "call": "0x0C4576Ca1c365868E162554AF8e385dc3e7C66D9",
+          "signature": "previewRewards(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "rewards"
+        },
+        {
+          "set": "staked",
+          "sum": [
+            "$amount"
+          ]
+        },
+        {
+          "set": "amount",
+          "sum": [
+            "$amount",
+            "$rewards"
+          ]
+        }
+      ],
+      "label": "staked in veOGV (lockups and rewards)"
+    },
+    "warnings": [
+      {
+        "level": "warn",
+        "text": "The announced deadline has passed, but the contract still works. Governance could switch it off at any time."
+      },
+      {
+        "level": "info",
+        "text": "Migrator address confirmed on-chain; it isn't listed in the official docs."
+      },
+      {
+        "level": "info",
+        "text": "OGV staking was upgraded so lockups can be withdrawn before their end date. Unstaking also pays your collected OGV rewards; both are migrated together."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x87b09cf6df2ca2bbec4e184864a8c75447aed965",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "OgvStaking 0x0C45…66D9. lockups(user, i) -> (amount, end, points); reverts past the last one. unstake(ids) ignores lock end after the upgrade and also pays previewRewards(user). 816 users hold 44.80M OGV in open lockups."
     }
   }
 ]

@@ -7,46 +7,70 @@ covers the additions. A working example lives in `data/registry.multichain.json`
 
 ## What the engine supports today
 
+### Simple form: one view keyed by the user
+
 ```json
-{
-  "holding": {
-    "contract": "0x…",                       // where the position lives
-    "signature": "stakedBalanceOf(address)",   // view fn(user) -> uint256 amount of OLD token (raw units)
-    "label": "staked"                          // shown as "you have X MKR <label>"
-  },
-  "steps": [
-    { "type": "call", "to": "0x…", "signature": "free(uint256)", "args": ["$amount"], "contractLabel": "Maker governance (DSChief)" },
-    { "type": "call", "to": "0x…", "signature": "unstake()", "args": [], "waitSeconds": 15 },
-    { "type": "approve", "token": "old", "spender": "$migrator" },
-    { "type": "call", "to": "$migrator", "signature": "…", "args": ["$amount"] }
-  ],
-  "status": "open" | "blocked"
+"holding": {
+  "contract": "0x…",                       // where the position lives
+  "signature": "stakedBalanceOf(address)",   // view fn(user) -> uint256 amount of OLD token (raw units)
+  "label": "staked"                          // shown as "you have X MKR <label>"
 }
 ```
 
-- `holding.signature` must take exactly one `address` (the user) and return the old-token amount as
-  the first 32-byte word. `$amount` in steps is that amount.
-- `waitSeconds` on a step = the user must wait this long after the previous step. The simulator runs the
-  steps as separate `eth_simulateV1` blocks with pinned timestamps, so a cooldown up to a few days
-  simulates fine.
-- `contractLabel` names the contract in the how-to ("Open the Maker governance (DSChief) contract…").
-- `status: "blocked"`: the path does not work today for protocol reasons (e.g. the contract was drained).
-  The card shows "Blocked for now" plus the entry's `warnings`, and it turns Ready automatically if
-  the live simulation ever succeeds. Blocked entries don't count toward stats.
-- Entries with `holding` are excluded from `data/stats.json` totals (they would double-count supply).
+### General form: a read program (`holding.reads`)
 
-## What the engine does NOT support yet (report these, don't hack around them)
+Runs for every user, batched through Multicall3 one stage at a time. Each op either calls a view or
+reshapes the rows. A reverted call (or one to an address without code) drops that row: nothing there.
 
-1. **NFT positions** (veNFTs): the user owns token IDs; the amount is per ID (`locked(tokenId)`).
-2. **Lock expiries** measured in months/years (vote-escrow). A long `waitSeconds` would simulate, but
-   the UI would tell users to "wait 126,230,400 seconds". We need an "unlocks on <date>" concept that
-   reads the user's lock end.
-3. **Positions keyed by a proxy address** rather than the user (e.g. Maker VoteProxy: the MKR is
-   deposited under the proxy's address, and the user is the proxy's cold/hot wallet).
-4. **Amounts that aren't old-token units** (LP tokens, share tokens that need a conversion rate).
+| Op | Example | Effect |
+|---|---|---|
+| call | `{ "call": "0x…" \| "$proxy", "signature": "locked(uint256)", "args": ["$tokenId"], "out": { "amount": "int256@0", "unlock": 1 } }` | View call. `out` maps variables to return words: a number (uint256 at that word), `"type"` (word 0) or `"type@word"`. Types: uint*, int*, address, bool, bytes32, `uint256[]`/`address[]` (dynamic, offset at that word). `"out": "amount"` = word 0 as uint256. |
+| each | `{ "each": "index", "range": "$n" }` · `{ "each": "delegate", "in": ["0x…", …] }` · `{ "each": "grant", "in": "$ids" }` | One row per item. `range` and variable lists are capped at 100; literal lists aren't. The item joins the card id. |
+| require | `{ "require": "$owner", "is": "$user" }` · `"is": "nonzero"` · `"is": "zero"` | Drops rows that don't match. |
+| set | `{ "set": "total", "sum": ["$wallet", "$amount"] }` · `"min"` · `"max"` · `"value"` | Arithmetic on variables. |
+| collect | `{ "collect": { "ids": "$index" }, "sum": ["amount"] }` | Merges the rows of the last `each` back into one: lists and sums. |
 
-For any of these, write in your report exactly what the engine would need: which view calls, in what
-order, and how to turn them into an old-token amount and an unlock time. I'll build it.
+The program must leave `$amount` (raw units of the held token). Special variables:
+- `$unlock` (unix seconds): when it's in the future the card says **"Unlocks <date>"** and the steps are simulated in
+  blocks pinned just after that date. Past dates simulate normally.
+- Every variable is also a step placeholder: `"to": "$proxy"`, `"args": ["$ids"]` (arrays are encoded and shown as
+  `[1,2,3]`, which is what Etherscan expects), `"spender": "$delegate"`, `"amount": "$total"`.
+- `$user`, `$oldToken`, `$newToken`, `$migrator` are always set.
+
+Other holding fields:
+- `label` may interpolate variables: `"locked in v1 veNFT #$tokenId"` (addresses are shortened).
+- `unit: "new"`: `$amount` is already in new-token units (e.g. SNX waiting to be claimed). Expected output = amount.
+- `sweepsWallet: "$wallet"`: the flow also converts what's already in the wallet (e.g. KWENTA `lockAndConvert()`).
+  Read the wallet balance into that variable; the card subtracts that part (it has its own wallet card).
+- `amountVars: { "$shares": { "symbol": "dQUICK", "decimals": 18 } }` (or `"old"`/`"new"`): other placeholders that are
+  token amounts, so the how-to shows "= 51.46 dQUICK" under the raw number.
+
+Steps:
+- `"if": "$voted"` / `"if": "!$voted"` includes a step only when that variable is (not) set/non-zero.
+- `waitSeconds`: the user must wait this long after the previous step. The simulator runs the steps as separate
+  `eth_simulateV1` blocks with pinned timestamps (60 days is fine). The how-to says "Wait at least 60 days".
+- `contractLabel`, `title`, `tokenMeta` (for approving a third token such as the chief IOU) as before.
+
+Entry-level: `minAmount` (raw) hides balances below what the migrator accepts (the KEEP/NU vending machines floor
+to 0.001 and revert on zero).
+
+Worked examples: `registry.holdings-mkr.json` (vote proxy: address hop; LockStake: count + index; vote delegates:
+contract list), `registry.holdings-ve.json` (veOCEAN unlock date; VELO veNFT enumeration with a conditional reset),
+`registry.holdings-misc.json` (KWENTA escrow ID arrays and `sweepsWallet`; OGV `collect`; TRIBE per-pool list;
+dQUICK shares), `registry.holdings-keep.json` (operator-keyed stakes, grants, managed grants).
+
+`status: "blocked"`: the path doesn't work today for protocol reasons (e.g. the contract was drained). The card shows
+"Blocked for now" plus the entry's `warnings`, and turns Ready by itself if the live simulation ever succeeds.
+Entries with `holding` are excluded from `data/stats.json` totals (they would double-count supply).
+
+## Still not expressible
+
+- Grant-backed KEEP stakes (owner is a `TokenGrantStake` contract): the grantee undelegates/recovers through TokenGrant,
+  then withdraws the grant. Needs a grant → stake contract → operator walk.
+- Velodrome v1 veNFTs attached to a gauge (need `Gauge.withdrawToken` on the right gauge first; they are skipped).
+- Vote-proxy **hot** wallets (the MKR goes to the cold wallet; check that address instead).
+- Two-argument rewards views keyed by token (Velodrome v1 gauge `earned(token, user)`, Ocean DFRewards).
+- LP / index shares that contain an old token.
 
 ## Verification bar (same as the wallet registry)
 

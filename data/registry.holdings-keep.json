@@ -1,0 +1,571 @@
+[
+  {
+    "id": "keep-staked-to-t",
+    "name": "Staked KEEP (Keep Network staking) → T",
+    "project": "Threshold Network",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x85Eee30c52B0b379b046Fb0F85F4f3Dc3009aFEC",
+      "symbol": "KEEP",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+      "symbol": "T",
+      "decimals": 18
+    },
+    "migrator": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+    "ratio": {
+      "num": "4783188631255016",
+      "den": "1000000000000000"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x1293a54e160D1cd7075487898d65266081A15458",
+        "signature": "undelegate(address _operator)",
+        "args": [
+          "$operator"
+        ],
+        "contractLabel": "Keep Network TokenStaking",
+        "title": "Start undelegating your KEEP"
+      },
+      {
+        "type": "call",
+        "to": "0x1293a54e160D1cd7075487898d65266081A15458",
+        "signature": "recoverStake(address _operator)",
+        "args": [
+          "$operator"
+        ],
+        "waitSeconds": 5184000,
+        "contractLabel": "Keep Network TokenStaking",
+        "title": "Take your KEEP back"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0"
+      },
+      {
+        "type": "call",
+        "to": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+        "signature": "wrap(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Threshold KEEP → T vending machine"
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": null,
+    "sources": [
+      "https://github.com/keep-network/keep-core/tree/main/solidity-v1/contracts",
+      "https://etherscan.io/address/0x1293a54e160D1cd7075487898d65266081A15458",
+      "https://etherscan.io/address/0x175989c71Fd023D580C65F5dC214002687ff88B7",
+      "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc"
+    ],
+    "payoutReserve": {
+      "holder": "0xe47c80e8c23f6b4a1ae41c34837a0599d5d16bb0"
+    },
+    "holding": {
+      "reads": [
+        {
+          "each": "operator",
+          "in": [
+            "0x01474098607eD064F72832E1491b2261967166DA",
+            "0x0ae20e11a065a7E750482E6a7E9eB7eaB7A8137f",
+            "0x1dF927B69A97E8140315536163C029d188e8573b",
+            "0x2222aa7722Aa77287E6Db2eBC66D0EfEB7e131b0",
+            "0x39d2aCBCD80d80080541C6eed7e9feBb8127B2Ab",
+            "0x3Dd301b3c96A282d8092E1e6f6846f24172D45C1",
+            "0x428df09f1Ae54234B550518665FB75Dd4Bd60C50",
+            "0x4bFa10B1538E8E765E995688D8EEc39C717B6797",
+            "0x5b0e39cc641FaF1cF00AEEf886803eA85DC9E351",
+            "0x617daCE069Fbd41993491de211b4DfccdAcbd348",
+            "0x650A9eD18Df873cad98C88dcaC8170531cAD2399",
+            "0x6830CFE9e3a11df8D0aC5383cddE3d225AEB0dF0",
+            "0x71b1a9096Bc1AF4863505765B431618FFfd96279",
+            "0x74c0C47b7f739bccae574672A9745B317E3B5de4",
+            "0x7f746e790e97996AC9fE892d48eB8660DeE6786D",
+            "0x9Cc5Aee6170772654E455F2FFAB8c490E34197Ad",
+            "0xa39F6Ca62303229873D06395237307Cd59de806d",
+            "0xA4166C3E14cbDd6D4494945A99616f1C73aD9699",
+            "0xa62E990E0229A3247270d6206adf3d883dbED919",
+            "0xaaFab076DA8d1C885F492bad4e2C259F0b6448F8",
+            "0xaEa619D02dcF7299FB24dB2F60A08BFC8FB2dbcf",
+            "0xb6C5DFee1b565e8009351D692a729b5546249786",
+            "0xb6f73866553F63C07e457424aBc4EB735a6d6552",
+            "0xb8C2C0Aa32a95351ffa9450509C62379a42a4f87",
+            "0xc17B71c3f75740A054E7D0d55De8319D7aa8c126",
+            "0xca70feA021359778daeC479b97D0cD2eFE1Ad099",
+            "0xcBB734bBa70c6462a9F22C2b481346ebEf3CFAd3",
+            "0xD52BfE62a163eB4eC8FC98f06eD3f02695ae491d",
+            "0xE0765F56DB12eBf996a8363004BaEeC61723B657",
+            "0xe26E2d93Bbc8fde0e1E3B290Fc927Fb374E7e34e",
+            "0xF2f5E0a3365c385A3ADCA4F614eD0984dFff52a3",
+            "0xF35343299a4f80Dd5D917bbe5ddd54eBB820eBd4"
+          ]
+        },
+        {
+          "call": "0x1293a54e160D1cd7075487898d65266081A15458",
+          "signature": "ownerOf(address)",
+          "args": [
+            "$operator"
+          ],
+          "out": {
+            "owner": "address"
+          }
+        },
+        {
+          "require": "$owner",
+          "is": "$user"
+        },
+        {
+          "call": "0x1293a54e160D1cd7075487898d65266081A15458",
+          "signature": "getDelegationInfo(address)",
+          "args": [
+            "$operator"
+          ],
+          "out": {
+            "amount": 0,
+            "createdAt": 1,
+            "undelegatedAt": 2
+          }
+        },
+        {
+          "require": "$undelegatedAt",
+          "is": "zero"
+        }
+      ],
+      "label": "staked with operator $operator"
+    },
+    "warnings": [
+      {
+        "level": "info",
+        "text": "Keep Network staking ended when Keep merged into Threshold. Your KEEP is still delegated to an operator; undelegating starts a 60-day waiting period, after which you take it back and wrap it into T."
+      },
+      {
+        "level": "danger",
+        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0xdd08121f4c80182c4748d12140477376324e2c93",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "TokenStaking v1.3 0x1293a54e160D1cd7075487898d65266081A15458: 32 live delegations out of 247 StakeDelegated operators (11.56M KEEP). Positions are keyed by operator; ownerOf(operator) must be the user. undelegationPeriod() = 5,184,000 s. Grant-backed stakes (owner = TokenGrantStake) never match a user and are not covered."
+    },
+    "minAmount": "1000000000000000"
+  },
+  {
+    "id": "keep-undelegated-to-t",
+    "name": "Undelegated KEEP (Keep Network staking) → T",
+    "project": "Threshold Network",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x85Eee30c52B0b379b046Fb0F85F4f3Dc3009aFEC",
+      "symbol": "KEEP",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+      "symbol": "T",
+      "decimals": 18
+    },
+    "migrator": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+    "ratio": {
+      "num": "4783188631255016",
+      "den": "1000000000000000"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x1293a54e160D1cd7075487898d65266081A15458",
+        "signature": "recoverStake(address _operator)",
+        "args": [
+          "$operator"
+        ],
+        "contractLabel": "Keep Network TokenStaking",
+        "title": "Take your KEEP back"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0"
+      },
+      {
+        "type": "call",
+        "to": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+        "signature": "wrap(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Threshold KEEP → T vending machine"
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": null,
+    "sources": [
+      "https://github.com/keep-network/keep-core/tree/main/solidity-v1/contracts",
+      "https://etherscan.io/address/0x1293a54e160D1cd7075487898d65266081A15458",
+      "https://etherscan.io/address/0x175989c71Fd023D580C65F5dC214002687ff88B7",
+      "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc"
+    ],
+    "payoutReserve": {
+      "holder": "0xe47c80e8c23f6b4a1ae41c34837a0599d5d16bb0"
+    },
+    "holding": {
+      "reads": [
+        {
+          "each": "operator",
+          "in": [
+            "0x01474098607eD064F72832E1491b2261967166DA",
+            "0x0ae20e11a065a7E750482E6a7E9eB7eaB7A8137f",
+            "0x1dF927B69A97E8140315536163C029d188e8573b",
+            "0x2222aa7722Aa77287E6Db2eBC66D0EfEB7e131b0",
+            "0x39d2aCBCD80d80080541C6eed7e9feBb8127B2Ab",
+            "0x3Dd301b3c96A282d8092E1e6f6846f24172D45C1",
+            "0x428df09f1Ae54234B550518665FB75Dd4Bd60C50",
+            "0x4bFa10B1538E8E765E995688D8EEc39C717B6797",
+            "0x5b0e39cc641FaF1cF00AEEf886803eA85DC9E351",
+            "0x617daCE069Fbd41993491de211b4DfccdAcbd348",
+            "0x650A9eD18Df873cad98C88dcaC8170531cAD2399",
+            "0x6830CFE9e3a11df8D0aC5383cddE3d225AEB0dF0",
+            "0x71b1a9096Bc1AF4863505765B431618FFfd96279",
+            "0x74c0C47b7f739bccae574672A9745B317E3B5de4",
+            "0x7f746e790e97996AC9fE892d48eB8660DeE6786D",
+            "0x9Cc5Aee6170772654E455F2FFAB8c490E34197Ad",
+            "0xa39F6Ca62303229873D06395237307Cd59de806d",
+            "0xA4166C3E14cbDd6D4494945A99616f1C73aD9699",
+            "0xa62E990E0229A3247270d6206adf3d883dbED919",
+            "0xaaFab076DA8d1C885F492bad4e2C259F0b6448F8",
+            "0xaEa619D02dcF7299FB24dB2F60A08BFC8FB2dbcf",
+            "0xb6C5DFee1b565e8009351D692a729b5546249786",
+            "0xb6f73866553F63C07e457424aBc4EB735a6d6552",
+            "0xb8C2C0Aa32a95351ffa9450509C62379a42a4f87",
+            "0xc17B71c3f75740A054E7D0d55De8319D7aa8c126",
+            "0xca70feA021359778daeC479b97D0cD2eFE1Ad099",
+            "0xcBB734bBa70c6462a9F22C2b481346ebEf3CFAd3",
+            "0xD52BfE62a163eB4eC8FC98f06eD3f02695ae491d",
+            "0xE0765F56DB12eBf996a8363004BaEeC61723B657",
+            "0xe26E2d93Bbc8fde0e1E3B290Fc927Fb374E7e34e",
+            "0xF2f5E0a3365c385A3ADCA4F614eD0984dFff52a3",
+            "0xF35343299a4f80Dd5D917bbe5ddd54eBB820eBd4"
+          ]
+        },
+        {
+          "call": "0x1293a54e160D1cd7075487898d65266081A15458",
+          "signature": "ownerOf(address)",
+          "args": [
+            "$operator"
+          ],
+          "out": {
+            "owner": "address"
+          }
+        },
+        {
+          "require": "$owner",
+          "is": "$user"
+        },
+        {
+          "call": "0x1293a54e160D1cd7075487898d65266081A15458",
+          "signature": "getDelegationInfo(address)",
+          "args": [
+            "$operator"
+          ],
+          "out": {
+            "amount": 0,
+            "createdAt": 1,
+            "undelegatedAt": 2
+          }
+        },
+        {
+          "require": "$undelegatedAt",
+          "is": "nonzero"
+        },
+        {
+          "set": "unlock",
+          "sum": [
+            "$undelegatedAt",
+            5184000
+          ]
+        }
+      ],
+      "label": "undelegated from operator $operator"
+    },
+    "warnings": [
+      {
+        "level": "info",
+        "text": "You already undelegated this KEEP but never took it back from Keep Network staking. Recover it, then wrap it into T."
+      },
+      {
+        "level": "danger",
+        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x85f00ec494d31409640630644b84ee04844a4658",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Same TokenStaking v1.3; undelegatedAt != 0. recoverStake(operator) returns the KEEP to the owner once undelegatedAt + 60 days has passed (the engine simulates at that date if it's still ahead)."
+    },
+    "minAmount": "1000000000000000"
+  },
+  {
+    "id": "keep-grant-to-t",
+    "name": "KEEP in a Keep Network token grant → T",
+    "project": "Threshold Network",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x85Eee30c52B0b379b046Fb0F85F4f3Dc3009aFEC",
+      "symbol": "KEEP",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+      "symbol": "T",
+      "decimals": 18
+    },
+    "migrator": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+    "ratio": {
+      "num": "4783188631255016",
+      "den": "1000000000000000"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x175989c71Fd023D580C65F5dC214002687ff88B7",
+        "signature": "withdraw(uint256 _id)",
+        "args": [
+          "$grant"
+        ],
+        "contractLabel": "Keep Network TokenGrant",
+        "title": "Withdraw your unlocked KEEP from the grant"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0"
+      },
+      {
+        "type": "call",
+        "to": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+        "signature": "wrap(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Threshold KEEP → T vending machine"
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": null,
+    "sources": [
+      "https://github.com/keep-network/keep-core/tree/main/solidity-v1/contracts",
+      "https://etherscan.io/address/0x1293a54e160D1cd7075487898d65266081A15458",
+      "https://etherscan.io/address/0x175989c71Fd023D580C65F5dC214002687ff88B7",
+      "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc"
+    ],
+    "payoutReserve": {
+      "holder": "0xe47c80e8c23f6b4a1ae41c34837a0599d5d16bb0"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0x175989c71Fd023D580C65F5dC214002687ff88B7",
+          "signature": "getGrants(address)",
+          "args": [
+            "$user"
+          ],
+          "out": {
+            "ids": "uint256[]@0"
+          }
+        },
+        {
+          "each": "grant",
+          "in": "$ids"
+        },
+        {
+          "call": "0x175989c71Fd023D580C65F5dC214002687ff88B7",
+          "signature": "getGrant(uint256)",
+          "args": [
+            "$grant"
+          ],
+          "out": {
+            "grantee": "address@5"
+          }
+        },
+        {
+          "require": "$grantee",
+          "is": "$user"
+        },
+        {
+          "call": "0x175989c71Fd023D580C65F5dC214002687ff88B7",
+          "signature": "withdrawable(uint256)",
+          "args": [
+            "$grant"
+          ],
+          "out": "amount"
+        }
+      ],
+      "label": "unlocked in Keep token grant #$grant"
+    },
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This KEEP was granted to you with a vesting schedule that has fully unlocked, but it was never withdrawn. Withdraw it, then wrap it into T."
+      },
+      {
+        "level": "danger",
+        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0xc6b2864fbcd2a8dec8defd1d421bc1e450c370ad",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "TokenGrant 0x1759…88B7: 224 grants, 32.06M KEEP withdrawable now. getGrants(user) also lists grants the user created as grantor, so each id is checked with getGrant(id).grantee == user. withdraw(id) pays the grantee."
+    },
+    "minAmount": "1000000000000000"
+  },
+  {
+    "id": "keep-managedgrant-to-t",
+    "name": "KEEP in a Keep Network managed grant → T",
+    "project": "Threshold Network",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x85Eee30c52B0b379b046Fb0F85F4f3Dc3009aFEC",
+      "symbol": "KEEP",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+      "symbol": "T",
+      "decimals": 18
+    },
+    "migrator": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+    "ratio": {
+      "num": "4783188631255016",
+      "den": "1000000000000000"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "$managedGrant",
+        "signature": "withdraw()",
+        "args": [],
+        "contractLabel": "your Keep ManagedGrant",
+        "title": "Withdraw your unlocked KEEP from the managed grant"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0"
+      },
+      {
+        "type": "call",
+        "to": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+        "signature": "wrap(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Threshold KEEP → T vending machine"
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": null,
+    "sources": [
+      "https://github.com/keep-network/keep-core/tree/main/solidity-v1/contracts",
+      "https://etherscan.io/address/0x1293a54e160D1cd7075487898d65266081A15458",
+      "https://etherscan.io/address/0x175989c71Fd023D580C65F5dC214002687ff88B7",
+      "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc"
+    ],
+    "payoutReserve": {
+      "holder": "0xe47c80e8c23f6b4a1ae41c34837a0599d5d16bb0"
+    },
+    "holding": {
+      "reads": [
+        {
+          "each": "managedGrant",
+          "in": [
+            "0x06707b498FFc0f8f84F713c620Fd330780e5ebE7",
+            "0x158B8a7Dcb3644a6c1A37Fd31F2441c7fD9a36A8",
+            "0x16245370570048B9E76D0E153B584a5D2C573f34",
+            "0x1d23DbEFDc5761d366778B3cFf786dbedBa9BcAB",
+            "0x253Ed39896bD005FfeaCdF2cfb3E7803562ad705",
+            "0x2CACF006d5558DB8D57A86bBa140A5f68a587c71",
+            "0x3B59F8E3614A91371D2781b0B18a700b220F26E6",
+            "0x3ff42D9bFb30a89A6F6Bc43B2a0B4BcAd219aFeB",
+            "0x46D027F88659754F76311800A7DDEF0Fe34cF321",
+            "0x4D8675cF3b5a2b78c8Ae5E2D6d9958D4D70160e9",
+            "0x5029555d2d67B0Fe5C16adfCBD3CD2E9A0c06C3C",
+            "0x50950BB49243210d9deAA0c28904e64c8b4df5d6",
+            "0x5a912A582Ff61c71345f8f88C84F5e0dF87f0050",
+            "0x6A35D3367485aCD42439Eb2B5dd03a82b395A6E1",
+            "0x722A620cE2B604cfB4C57B3313f382642BA97CBe",
+            "0x7E65d6354FF660C5c20F12e957C30FD642ee9d80",
+            "0x7Fdd861441FC4D581C3e544D2F1ac1241DDF640c",
+            "0x8cd30cc59a0C348d9F87d1743a86bCeDDb185736",
+            "0x9556585d63f88A5caD27061A032A1521AEe456B1",
+            "0x9F0941A4C0BA62Ef52194C0aD88ea2af852DA7A7",
+            "0xA2fa09D6f8C251422F5fde29a0BAd1C53dEfAe66",
+            "0xbb8D24a20c20625f86739824014C3cBAAAb26700",
+            "0xc8a1932bfF1EE6323DD50cDDD37068ab9dD21334",
+            "0xDD88C3C04400F18CaD56b1F8747078D7F35F8d80"
+          ]
+        },
+        {
+          "call": "$managedGrant",
+          "signature": "grantee()",
+          "args": [],
+          "out": {
+            "grantee": "address"
+          }
+        },
+        {
+          "require": "$grantee",
+          "is": "$user"
+        },
+        {
+          "call": "$managedGrant",
+          "signature": "grantId()",
+          "args": [],
+          "out": "grant"
+        },
+        {
+          "call": "0x175989c71Fd023D580C65F5dC214002687ff88B7",
+          "signature": "withdrawable(uint256)",
+          "args": [
+            "$grant"
+          ],
+          "out": "amount"
+        }
+      ],
+      "label": "unlocked in Keep managed grant #$grant"
+    },
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This KEEP was granted to you through a managed grant contract. The schedule has fully unlocked, but it was never withdrawn. Withdraw it, then wrap it into T."
+      },
+      {
+        "level": "danger",
+        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x6950c4c7e97c7d2e6b5bffec4634f841db2a5f3d",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "24 ManagedGrant contracts that are the grantee of a TokenGrant grant with KEEP withdrawable now (grantId() matches). ManagedGrant.grantee() is the real owner; withdraw() pulls from TokenGrant and pays the grantee."
+    },
+    "minAmount": "1000000000000000"
+  }
+]

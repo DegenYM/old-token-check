@@ -1,303 +1,889 @@
 [
- {
-  "id": "mkr-chief-2017-to-sky",
-  "name": "MKR locked in the 2017 Maker chief → SKY",
-  "project": "Sky (MakerDAO)",
-  "chainId": 1,
-  "oldToken": {
-   "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
-   "symbol": "MKR",
-   "decimals": 18
-  },
-  "newToken": {
-   "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
-   "symbol": "SKY",
-   "decimals": 18
-  },
-  "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-  "ratio": {
-   "num": "22800",
-   "den": "1"
-  },
-  "status": "open",
-  "deadline": null,
-  "statusCheck": {
-   "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-   "signature": "fee()",
-   "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
-  },
-  "payoutReserve": {
-   "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
-  },
-  "officialUi": "https://upgrademkrtosky.skyeco.com/",
-  "holding": {
-   "contract": "0x8E2a84D6adE1E7ffFEe039A35EF5F19F13057152",
-   "signature": "deposits(address)",
-   "label": "locked in Maker governance (2017 DSChief)"
-  },
-  "steps": [
-   {
-    "type": "approve",
-    "token": "0x9AeD7A25F2d928225e6fb2388055c7363aD6727b",
-    "spender": "0x8E2a84D6adE1E7ffFEe039A35EF5F19F13057152",
-    "amount": "$amount",
-    "tokenMeta": {
-     "symbol": "IOU",
-     "decimals": 18
+  {
+    "id": "mkr-chief-2017-to-sky",
+    "name": "MKR locked in the 2017 Maker chief → SKY",
+    "project": "Sky (MakerDAO)",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+      "symbol": "MKR",
+      "decimals": 18
     },
-    "title": "Approve the chief to take back your IOU tokens",
-    "contractLabel": "chief IOU"
-   },
-   {
-    "type": "call",
-    "to": "0x8E2a84D6adE1E7ffFEe039A35EF5F19F13057152",
-    "signature": "free(uint256 wad)",
-    "args": [
-     "$amount"
-    ],
-    "contractLabel": "Maker governance (DSChief)",
-    "title": "Unlock your MKR from the chief"
-   },
-   {
-    "type": "approve",
-    "token": "old",
-    "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
-   },
-   {
-    "type": "call",
-    "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-    "signature": "mkrToSky(address usr, uint256 mkrAmt)",
-    "args": [
-     "$user",
-     "$amount"
-    ],
-    "contractLabel": "Sky MKR → SKY converter"
-   }
-  ],
-  "sources": [
-   "https://raw.githubusercontent.com/makerdao/dai.js/dev/packages/dai/contracts/addresses/mainnet.json",
-   "https://etherscan.io/address/0x8E2a84D6adE1E7ffFEe039A35EF5F19F13057152",
-   "https://developers.skyeco.com/guides/sky/token-governance-upgrade/token-holders/"
-  ],
-  "warnings": [
-   {
-    "level": "info",
-    "text": "This MKR was locked for voting in the original 2017 Maker governance contract (used by Sai / single-collateral Dai). It is still yours. First approve the contract to take back your voting receipt (IOU) tokens, then free the MKR, then upgrade it to SKY. If you moved your IOU tokens to another address, the free step fails until they are back."
-   },
-   {
-    "level": "warn",
-    "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
-   }
-  ],
-  "verification": {
-   "codeExists": true,
-   "simulatedAt": 26087827,
-   "holderUsed": "0x7C5F6fFaD368dBf1a83E6D66b5aCE792fac2E7C0",
-   "simulatedIn": "1500000000000000000000",
-   "simulatedOut": "34200000000000000000000000",
-   "method": "eth_simulateV1 via the site engine (lib/scan.js scanChain+analyzeFinding) at latest, one block, traceTransfers, validation=false; status=ready",
-   "notes": "SAI_ADM (Sai-era DSChief, dai.js mainnet addresses). Holds 1,805.61 MKR (IOU supply 1,804.86); ~1,800.4 MKR sits under two EOAs (1,500 and 300) that never freed after the 2019 chief migration. free() burns the caller's IOU via DSToken.burn(guy,wad), which needs an IOU allowance to the chief: without step 1 free() reverts (verified). No lock-block guard in this version. Also simulated 0xb08e622f…fb38: 300 MKR -> 6,840,000 SKY. Fee = MkrSky fee() 5% (statusCheck)."
-  }
- },
- {
-  "id": "mkr-chief-2019-to-sky",
-  "name": "MKR locked in the 2019 Maker chief → SKY",
-  "project": "Sky (MakerDAO)",
-  "chainId": 1,
-  "oldToken": {
-   "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
-   "symbol": "MKR",
-   "decimals": 18
-  },
-  "newToken": {
-   "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
-   "symbol": "SKY",
-   "decimals": 18
-  },
-  "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-  "ratio": {
-   "num": "22800",
-   "den": "1"
-  },
-  "status": "open",
-  "deadline": null,
-  "statusCheck": {
-   "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-   "signature": "fee()",
-   "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
-  },
-  "payoutReserve": {
-   "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
-  },
-  "officialUi": "https://upgrademkrtosky.skyeco.com/",
-  "holding": {
-   "contract": "0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5",
-   "signature": "deposits(address)",
-   "label": "locked in Maker governance (2019 DSChief)"
-  },
-  "steps": [
-   {
-    "type": "approve",
-    "token": "0x496C67A4CEd9C453A60F3166AB4B329870c8E355",
-    "spender": "0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5",
-    "amount": "$amount",
-    "tokenMeta": {
-     "symbol": "IOU",
-     "decimals": 18
+    "newToken": {
+      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+      "symbol": "SKY",
+      "decimals": 18
     },
-    "title": "Approve the chief to take back your IOU tokens",
-    "contractLabel": "chief IOU"
-   },
-   {
-    "type": "call",
-    "to": "0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5",
-    "signature": "free(uint256 wad)",
-    "args": [
-     "$amount"
-    ],
-    "contractLabel": "Maker governance (DSChief)",
-    "title": "Unlock your MKR from the chief"
-   },
-   {
-    "type": "approve",
-    "token": "old",
-    "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
-   },
-   {
-    "type": "call",
-    "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-    "signature": "mkrToSky(address usr, uint256 mkrAmt)",
-    "args": [
-     "$user",
-     "$amount"
-    ],
-    "contractLabel": "Sky MKR → SKY converter"
-   }
-  ],
-  "sources": [
-   "https://changelog.makerdao.com/releases/mainnet/1.0.0/contracts.json",
-   "https://etherscan.io/address/0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5",
-   "https://developers.skyeco.com/guides/sky/token-governance-upgrade/token-holders/"
-  ],
-  "warnings": [
-   {
-    "level": "info",
-    "text": "This MKR was locked for voting in the Maker governance contract used from Nov 2019 to mid-2020 (replaced by a newer chief). It is still yours. First approve the contract to take back your voting receipt (IOU) tokens, then free the MKR, then upgrade it to SKY. If you moved your IOU tokens to another address, the free step fails until they are back."
-   },
-   {
-    "level": "warn",
-    "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
-   }
-  ],
-  "verification": {
-   "codeExists": true,
-   "simulatedAt": 26087828,
-   "holderUsed": "0xb522BD8A501dFA970C40B57eb76C76256d55758d",
-   "simulatedIn": "6616500000000000000",
-   "simulatedOut": "150856200000000000000000",
-   "method": "eth_simulateV1 via the site engine (lib/scan.js scanChain+analyzeFinding) at latest, one block, traceTransfers, validation=false; status=ready",
-   "notes": "MCD_ADM in changelog release 1.0.0 (Nov 2019). Holds 77.69 MKR: ~40.56 under VoteProxies from factory 0x868ba9aeacA5B73c7C27F3B01588bf4F1339F2bC (not expressible, see research/holdings-mkr.md), ~37 direct. free() needs IOU approval (step 1) and block.number > last[msg.sender]."
-  }
- },
- {
-  "id": "mkr-chief-2020-to-sky",
-  "name": "MKR locked in the 2020–2025 Maker chief → SKY",
-  "project": "Sky (MakerDAO)",
-  "chainId": 1,
-  "oldToken": {
-   "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
-   "symbol": "MKR",
-   "decimals": 18
-  },
-  "newToken": {
-   "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
-   "symbol": "SKY",
-   "decimals": 18
-  },
-  "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-  "ratio": {
-   "num": "22800",
-   "den": "1"
-  },
-  "status": "open",
-  "deadline": null,
-  "statusCheck": {
-   "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-   "signature": "fee()",
-   "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
-  },
-  "payoutReserve": {
-   "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
-  },
-  "officialUi": "https://upgrademkrtosky.skyeco.com/",
-  "holding": {
-   "contract": "0x0a3f6849f78076aefaDf113F5BED87720274dDC0",
-   "signature": "deposits(address)",
-   "label": "locked in Maker governance (2020 DSChief)"
-  },
-  "steps": [
-   {
-    "type": "approve",
-    "token": "0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7",
-    "spender": "0x0a3f6849f78076aefaDf113F5BED87720274dDC0",
-    "amount": "$amount",
-    "tokenMeta": {
-     "symbol": "IOU",
-     "decimals": 18
+    "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "ratio": {
+      "num": "22800",
+      "den": "1"
     },
-    "title": "Approve the chief to take back your IOU tokens",
-    "contractLabel": "chief IOU"
-   },
-   {
-    "type": "call",
-    "to": "0x0a3f6849f78076aefaDf113F5BED87720274dDC0",
-    "signature": "free(uint256 wad)",
-    "args": [
-     "$amount"
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+      "signature": "fee()",
+      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+    },
+    "payoutReserve": {
+      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+    },
+    "officialUi": "https://upgrademkrtosky.skyeco.com/",
+    "holding": {
+      "contract": "0x8E2a84D6adE1E7ffFEe039A35EF5F19F13057152",
+      "signature": "deposits(address)",
+      "label": "locked in Maker governance (2017 DSChief)"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0x9AeD7A25F2d928225e6fb2388055c7363aD6727b",
+        "spender": "0x8E2a84D6adE1E7ffFEe039A35EF5F19F13057152",
+        "amount": "$amount",
+        "tokenMeta": {
+          "symbol": "IOU",
+          "decimals": 18
+        },
+        "title": "Approve the chief to take back your IOU tokens",
+        "contractLabel": "chief IOU"
+      },
+      {
+        "type": "call",
+        "to": "0x8E2a84D6adE1E7ffFEe039A35EF5F19F13057152",
+        "signature": "free(uint256 wad)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Maker governance (DSChief)",
+        "title": "Unlock your MKR from the chief"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+      },
+      {
+        "type": "call",
+        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+        "signature": "mkrToSky(address usr, uint256 mkrAmt)",
+        "args": [
+          "$user",
+          "$amount"
+        ],
+        "contractLabel": "Sky MKR → SKY converter"
+      }
     ],
-    "contractLabel": "Maker governance (DSChief)",
-    "title": "Unlock your MKR from the chief"
-   },
-   {
-    "type": "approve",
-    "token": "old",
-    "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
-   },
-   {
-    "type": "call",
-    "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-    "signature": "mkrToSky(address usr, uint256 mkrAmt)",
-    "args": [
-     "$user",
-     "$amount"
+    "sources": [
+      "https://raw.githubusercontent.com/makerdao/dai.js/dev/packages/dai/contracts/addresses/mainnet.json",
+      "https://etherscan.io/address/0x8E2a84D6adE1E7ffFEe039A35EF5F19F13057152",
+      "https://developers.skyeco.com/guides/sky/token-governance-upgrade/token-holders/"
     ],
-    "contractLabel": "Sky MKR → SKY converter"
-   }
-  ],
-  "sources": [
-   "https://changelog.makerdao.com/releases/mainnet/1.2.0/contracts.json",
-   "https://chainlog.sky.money/api/mainnet/1.19.0.json",
-   "https://etherscan.io/address/0x0a3f6849f78076aefaDf113F5BED87720274dDC0",
-   "https://developers.skyeco.com/guides/sky/token-governance-upgrade/token-holders/"
-  ],
-  "warnings": [
-   {
-    "level": "info",
-    "text": "This MKR was locked for voting in the MKR-era Maker governance contract. Governance has since moved to a SKY-based chief, so this lock no longer votes on anything. First approve the contract to take back your voting receipt (IOU) tokens, then free the MKR, then upgrade it to SKY. If you moved your IOU tokens to another address, the free step fails until they are back."
-   },
-   {
-    "level": "warn",
-    "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
-   }
-  ],
-  "verification": {
-   "codeExists": true,
-   "simulatedAt": 26087828,
-   "holderUsed": "0x7eEc35333AFB0AB6996085727E1939F008840410",
-   "simulatedIn": "540000000000000000",
-   "simulatedOut": "12312000000000000000000",
-   "method": "eth_simulateV1 via the site engine (lib/scan.js scanChain+analyzeFinding) at latest, one block, traceTransfers, validation=false; status=ready",
-   "notes": "MCD_ADM in changelog 1.2.0 through chainlog 1.19.0; replaced by the SKY chief 0x929d…a6f9. Holds 432.09 MKR: 372.53 in one VoteProxy (0x07294967…), 9.95 in VoteDelegate v2s (all LockstakeEngine v1 urns), 42.05 in 139 VoteDelegate v1s, only ~7.5 direct. The holder also has 7.57 MKR in the wallet; the steps only move the locked amount."
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This MKR was locked for voting in the original 2017 Maker governance contract (used by Sai / single-collateral Dai). It is still yours. First approve the contract to take back your voting receipt (IOU) tokens, then free the MKR, then upgrade it to SKY. If you moved your IOU tokens to another address, the free step fails until they are back."
+      },
+      {
+        "level": "warn",
+        "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 26087827,
+      "holderUsed": "0x7C5F6fFaD368dBf1a83E6D66b5aCE792fac2E7C0",
+      "simulatedIn": "1500000000000000000000",
+      "simulatedOut": "34200000000000000000000000",
+      "method": "eth_simulateV1 via the site engine (lib/scan.js scanChain+analyzeFinding) at latest, one block, traceTransfers, validation=false; status=ready",
+      "notes": "SAI_ADM (Sai-era DSChief, dai.js mainnet addresses). Holds 1,805.61 MKR (IOU supply 1,804.86); ~1,800.4 MKR sits under two EOAs (1,500 and 300) that never freed after the 2019 chief migration. free() burns the caller's IOU via DSToken.burn(guy,wad), which needs an IOU allowance to the chief: without step 1 free() reverts (verified). No lock-block guard in this version. Also simulated 0xb08e622f…fb38: 300 MKR -> 6,840,000 SKY. Fee = MkrSky fee() 5% (statusCheck)."
+    }
+  },
+  {
+    "id": "mkr-chief-2019-to-sky",
+    "name": "MKR locked in the 2019 Maker chief → SKY",
+    "project": "Sky (MakerDAO)",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+      "symbol": "MKR",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+      "symbol": "SKY",
+      "decimals": 18
+    },
+    "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "ratio": {
+      "num": "22800",
+      "den": "1"
+    },
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+      "signature": "fee()",
+      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+    },
+    "payoutReserve": {
+      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+    },
+    "officialUi": "https://upgrademkrtosky.skyeco.com/",
+    "holding": {
+      "contract": "0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5",
+      "signature": "deposits(address)",
+      "label": "locked in Maker governance (2019 DSChief)"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0x496C67A4CEd9C453A60F3166AB4B329870c8E355",
+        "spender": "0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5",
+        "amount": "$amount",
+        "tokenMeta": {
+          "symbol": "IOU",
+          "decimals": 18
+        },
+        "title": "Approve the chief to take back your IOU tokens",
+        "contractLabel": "chief IOU"
+      },
+      {
+        "type": "call",
+        "to": "0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5",
+        "signature": "free(uint256 wad)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Maker governance (DSChief)",
+        "title": "Unlock your MKR from the chief"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+      },
+      {
+        "type": "call",
+        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+        "signature": "mkrToSky(address usr, uint256 mkrAmt)",
+        "args": [
+          "$user",
+          "$amount"
+        ],
+        "contractLabel": "Sky MKR → SKY converter"
+      }
+    ],
+    "sources": [
+      "https://changelog.makerdao.com/releases/mainnet/1.0.0/contracts.json",
+      "https://etherscan.io/address/0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5",
+      "https://developers.skyeco.com/guides/sky/token-governance-upgrade/token-holders/"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This MKR was locked for voting in the Maker governance contract used from Nov 2019 to mid-2020 (replaced by a newer chief). It is still yours. First approve the contract to take back your voting receipt (IOU) tokens, then free the MKR, then upgrade it to SKY. If you moved your IOU tokens to another address, the free step fails until they are back."
+      },
+      {
+        "level": "warn",
+        "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 26087828,
+      "holderUsed": "0xb522BD8A501dFA970C40B57eb76C76256d55758d",
+      "simulatedIn": "6616500000000000000",
+      "simulatedOut": "150856200000000000000000",
+      "method": "eth_simulateV1 via the site engine (lib/scan.js scanChain+analyzeFinding) at latest, one block, traceTransfers, validation=false; status=ready",
+      "notes": "MCD_ADM in changelog release 1.0.0 (Nov 2019). Holds 77.69 MKR: ~40.56 under VoteProxies from factory 0x868ba9aeacA5B73c7C27F3B01588bf4F1339F2bC (not expressible, see research/holdings-mkr.md), ~37 direct. free() needs IOU approval (step 1) and block.number > last[msg.sender]."
+    }
+  },
+  {
+    "id": "mkr-chief-2020-to-sky",
+    "name": "MKR locked in the 2020–2025 Maker chief → SKY",
+    "project": "Sky (MakerDAO)",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+      "symbol": "MKR",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+      "symbol": "SKY",
+      "decimals": 18
+    },
+    "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "ratio": {
+      "num": "22800",
+      "den": "1"
+    },
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+      "signature": "fee()",
+      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+    },
+    "payoutReserve": {
+      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+    },
+    "officialUi": "https://upgrademkrtosky.skyeco.com/",
+    "holding": {
+      "contract": "0x0a3f6849f78076aefaDf113F5BED87720274dDC0",
+      "signature": "deposits(address)",
+      "label": "locked in Maker governance (2020 DSChief)"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7",
+        "spender": "0x0a3f6849f78076aefaDf113F5BED87720274dDC0",
+        "amount": "$amount",
+        "tokenMeta": {
+          "symbol": "IOU",
+          "decimals": 18
+        },
+        "title": "Approve the chief to take back your IOU tokens",
+        "contractLabel": "chief IOU"
+      },
+      {
+        "type": "call",
+        "to": "0x0a3f6849f78076aefaDf113F5BED87720274dDC0",
+        "signature": "free(uint256 wad)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Maker governance (DSChief)",
+        "title": "Unlock your MKR from the chief"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+      },
+      {
+        "type": "call",
+        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+        "signature": "mkrToSky(address usr, uint256 mkrAmt)",
+        "args": [
+          "$user",
+          "$amount"
+        ],
+        "contractLabel": "Sky MKR → SKY converter"
+      }
+    ],
+    "sources": [
+      "https://changelog.makerdao.com/releases/mainnet/1.2.0/contracts.json",
+      "https://chainlog.sky.money/api/mainnet/1.19.0.json",
+      "https://etherscan.io/address/0x0a3f6849f78076aefaDf113F5BED87720274dDC0",
+      "https://developers.skyeco.com/guides/sky/token-governance-upgrade/token-holders/"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This MKR was locked for voting in the MKR-era Maker governance contract. Governance has since moved to a SKY-based chief, so this lock no longer votes on anything. First approve the contract to take back your voting receipt (IOU) tokens, then free the MKR, then upgrade it to SKY. If you moved your IOU tokens to another address, the free step fails until they are back."
+      },
+      {
+        "level": "warn",
+        "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 26087828,
+      "holderUsed": "0x7eEc35333AFB0AB6996085727E1939F008840410",
+      "simulatedIn": "540000000000000000",
+      "simulatedOut": "12312000000000000000000",
+      "method": "eth_simulateV1 via the site engine (lib/scan.js scanChain+analyzeFinding) at latest, one block, traceTransfers, validation=false; status=ready",
+      "notes": "MCD_ADM in changelog 1.2.0 through chainlog 1.19.0; replaced by the SKY chief 0x929d…a6f9. Holds 432.09 MKR: 372.53 in one VoteProxy (0x07294967…), 9.95 in VoteDelegate v2s (all LockstakeEngine v1 urns), 42.05 in 139 VoteDelegate v1s, only ~7.5 direct. The holder also has 7.57 MKR in the wallet; the steps only move the locked amount."
+    }
+  },
+  {
+    "id": "mkr-voteproxy-2020-to-sky",
+    "name": "MKR in a Maker vote proxy (2020 chief) → SKY",
+    "project": "Sky (MakerDAO)",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+      "symbol": "MKR",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+      "symbol": "SKY",
+      "decimals": 18
+    },
+    "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "ratio": {
+      "num": "22800",
+      "den": "1"
+    },
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+      "signature": "fee()",
+      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+    },
+    "payoutReserve": {
+      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+    },
+    "officialUi": "https://upgrademkrtosky.skyeco.com/",
+    "holding": {
+      "reads": [
+        {
+          "call": "0x6FCD258af181b3221073a96dd90d1f7ae7eec408",
+          "signature": "coldMap(address)",
+          "args": [
+            "$user"
+          ],
+          "out": {
+            "proxy": "address"
+          }
+        },
+        {
+          "require": "$proxy",
+          "is": "nonzero"
+        },
+        {
+          "call": "0x0a3f6849f78076aefaDf113F5BED87720274dDC0",
+          "signature": "deposits(address)",
+          "args": [
+            "$proxy"
+          ],
+          "out": "amount"
+        }
+      ],
+      "label": "locked through your Maker vote proxy"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "$proxy",
+        "signature": "free(uint256 wad)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "your Maker vote proxy",
+        "title": "Unlock your MKR from your vote proxy"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+      },
+      {
+        "type": "call",
+        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+        "signature": "mkrToSky(address usr, uint256 mkrAmt)",
+        "args": [
+          "$user",
+          "$amount"
+        ],
+        "contractLabel": "Sky MKR → SKY converter"
+      }
+    ],
+    "sources": [
+      "https://github.com/makerdao/vote-proxy",
+      "https://etherscan.io/address/0x6FCD258af181b3221073a96dd90d1f7ae7eec408"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "You set up a vote proxy (cold/hot wallet pair) and locked MKR through it. This address is the cold wallet, so the MKR comes back here. Governance has moved to a SKY-based chief, so this lock no longer votes on anything."
+      },
+      {
+        "level": "warn",
+        "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0xf5913843d34c0081f05a46417f19ef4d7475ab03",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Vote proxy factory 0x6FCD258af181b3221073a96dd90d1f7ae7eec408: coldMap(user) -> proxy, chief.deposits(proxy) = MKR. The proxy approved the IOU to the chief when it was created, so no IOU step. proxy.free(wad) sends MKR to the cold wallet."
+    }
+  },
+  {
+    "id": "mkr-voteproxy-2019-to-sky",
+    "name": "MKR in a Maker vote proxy (2019 chief) → SKY",
+    "project": "Sky (MakerDAO)",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+      "symbol": "MKR",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+      "symbol": "SKY",
+      "decimals": 18
+    },
+    "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "ratio": {
+      "num": "22800",
+      "den": "1"
+    },
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+      "signature": "fee()",
+      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+    },
+    "payoutReserve": {
+      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+    },
+    "officialUi": "https://upgrademkrtosky.skyeco.com/",
+    "holding": {
+      "reads": [
+        {
+          "call": "0x868ba9aeaca5b73c7c27f3b01588bf4f1339f2bc",
+          "signature": "coldMap(address)",
+          "args": [
+            "$user"
+          ],
+          "out": {
+            "proxy": "address"
+          }
+        },
+        {
+          "require": "$proxy",
+          "is": "nonzero"
+        },
+        {
+          "call": "0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5",
+          "signature": "deposits(address)",
+          "args": [
+            "$proxy"
+          ],
+          "out": "amount"
+        }
+      ],
+      "label": "locked through your Maker vote proxy"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "$proxy",
+        "signature": "free(uint256 wad)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "your Maker vote proxy",
+        "title": "Unlock your MKR from your vote proxy"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+      },
+      {
+        "type": "call",
+        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+        "signature": "mkrToSky(address usr, uint256 mkrAmt)",
+        "args": [
+          "$user",
+          "$amount"
+        ],
+        "contractLabel": "Sky MKR → SKY converter"
+      }
+    ],
+    "sources": [
+      "https://github.com/makerdao/vote-proxy",
+      "https://etherscan.io/address/0x868ba9aeaca5b73c7c27f3b01588bf4f1339f2bc"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "You set up a vote proxy (cold/hot wallet pair) and locked MKR through it. This address is the cold wallet, so the MKR comes back here. Governance has moved to a SKY-based chief, so this lock no longer votes on anything."
+      },
+      {
+        "level": "warn",
+        "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x7345c51439d1c84949f56a6ad0ecdf3f3f1d2be2",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Vote proxy factory 0x868ba9aeaca5b73c7c27f3b01588bf4f1339f2bc: coldMap(user) -> proxy, chief.deposits(proxy) = MKR. The proxy approved the IOU to the chief when it was created, so no IOU step. proxy.free(wad) sends MKR to the cold wallet."
+    }
+  },
+  {
+    "id": "mkr-lockstake-v1-to-sky",
+    "name": "MKR in the first Sky LockStake engine → SKY",
+    "project": "Sky (MakerDAO)",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+      "symbol": "MKR",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+      "symbol": "SKY",
+      "decimals": 18
+    },
+    "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "ratio": {
+      "num": "22800",
+      "den": "1"
+    },
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+      "signature": "fee()",
+      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+    },
+    "payoutReserve": {
+      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+    },
+    "officialUi": "https://upgrademkrtosky.skyeco.com/",
+    "holding": {
+      "reads": [
+        {
+          "call": "0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12",
+          "signature": "ownerUrnsCount(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "n"
+        },
+        {
+          "each": "index",
+          "range": "$n"
+        },
+        {
+          "call": "0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12",
+          "signature": "ownerUrns(address,uint256)",
+          "args": [
+            "$user",
+            "$index"
+          ],
+          "out": {
+            "urn": "address"
+          }
+        },
+        {
+          "call": "0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B",
+          "signature": "urns(bytes32,address)",
+          "args": [
+            "0x4c53452d4d4b522d410000000000000000000000000000000000000000000000",
+            "$urn"
+          ],
+          "out": {
+            "amount": 0,
+            "art": 1
+          }
+        },
+        {
+          "require": "$art",
+          "is": "zero"
+        }
+      ],
+      "label": "locked in LockStake position #$index"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12",
+        "signature": "free(address owner, uint256 index, address to, uint256 wad)",
+        "args": [
+          "$user",
+          "$index",
+          "$user",
+          "$amount"
+        ],
+        "contractLabel": "LockStake engine v1 (MKR)",
+        "title": "Unlock your MKR from the LockStake engine"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+      },
+      {
+        "type": "call",
+        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+        "signature": "mkrToSky(address usr, uint256 mkrAmt)",
+        "args": [
+          "$user",
+          "$amount"
+        ],
+        "contractLabel": "Sky MKR → SKY converter"
+      }
+    ],
+    "sources": [
+      "https://chainlog.sky.money/api/mainnet/active.json",
+      "https://etherscan.io/address/0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This MKR is in a position (urn) of the first LockStake engine, which Sky replaced with a SKY-based one. Freeing it also withdraws it from any rewards farm and delegate. Positions with debt must repay it first; they aren't shown here."
+      },
+      {
+        "level": "warn",
+        "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x30040fec29e9e295d3118963cfc56156a6de94f5",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Chainlog LOCKSTAKE_ENGINE_OLD_V1. ownerUrnsCount(user), ownerUrns(user,i) -> urn, vat.urns('LSE-MKR-A', urn) -> (ink, art). free(owner,index,to,wad) pulls from farm and delegate; fee() = 0. Don't use freeSky (routes through the retired MkrSky 0xBDcF…470B, which reverts)."
+    }
+  },
+  {
+    "id": "mkr-votedelegate-v1-to-sky",
+    "name": "MKR delegated to a Maker vote delegate (v1) → SKY",
+    "project": "Sky (MakerDAO)",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+      "symbol": "MKR",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+      "symbol": "SKY",
+      "decimals": 18
+    },
+    "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "ratio": {
+      "num": "22800",
+      "den": "1"
+    },
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+      "signature": "fee()",
+      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+    },
+    "payoutReserve": {
+      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+    },
+    "officialUi": "https://upgrademkrtosky.skyeco.com/",
+    "holding": {
+      "reads": [
+        {
+          "each": "delegate",
+          "in": [
+            "0x0f4Be9f208C552A6b04d9A1222F385785f95beAA",
+            "0xAFaFF1a605C373B43727136c995D21A7fCD08989",
+            "0xB056E45fD47d962f4eF25714714ABc7A79886064",
+            "0x84b05B0a30B6AE620F393D1037f217e607AD1B96",
+            "0x14A4Ed2000cA405452c140e21c10b3536C1A98E4",
+            "0xa346C2EEa05bB32c986FF755b2F19d2f0ba8d14C",
+            "0x5C86FA06eEbF5D7bdc1a75c293a3289AC0535F7F",
+            "0x51f3067cB6a1185d1e8316332921d9501FC4c006",
+            "0xB4b82978FCe6d26A22deA7E653Bb9ce8e14f8056",
+            "0x845b36e1e4F41a361dD711Bda8ea239bF191fE95",
+            "0xD1fc89E0c3828F50b650E1309e30CB4fcF2bdBe3",
+            "0x222d46d1229036c7bb6Ea3F453406792Ca3c3Ea2",
+            "0xD9D00c42BeD99A6D3a0F2902c640BCCCEECF6C29",
+            "0x869147940842BB1Aa4c40E60C5e583f4911F2e02",
+            "0xaF6fe58Ccb66D288B70C11Bce0903De51026A4E6",
+            "0x925016C2367802632cABDF13b5FC2C1BDC2c301a",
+            "0xeFcc3401739427EB0491cC27C7Baa06817C7dfDb",
+            "0xd276cefDe1bA7d6028d4E2AD172e5Da76f756c18",
+            "0x445CB6c63c502fDBebD1B273F6AEa1AaD691e0aa",
+            "0x4e324f2327FA3e567d802DDcF655f7188eB62754",
+            "0x6E0A1d889955f585335a02ea5d3B403A2df85ad9",
+            "0x3bc4418AeAd26Fd36dC9e639E19176F986f1FB8f",
+            "0xe21125F4C35F11A1b4978c9CF9A7de4D2EcEA406",
+            "0xEdc6c08960F517F233E8b6f5A5A61b6B19834deF",
+            "0xe3E9649aeA634f8995e14c7a3A6a04938D4b66DF",
+            "0x24419b100Bd4f5C581c0AA89A274fcfB5B3915a8",
+            "0x40f784B16b2D405eFD4E9eB7d0663398D7d886FB",
+            "0xf07a4c56dC7c427c69fFd00E10958387B8d07471",
+            "0xb18680092734394295d0591BB42f2bD3c184517e",
+            "0x7Ddb50A5b15AeA7e7cf9aC8E55a7F9fd9d05ecc6",
+            "0xf892F5E0e2A17119a8321dDc27c8164ab340663A",
+            "0xC200056dF52F81C7B4e661E11418D91A4D7464A9",
+            "0xFE61acc408b63a5a03507A224398fa1FE8143F28",
+            "0x5b0A4932dc9e253f9b15fD69f07B68e9874eA794",
+            "0xA70c18b8A191Db59c69466E60D986acD838D4279",
+            "0x930ee71D6082d2532232c4802c8C763D3f96A002",
+            "0xb21e535Fb349E4eF0520318aCFe589E174B0126b",
+            "0xEb1764CC9577c52f430794E9044F64F1C49Dd395",
+            "0xf60D7a62C98F65480725255e831DE531EFe3fe14",
+            "0x802F1B64d4F57D45CC0a1148ECEF1ec49cd18075",
+            "0xCdB792c14391F7115Ba77A7Cd27f724fC9eA2091",
+            "0x4d3aC33AB1dd7B0F352b8E590Fe8b62c4C39eAd5",
+            "0xCb2559aC373A62082B8833De2568879452df681E",
+            "0x10cfe4f667525507A7Be22554a933cFb609637c6",
+            "0x410048D2D15a9CD5fF4e7a28307bebD56993cbFc",
+            "0x92e1Ca8b69A44bB17aFA92838dA68Fc41f12250a",
+            "0x4E314eBA76C3062140AD196e4fFd34485e33c5F5",
+            "0xb4D2bd26ef22d1d6daE7478fb31D2B6cC5f29aDC",
+            "0x35ae9a334E3b45CDeeeA30Dd1Eecb61a7c243096",
+            "0x8804d391472126dA56b9a560AEf6C6d5AAA7607B",
+            "0xAF8aa6846539033Eaf0c3ca4C9C7373e370E039b",
+            "0xddECEAd383F2c22B4755ab32f56d48a4A1415258",
+            "0x596A8095F628cc757c48a75eD3E4F7E05310337A",
+            "0xfA32cF9F86b0980a7925F39a3A1a94e5576F2B07",
+            "0x32425B8867c5Bd5500F50B57C8E9601CE5De3965",
+            "0xe2bfDa5e1f59325E4b8dF5feaA30e4aB6516bf28",
+            "0x952DC79BCEE652aAd8CC9268d9c614Fa166D0C1D",
+            "0xa5ffB9976F504B9b39084b6214C4d344B004CA84",
+            "0x3606d843c81B41A117ACC9E27959191F705A6eC0",
+            "0x372aC7B024CCF098b4eB1C2685053164bEE30EE6",
+            "0xF6559284BE065a6c9C64be492002C28F63250418",
+            "0x53F5522D657a65758eBE4f0E91b4FCeDa730c3E9",
+            "0xdA8324486456a606A73d4Fe4BFFd0Bbd3D9660fa",
+            "0xeD06b6b384a4ccaD3C2Fa684d844d96cB3c0A4A8",
+            "0xdB3D52D1461F80DB44fdfa47fA64dF1952B8D08c",
+            "0xD906Ec9BE57BB835572110A84F14342B8f7B3dFB",
+            "0xC48DB557E1C851b47d90e96c0ff706A829a61081",
+            "0xb7375A852748C633f79A068b1cC526ccaE92c4Cc",
+            "0xAD88c1913cB2B8751FbfC9F6CBFc7fe8eF3D98DB",
+            "0xAAcd3f9D01917Ce75AeC78BE5779569c3B62b838",
+            "0xA72B66Af48877494ab9a4903Fe2b2ca89663479d",
+            "0xA271534F8120036AA9f34DDd0762DEaC44397f6a",
+            "0x9fc1DE5dc99Ca3Ab23CF8c6CB484249168A2fAAf",
+            "0x9dFfC66Cb3A0337088d03e9a68442BEE6B945d94",
+            "0x8983373157d62cE651Bd63883887ee4c56767E0f",
+            "0x812c24756e2e80B9e4681Faf3Ec1628dd4d55E92",
+            "0x7fE2E9f7Edc63ffA233E1aC47684d082cDC93aF6",
+            "0x7938b304F1c28e85b6A021251C8CeefF20370f38",
+            "0x791C5BCecD163b7337412044479679776004B754",
+            "0x6f0848AE66Dcb25aD3b6FA98C7B246276E8555D3",
+            "0x52D31C9F05c821a03087Bc6BA78BF5AeB10205B0",
+            "0x4b8909d025094080D0FF02919bf1af4D8107580F",
+            "0x413AaFa55b528A3f603e8905c429A9b04D54E8BD",
+            "0x24F356A9c4ddf1f003d786b7c2740c10583be53f",
+            "0x1e2dd00F8eFB8C195Fe040C26b4FB36d396bb43D",
+            "0x0FbDD2D1a0c9B2A512593fe26e0aFf678D5448F0",
+            "0x0f7B7cd119F16E2f7A0e8Df338033cC2a0322B02",
+            "0x0e70b137787255A8a690B6bfE6364e3499f855Ae",
+            "0x026EaC63A21a995274b00A75a01CF9c7D30dFc0a",
+            "0xC4620d1918c1dfA3C8F2231eB7A8bfCfB869Fe8e",
+            "0x14B4eAE95C653159139F7b4A53a11cf22eF2c050",
+            "0xA34223640B10E651Df87776cEF2b3B804635D2bd",
+            "0x22d5294a23d49294Bf11D9db8bEda36e104ad9b3",
+            "0xb335e8b70f95F28e79ACF58491751f83B0050888",
+            "0xf3bA921Cf92E709Ec103aEaEb3a42e8a88a65D15",
+            "0xF25FF2Fae5bC8801ac44C00d5AcaFbEBe48601B8",
+            "0x6d6fF0F26DC401b715d24B5Abe54264FeF4d9dFF",
+            "0x45C52826EFA13A6DE713528BF42B520C9fA50081",
+            "0x2796bFf7b4cD3FEEE9c5A7612bA6372F63D2825a",
+            "0x0655039e45D8B711EFdA6Ac3ec812eC97e5b5C4c",
+            "0xeD7549BAeE11Fb51759606eE09B3749CEa21364e",
+            "0x19307e7d61894e7b90B6822c2BfE4f4c8537B2B2",
+            "0x72011b1D0cb499cF748Ae2c1Cf73Dd4Ddf4d9592",
+            "0xa67f820945DA8634D5B54Fe09cA74B1559b7ff39",
+            "0xaa19f47e6aCb02dF88efA9f023F2A38412069902",
+            "0xDc1EF81E85D083af156e1A0746D9F1281d285Ccf",
+            "0x58Dc40B5f9f0758eE43B0a208fe362c90fdFAd4D",
+            "0x97123BC7a0C17fC203cB42C5b618fA2055F0F49e",
+            "0x31BADf240aEA6828a1462cB2F008eAc89a827F49",
+            "0xD4BE177aAa9521e05179683470684Bddffeb1051",
+            "0x2091E02126C96d8d8D0Ed117ff25b51D25cF24b5",
+            "0x59BAbCCb78De6aBE2607173213bCA86c01B2f443",
+            "0x0f6f713711BE3251326e70D6Ec1D35793bEadaD2",
+            "0x636Ff7CA03D91D8C5614394b4cC78C642a5e2Ce5",
+            "0x5B5D159BFdfc7f288a7A8F7fEC660a43EdB9e7eE",
+            "0x556d6F15c8edA62D469531f722ff03a9c5B797a0",
+            "0x26b1b0e4b2CF1aE88d3Cf823F45a4442d0c0e162",
+            "0x797D63cB6709c79b9eCA99d9585eA613DA205156",
+            "0xa9F7FEFbe90B35119A72D3779213B43367109D5b",
+            "0x110B01DB4c3138b0e4B609223Ca23064b11937cf",
+            "0xFe188932cB4278c73E7798B063B55B79C22c5057",
+            "0x2733C0b95511be78A698c706CB4ab5b6906E6428",
+            "0x99Da0F6fA091Ca1722fB4D3B3d9aAafa0794a93a",
+            "0x2D78057084CA467c322a46c2530FE9679FeB5779",
+            "0x501999a0ACBBc9a1a2C61209410790F02F30cf0a",
+            "0x4C28d8402ac01E5d623e4A5438535369770Fe407",
+            "0x838d41Aa95e13c5AA5eB24eaEFC3621E07176156",
+            "0x6a317b7556cc08c2239C4456610c64B4C7D4e642",
+            "0x4543Cee663bDC243623be27c43F9A7f22596E93f",
+            "0x5d97F2af00C767b7333FDC2B58d10FAFF9F51024",
+            "0xC739914c461E0a58c460D5caCB764E7Eb95B27FC",
+            "0xa4b28dd898A885ccE88CAa00261d9fe6CEed32bb",
+            "0xC3B85930dECa88E5BCb48FA8EBE935F97D5e412B",
+            "0xD0Df93fC03a7291e31947F5cC6ef526f5B67B0ea",
+            "0xC2DAea14891Fc47Ee76368Ce7c54C7b200FbA672",
+            "0xF88790fb8f155924a2B3519871711F776a3Cd0FF",
+            "0x2C511D932C5a6fE4071262D49bfc018cfBaAa1F5",
+            "0x316090e23CC44e70245BA9846404413ACA2Df16F",
+            "0x7AA7E92bc5C15546bbF07b9e061D01B8209A67e8"
+          ]
+        },
+        {
+          "call": "$delegate",
+          "signature": "stake(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "amount"
+        }
+      ],
+      "label": "delegated to vote delegate $delegate"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7",
+        "spender": "$delegate",
+        "amount": "$amount",
+        "tokenMeta": {
+          "symbol": "IOU",
+          "decimals": 18
+        },
+        "title": "Approve the vote delegate to take back your IOU tokens",
+        "contractLabel": "chief IOU"
+      },
+      {
+        "type": "call",
+        "to": "$delegate",
+        "signature": "free(uint256 wad)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Maker vote delegate",
+        "title": "Take your MKR back from the vote delegate"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+      },
+      {
+        "type": "call",
+        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+        "signature": "mkrToSky(address usr, uint256 mkrAmt)",
+        "args": [
+          "$user",
+          "$amount"
+        ],
+        "contractLabel": "Sky MKR → SKY converter"
+      }
+    ],
+    "sources": [
+      "https://github.com/makerdao/vote-delegate",
+      "https://etherscan.io/address/0xD897F108670903D1D6070fcF818f9db3615AF272"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "You delegated this MKR to a vote delegate contract in the MKR-era Maker governance. It no longer votes on anything. First approve the delegate to take back your voting receipt (IOU) tokens, then free the MKR, then upgrade it to SKY. If you moved your IOU tokens elsewhere, the free step fails until they are back."
+      },
+      {
+        "level": "warn",
+        "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0xbf7fbcd1792354c69f64d32c88a3f3658763798f",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "VoteDelegate v1 factory 0xD897F108670903D1D6070fcF818f9db3615AF272: 139 of 351 delegate contracts (CreateVoteDelegate logs) still hold MKR in the 2020 chief (42.05 MKR). delegate.stake(user) = user's MKR; free(wad) pulls the IOU from the user, so the IOU approval goes to the delegate. Delegate expiry only blocks lock, not free."
+    }
   }
- }
 ]
