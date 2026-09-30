@@ -43,3 +43,14 @@ subprocess.run(["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", 
                check=True, capture_output=True)
 os.unlink(src)
 print("wrote", out)
+
+# Link previews (X, Telegram, Discord…) cache the image by URL: point the meta tags at a
+# content-hashed URL so a redrawn card is fetched again instead of showing the old number
+import hashlib, re
+ver = hashlib.sha256(open(out, "rb").read()).hexdigest()[:8]
+ip = os.path.join(root, "index.html")
+page = open(ip).read()
+page = re.sub(r'(https://oldtokencheck\.com/og\.png)(\?v=[0-9a-f]+)?', rf'\1?v={ver}', page)
+page = re.sub(r'(<meta property="og:image:alt" content="Old Token Check: )\$[0-9.]+[MB]', rf'\g<1>{big}', page)
+open(ip, "w").write(page)
+print("og:image ->", f"og.png?v={ver}")
