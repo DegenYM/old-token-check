@@ -45,7 +45,8 @@ total = 0.0; unpriced = []; rows = []
 for e in entries:
     c = e["chainId"]; ot = e["oldToken"]; nt = e["newToken"]
     sup = call_uint(c, ot["address"], "0x18160ddd")
-    out_old = sup - bal(c, ot["address"], e["migrator"]) - sum(bal(c, ot["address"], b) for b in BURN)
+    excl = [x["address"] for x in e.get("statsExclude", [])]  # holders that are not unmigrated user funds
+    out_old = sup - bal(c, ot["address"], e["migrator"]) - sum(bal(c, ot["address"], b) for b in BURN + excl)
     out_old = max(out_old, 0)
     ratio = Fraction(e["ratio"]["num"]) / Fraction(e["ratio"]["den"])
     new_whole = Fraction(out_old, 10 ** ot["decimals"]) * ratio
@@ -67,7 +68,7 @@ stats = {
     "unpriced": unpriced,
     "asOf": datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d"),
     "ethBlock": head,
-    "method": "Per path: min(outstanding old supply x ratio, payout reserve) x DefiLlama price. Outstanding = totalSupply minus migrator and burn-address balances.",
+    "method": "Per path: min(outstanding old supply x ratio, payout reserve) x DefiLlama price. Outstanding = totalSupply minus migrator, burn-address and known non-user balances (statsExclude, e.g. converted veNFTs held by a sink).",
 }
 json.dump(stats, open("data/stats.json", "w"), indent=1)
 print(json.dumps(stats, indent=1))

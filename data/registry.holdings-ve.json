@@ -1,0 +1,59 @@
+[
+  {
+    "id": "veocean-locked-to-fet",
+    "name": "Locked OCEAN (veOCEAN) → FET (ASI)",
+    "project": "Ocean Protocol / Artificial Superintelligence Alliance",
+    "chainId": 1,
+    "oldToken": { "address": "0x967da4048cD07aB37855c090aAF366e4ce1b9F48", "symbol": "OCEAN", "decimals": 18 },
+    "newToken": { "address": "0xaea46A60368A7bD060eec7DF8CBa43b7EF41Ad85", "symbol": "FET", "decimals": 18 },
+    "migrator": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+    "ratio": { "num": "433226", "den": "1000000" },
+    "holding": {
+      "contract": "0xE86Bf3B0D3a20444DE7c78932ACe6e5EfFE92379",
+      "signature": "locked(address)",
+      "label": "locked in veOCEAN"
+    },
+    "steps": [
+      { "type": "call", "to": "0xE86Bf3B0D3a20444DE7c78932ACe6e5EfFE92379", "signature": "withdraw()", "args": [], "contractLabel": "veOCEAN (Ocean Protocol vote-escrow)" },
+      { "type": "approve", "token": "old", "spender": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663" },
+      { "type": "call", "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663", "signature": "migrateTokens(uint256)", "args": ["$amount"] }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+      "signature": "paused()",
+      "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "payoutReserve": { "holder": "0x664d2f142cbc89ee9ed20c8e4eeb66c63b9ce663" },
+    "officialUi": "https://df.oceandao.org",
+    "sources": [
+      "https://docs.oceanprotocol.com/data-farming",
+      "https://eth.blockscout.com/address/0xE86Bf3B0D3a20444DE7c78932ACe6e5EfFE92379",
+      "https://www.fetch.ai/blog/navigating-the-asi-token-merger-a-comprehensive-guide"
+    ],
+    "warnings": [
+      {
+        "level": "warn",
+        "text": "veOCEAN was retired on 3 May 2024, but locks were not released early: each lock unlocks on its own end date (most end in Dec 2027 to Feb 2028). If your lock hasn't ended yet, this check fails with \"The lock didn't expire\". Nothing is wrong; come back after your unlock date."
+      },
+      {
+        "level": "danger",
+        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+      },
+      {
+        "level": "info",
+        "text": "Separate from your lock, veOCEAN holders may have unclaimed OCEAN rewards and the retirement airdrop at df.oceandao.org/rewards. Claim those first; they arrive as plain OCEAN you can migrate too."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 26087755,
+      "holderUsed": "0xa911ccf5f6c7bd5fb25188d41a536890c3c8fae5",
+      "simulatedIn": "209528000000000000000000",
+      "simulatedOut": "90772977328000000000000",
+      "method": "eth_simulateV1 withdraw()+approve+migrateTokens from holder (EOA, lock ended 2026-07-30) at block 26087755, time pinned, traceTransfers, validation:false",
+      "notes": "veOCEAN = Curve-style Vyper VotingEscrow (one lock per address). locked(address) returns (int128 amount, uint256 end); the engine reads word 0 = raw OCEAN. withdraw() has no args, pays the full lock, and asserts block.timestamp >= end. No admin early-unlock exists in the verified source. 386 open locks = 26,572,646 OCEAN (equals supply() and the contract's OCEAN balance); 120 locks / 1,136,715 OCEAN already expired. Unexpired lock (0xc1b8…5f63, 2,714,573 OCEAN, end 2028-02-10) reverts \"The lock didn't expire\" today; the same three steps succeed in a block pinned to end+60s (-> 1,176,023.6 FET). Migrator FET reserve 5,595,726 FET (~12.9M OCEAN) is less than the 26.6M OCEAN locked."
+    }
+  }
+]

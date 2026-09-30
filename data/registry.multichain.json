@@ -1428,7 +1428,17 @@
    "notes": "SinkManager address read on-chain from VELO v2 sinkManager(); PoolFactory v2 sinkConverter() = 0x585Af0b397AC42dbeF7f18395426BF878634f18D (router-facing 'fake pool'). convertVELO locks v1 VELO into the SinkManager's v1 veNFT and mints v2 VELO 1:1 (no liquidity cap, no deadline in code). Both tokens use symbol 'VELO'. v1 veNFTs have a separate convertVe(tokenId) path not covered here."
   },
   "warnings": [],
-  "payoutReserve": null
+  "payoutReserve": null,
+  "statsExclude": [
+   {
+    "address": "0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26",
+    "why": "Velodrome v1 VotingEscrow: mostly v1 veNFTs already converted to v2 and kept locked by the sink"
+   },
+   {
+    "address": "0x5d5Bea9f0Fc13d967511668a60a3369fD53F784F",
+    "why": "Velodrome v1 RewardsDistributor: rebases, largely unclaimable"
+   }
+  ]
  },
  {
   "id": "eps-to-epx-bsc",
