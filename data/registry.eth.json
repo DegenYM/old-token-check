@@ -1171,5 +1171,97 @@
   "payoutReserve": {
    "holder": "0x3c75d37b579e0e4896f02c0122baa4de05383a6a"
   }
+ },
+ {
+  "id": "old-mkr-to-sky",
+  "name": "Old MKR (pre-2017) → SKY",
+  "project": "Sky (MakerDAO)",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0xC66eA802717bFb9833400264Dd12c2bCeAa34a6d",
+   "symbol": "MKR (old)",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+   "symbol": "SKY",
+   "decimals": 18
+  },
+  "migrator": "0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
+  "ratio": {
+   "num": "22800",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
+    "title": "Approve the MKR redeemer to take your old MKR"
+   },
+   {
+    "type": "call",
+    "to": "0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
+    "signature": "redeem()",
+    "args": [],
+    "contractLabel": "MKR redeemer",
+    "title": "Redeem old MKR for current MKR"
+   },
+   {
+    "type": "approve",
+    "token": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+    "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "tokenMeta": {
+     "symbol": "MKR",
+     "decimals": 18
+    },
+    "title": "Approve the Sky converter to use your MKR"
+   },
+   {
+    "type": "call",
+    "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "signature": "mkrToSky(address,uint256)",
+    "args": [
+     "$user",
+     "$amount"
+    ],
+    "contractLabel": "Sky MKR→SKY converter",
+    "title": "Upgrade MKR to SKY"
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": {
+   "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+   "signature": "fee()",
+   "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+  },
+  "payoutReserve": {
+   "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+  },
+  "officialUi": null,
+  "sources": [
+   "https://etherscan.io/address/0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
+   "https://etherscan.io/token/0xC66eA802717bFb9833400264Dd12c2bCeAa34a6d"
+  ],
+  "warnings": [
+   {
+    "level": "info",
+    "text": "This is the original 2015–2017 MKR token. Maker governance's redeemer swaps it 1:1 for current MKR, which then upgrades to SKY at the current converter rate."
+   },
+   {
+    "level": "warn",
+    "text": "The redeemer is owned by Maker governance (the pause proxy), which could stop it. It holds enough MKR to cover every unredeemed old token today."
+   }
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26087900,
+   "holderUsed": "0xEc9cE6E59ce95248Ecef070408E7cF35bBc79989",
+   "simulatedIn": "1108780733812860500000",
+   "simulatedOut": "25280200730900000000000000",
+   "method": "eth_simulateV1 approve(OMKR→redeemer) + redeem() + approve(MKR→converter) + mkrToSky from holder, traceTransfers",
+   "notes": "Redeemer owner = MCD_PAUSE_PROXY, stopped() = 0, holds 8,909.98 MKR vs 8,899.18 OMKR unredeemed."
+  }
  }
 ]

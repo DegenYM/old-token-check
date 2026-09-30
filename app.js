@@ -663,9 +663,11 @@ function howToHtml(r, chain) {
     const proxy = r.proxies && r.proxies[s.to];
     const url = explorerAddressUrl(e.chainId, s.to, proxy ? '#writeProxyContract' : '#writeContract');
     const tab = proxy ? 'Contract → Write as Proxy' : 'Contract → Write Contract';
-    const title = s.kind === 'approve'
-      ? `Approve the official migrator to use your ${esc(e.oldToken.symbol)}`
-      : `Migrate: call <span class="mono">${esc(s.fnName)}</span>`;
+    const sym = s.tokenSymbol || e.oldToken.symbol;
+    const title = s.title ? esc(s.title)
+      : s.kind === 'approve'
+        ? `Approve ${s.spenderIsMigrator ? 'the official migrator' : 'the listed contract'} to use your ${esc(sym)}`
+        : `Migrate: call <span class="mono">${esc(s.fnName)}</span>`;
     const fields = s.fields.map((f, k) => `
       <div class="field">
         <div class="f-label">
@@ -685,7 +687,7 @@ function howToHtml(r, chain) {
         <h4>${title}</h4>
         <ol class="step-list">
           ${s.waitSeconds ? `<li><strong>Wait at least ${esc(String(s.waitSeconds))} seconds</strong> after the previous step confirms (the cooldown), then continue.</li>` : ''}
-          <li>Open <a href="${esc(url)}" target="_blank" rel="noopener noreferrer">the ${esc(s.contractLabel || (s.kind === 'approve' ? `${e.oldToken.symbol} token` : 'migrator'))} contract on ${esc(chain.explorerName)}</a> (${esc(tab)}).${i === 0 ? ` Press <strong>Connect to Web3</strong> and make sure your wallet is on ${esc(chain.name)}.` : ''}</li>
+          <li>Open <a href="${esc(url)}" target="_blank" rel="noopener noreferrer">the ${esc(s.contractLabel || (s.kind === 'approve' ? `${sym} token` : 'migrator'))} contract on ${esc(chain.explorerName)}</a> (${esc(tab)}).${i === 0 ? ` Press <strong>Connect to Web3</strong> and make sure your wallet is on ${esc(chain.name)}.` : ''}</li>
           <li>Check the address in the URL is <span class="mono">${esc(s.to)}</span> ${copyBtn(s.to)}</li>
           <li>${s.fields.length
             ? `Expand <strong class="mono">${esc(s.fnName)}</strong> and fill in, in order:
