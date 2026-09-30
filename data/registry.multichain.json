@@ -1545,5 +1545,475 @@
   "payoutReserve": {
    "holder": "0xc20c9c13e853fc64d054b73ff21d3636b2d97eab"
   }
+ },
+ {
+  "project": "Thales / Overtime",
+  "chainId": 10,
+  "oldToken": {
+   "address": "0x217D47011b23BB961eB6D93cA9945B7501a5BB11",
+   "symbol": "THALES",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xedF38688b27036816A50185cAA430D5479e1C63e",
+   "symbol": "OVER",
+   "decimals": 18
+  },
+  "migrator": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "status": "blocked",
+  "deadline": null,
+  "statusCheck": null,
+  "payoutReserve": null,
+  "officialUi": "https://www.overtime.io",
+  "sources": [
+   "https://github.com/thales-markets/overtime-improvement-proposals/blob/main/OIPs/TIP-238.md",
+   "https://optimistic.etherscan.io/address/0xC392133eEa695603B51a5d5de73655d571c2CE51",
+   "https://optimistic.etherscan.io/tx/0x5d78e9afce74eeea316b937b77217a5eead9d9bfb5c02f0098ccb570b47b05a3"
+  ],
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "Thales staking was shut down under TIP-238, and on 2026-05-28 the DAO multisig moved the staked THALES out of the staking contract. Unstaking fails until the team puts it back. There's no migration deadline: contact the Overtime team (discord.gg/thales) with your address."
+   },
+   {
+    "level": "info",
+    "text": "If the staking contract is refilled, this check turns Ready on its own and the steps below will work: start unstaking, wait about 10 seconds, unstake, then migrate THALES to OVER 1:1."
+   }
+  ],
+  "id": "thales-staked-optimism",
+  "name": "Staked THALES → OVER",
+  "holding": {
+   "contract": "0xC392133eEa695603B51a5d5de73655d571c2CE51",
+   "signature": "stakedBalanceOf(address)",
+   "label": "staked"
+  },
+  "steps": [
+   {
+    "type": "call",
+    "to": "0xC392133eEa695603B51a5d5de73655d571c2CE51",
+    "signature": "startUnstake(uint256)",
+    "args": [
+     "$amount"
+    ],
+    "contractLabel": "Thales staking"
+   },
+   {
+    "type": "call",
+    "to": "0xC392133eEa695603B51a5d5de73655d571c2CE51",
+    "signature": "unstake()",
+    "args": [],
+    "waitSeconds": 15,
+    "contractLabel": "Thales staking"
+   },
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6"
+   },
+   {
+    "type": "call",
+    "to": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6",
+    "signature": "migrateThalesToOver(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "verification": {
+   "codeExists": true,
+   "holderUsed": "0xf5f61157f3c13e4bbc5c42e75ae80946b72de83f",
+   "method": "eth_simulateV1, two timed blocks (startUnstake, then unstake 15s later), traceTransfers",
+   "notes": "startUnstake succeeds; unstake reverts (SafeERC20: low-level call failed) because the staking contract holds no THALES."
+  }
+ },
+ {
+  "project": "Thales / Overtime",
+  "chainId": 10,
+  "oldToken": {
+   "address": "0x217D47011b23BB961eB6D93cA9945B7501a5BB11",
+   "symbol": "THALES",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xedF38688b27036816A50185cAA430D5479e1C63e",
+   "symbol": "OVER",
+   "decimals": 18
+  },
+  "migrator": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "status": "blocked",
+  "deadline": null,
+  "statusCheck": null,
+  "payoutReserve": null,
+  "officialUi": "https://www.overtime.io",
+  "sources": [
+   "https://github.com/thales-markets/overtime-improvement-proposals/blob/main/OIPs/TIP-238.md",
+   "https://optimistic.etherscan.io/address/0xC392133eEa695603B51a5d5de73655d571c2CE51",
+   "https://optimistic.etherscan.io/tx/0x5d78e9afce74eeea316b937b77217a5eead9d9bfb5c02f0098ccb570b47b05a3"
+  ],
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "Thales staking was shut down under TIP-238, and on 2026-05-28 the DAO multisig moved the staked THALES out of the staking contract. Unstaking fails until the team puts it back. There's no migration deadline: contact the Overtime team (discord.gg/thales) with your address."
+   },
+   {
+    "level": "info",
+    "text": "If the staking contract is refilled, this check turns Ready on its own and the steps below will work: start unstaking, wait about 10 seconds, unstake, then migrate THALES to OVER 1:1."
+   }
+  ],
+  "id": "thales-unstaking-optimism",
+  "name": "Unstaking THALES → OVER",
+  "holding": {
+   "contract": "0xC392133eEa695603B51a5d5de73655d571c2CE51",
+   "signature": "unstakingAmount(address)",
+   "label": "in unstaking cooldown"
+  },
+  "steps": [
+   {
+    "type": "call",
+    "to": "0xC392133eEa695603B51a5d5de73655d571c2CE51",
+    "signature": "unstake()",
+    "args": [],
+    "contractLabel": "Thales staking"
+   },
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6"
+   },
+   {
+    "type": "call",
+    "to": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6",
+    "signature": "migrateThalesToOver(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "verification": {
+   "codeExists": true,
+   "holderUsed": null,
+   "method": "eth_simulateV1, traceTransfers",
+   "notes": "unstake reverts (SafeERC20: low-level call failed) because the staking contract holds no THALES. No address currently in cooldown found on this chain."
+  }
+ },
+ {
+  "project": "Thales / Overtime",
+  "chainId": 42161,
+  "oldToken": {
+   "address": "0xE85B662Fe97e8562f4099d8A1d5A92D4B453bF30",
+   "symbol": "THALES",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x5829D6FE7528bc8E92c4e81CC8F20a528820B51a",
+   "symbol": "OVER",
+   "decimals": 18
+  },
+  "migrator": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "status": "blocked",
+  "deadline": null,
+  "statusCheck": null,
+  "payoutReserve": null,
+  "officialUi": "https://www.overtime.io",
+  "sources": [
+   "https://github.com/thales-markets/overtime-improvement-proposals/blob/main/OIPs/TIP-238.md",
+   "https://arbiscan.io/address/0x160Ca569999601bca06109D42d561D85D6Bb4b57"
+  ],
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "Thales staking was shut down under TIP-238, and on 2026-05-28 the DAO multisig moved the staked THALES out of the staking contract. Unstaking fails until the team puts it back. There's no migration deadline: contact the Overtime team (discord.gg/thales) with your address."
+   },
+   {
+    "level": "info",
+    "text": "If the staking contract is refilled, this check turns Ready on its own and the steps below will work: start unstaking, wait about 10 seconds, unstake, then migrate THALES to OVER 1:1."
+   }
+  ],
+  "id": "thales-staked-arbitrum",
+  "name": "Staked THALES → OVER",
+  "holding": {
+   "contract": "0x160Ca569999601bca06109D42d561D85D6Bb4b57",
+   "signature": "stakedBalanceOf(address)",
+   "label": "staked"
+  },
+  "steps": [
+   {
+    "type": "call",
+    "to": "0x160Ca569999601bca06109D42d561D85D6Bb4b57",
+    "signature": "startUnstake(uint256)",
+    "args": [
+     "$amount"
+    ],
+    "contractLabel": "Thales staking"
+   },
+   {
+    "type": "call",
+    "to": "0x160Ca569999601bca06109D42d561D85D6Bb4b57",
+    "signature": "unstake()",
+    "args": [],
+    "waitSeconds": 15,
+    "contractLabel": "Thales staking"
+   },
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8"
+   },
+   {
+    "type": "call",
+    "to": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8",
+    "signature": "migrateThalesToOver(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "verification": {
+   "codeExists": true,
+   "holderUsed": "0x377dbfe249fa323a5622cacc8595d9b4c463e97b",
+   "method": "eth_simulateV1, two timed blocks (startUnstake, then unstake 15s later), traceTransfers",
+   "notes": "startUnstake succeeds; unstake reverts (SafeERC20: low-level call failed) because the staking contract holds no THALES."
+  }
+ },
+ {
+  "project": "Thales / Overtime",
+  "chainId": 42161,
+  "oldToken": {
+   "address": "0xE85B662Fe97e8562f4099d8A1d5A92D4B453bF30",
+   "symbol": "THALES",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x5829D6FE7528bc8E92c4e81CC8F20a528820B51a",
+   "symbol": "OVER",
+   "decimals": 18
+  },
+  "migrator": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "status": "blocked",
+  "deadline": null,
+  "statusCheck": null,
+  "payoutReserve": null,
+  "officialUi": "https://www.overtime.io",
+  "sources": [
+   "https://github.com/thales-markets/overtime-improvement-proposals/blob/main/OIPs/TIP-238.md",
+   "https://arbiscan.io/address/0x160Ca569999601bca06109D42d561D85D6Bb4b57"
+  ],
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "Thales staking was shut down under TIP-238, and on 2026-05-28 the DAO multisig moved the staked THALES out of the staking contract. Unstaking fails until the team puts it back. There's no migration deadline: contact the Overtime team (discord.gg/thales) with your address."
+   },
+   {
+    "level": "info",
+    "text": "If the staking contract is refilled, this check turns Ready on its own and the steps below will work: start unstaking, wait about 10 seconds, unstake, then migrate THALES to OVER 1:1."
+   }
+  ],
+  "id": "thales-unstaking-arbitrum",
+  "name": "Unstaking THALES → OVER",
+  "holding": {
+   "contract": "0x160Ca569999601bca06109D42d561D85D6Bb4b57",
+   "signature": "unstakingAmount(address)",
+   "label": "in unstaking cooldown"
+  },
+  "steps": [
+   {
+    "type": "call",
+    "to": "0x160Ca569999601bca06109D42d561D85D6Bb4b57",
+    "signature": "unstake()",
+    "args": [],
+    "contractLabel": "Thales staking"
+   },
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8"
+   },
+   {
+    "type": "call",
+    "to": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8",
+    "signature": "migrateThalesToOver(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "verification": {
+   "codeExists": true,
+   "holderUsed": "0x45bf64fc90f65ee4ecc47c1b00b8f2fa797e7100",
+   "method": "eth_simulateV1, traceTransfers",
+   "notes": "unstake reverts (SafeERC20: low-level call failed) because the staking contract holds no THALES."
+  }
+ },
+ {
+  "project": "Thales / Overtime",
+  "chainId": 8453,
+  "oldToken": {
+   "address": "0xf34e0cff046e154CAfCae502C7541b9E5FD8C249",
+   "symbol": "THALES",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x7750C092e284e2c7366f50C8306F43c7EB2e82a2",
+   "symbol": "OVER",
+   "decimals": 18
+  },
+  "migrator": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "status": "blocked",
+  "deadline": null,
+  "statusCheck": null,
+  "payoutReserve": null,
+  "officialUi": "https://www.overtime.io",
+  "sources": [
+   "https://github.com/thales-markets/overtime-improvement-proposals/blob/main/OIPs/TIP-238.md",
+   "https://basescan.org/address/0x84aB38e42D8Da33b480762cCa543eEcA6135E040"
+  ],
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "Thales staking was shut down under TIP-238, and on 2026-05-28 the DAO multisig moved the staked THALES out of the staking contract. Unstaking fails until the team puts it back. There's no migration deadline: contact the Overtime team (discord.gg/thales) with your address."
+   },
+   {
+    "level": "info",
+    "text": "If the staking contract is refilled, this check turns Ready on its own and the steps below will work: start unstaking, wait about 10 seconds, unstake, then migrate THALES to OVER 1:1."
+   }
+  ],
+  "id": "thales-staked-base",
+  "name": "Staked THALES → OVER",
+  "holding": {
+   "contract": "0x84aB38e42D8Da33b480762cCa543eEcA6135E040",
+   "signature": "stakedBalanceOf(address)",
+   "label": "staked"
+  },
+  "steps": [
+   {
+    "type": "call",
+    "to": "0x84aB38e42D8Da33b480762cCa543eEcA6135E040",
+    "signature": "startUnstake(uint256)",
+    "args": [
+     "$amount"
+    ],
+    "contractLabel": "Thales staking"
+   },
+   {
+    "type": "call",
+    "to": "0x84aB38e42D8Da33b480762cCa543eEcA6135E040",
+    "signature": "unstake()",
+    "args": [],
+    "waitSeconds": 15,
+    "contractLabel": "Thales staking"
+   },
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D"
+   },
+   {
+    "type": "call",
+    "to": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D",
+    "signature": "migrateThalesToOver(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "verification": {
+   "codeExists": true,
+   "holderUsed": null,
+   "method": "eth_simulateV1, two timed blocks (startUnstake, then unstake 15s later), traceTransfers",
+   "notes": "startUnstake succeeds; unstake reverts (SafeERC20: low-level call failed) because the staking contract holds no THALES. No current staker found on this chain to simulate from; same contract code as Optimism and Arbitrum."
+  }
+ },
+ {
+  "project": "Thales / Overtime",
+  "chainId": 8453,
+  "oldToken": {
+   "address": "0xf34e0cff046e154CAfCae502C7541b9E5FD8C249",
+   "symbol": "THALES",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x7750C092e284e2c7366f50C8306F43c7EB2e82a2",
+   "symbol": "OVER",
+   "decimals": 18
+  },
+  "migrator": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "status": "blocked",
+  "deadline": null,
+  "statusCheck": null,
+  "payoutReserve": null,
+  "officialUi": "https://www.overtime.io",
+  "sources": [
+   "https://github.com/thales-markets/overtime-improvement-proposals/blob/main/OIPs/TIP-238.md",
+   "https://basescan.org/address/0x84aB38e42D8Da33b480762cCa543eEcA6135E040"
+  ],
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "Thales staking was shut down under TIP-238, and on 2026-05-28 the DAO multisig moved the staked THALES out of the staking contract. Unstaking fails until the team puts it back. There's no migration deadline: contact the Overtime team (discord.gg/thales) with your address."
+   },
+   {
+    "level": "info",
+    "text": "If the staking contract is refilled, this check turns Ready on its own and the steps below will work: start unstaking, wait about 10 seconds, unstake, then migrate THALES to OVER 1:1."
+   }
+  ],
+  "id": "thales-unstaking-base",
+  "name": "Unstaking THALES → OVER",
+  "holding": {
+   "contract": "0x84aB38e42D8Da33b480762cCa543eEcA6135E040",
+   "signature": "unstakingAmount(address)",
+   "label": "in unstaking cooldown"
+  },
+  "steps": [
+   {
+    "type": "call",
+    "to": "0x84aB38e42D8Da33b480762cCa543eEcA6135E040",
+    "signature": "unstake()",
+    "args": [],
+    "contractLabel": "Thales staking"
+   },
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D"
+   },
+   {
+    "type": "call",
+    "to": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D",
+    "signature": "migrateThalesToOver(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "verification": {
+   "codeExists": true,
+   "holderUsed": null,
+   "method": "eth_simulateV1, traceTransfers",
+   "notes": "unstake reverts (SafeERC20: low-level call failed) because the staking contract holds no THALES. No address currently in cooldown found on this chain."
+  }
  }
 ]

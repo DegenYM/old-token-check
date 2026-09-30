@@ -58,7 +58,8 @@ function renderRegistryInfo() {
   const { entries, skipped } = registry;
   if (skipped && skipped.length) console.warn('Skipped registry entries', skipped);
   const chains = [...new Set(entries.map((e) => e.chainId))];
-  $('#stat-paths').textContent = entries.length ? num(entries.length) : '—';
+  const openPaths = entries.filter((e) => (e.status || 'open') === 'open').length;
+  $('#stat-paths').textContent = openPaths ? num(openPaths) : '—';
   $('#stat-chains').textContent = chains.length ? num(chains.length) : '—';
   const SHORT = { 1: 'Ethereum', 137: 'Polygon', 42161: 'Arbitrum', 10: 'Optimism', 8453: 'Base', 56: 'BNB', 43114: 'Avalanche', 100: 'Gnosis' };
   $('#stat-chains-desc').textContent = chains.length ? `${listJoin(chains.map((id) => SHORT[id] || chainName(id)))}.` : '';
@@ -269,11 +270,12 @@ function renderSummary(all, users, prices) {
       <p>None of the ${plural(registry.entries.length, 'migration path')} we track found a balance. That's the good outcome.</p>`;
     return;
   }
-  const total = all.reduce((a, r) => a + (usdFor(r, prices).usd || 0), 0);
+  // Only what can actually be migrated now counts toward the headline figure
+  const total = ready.reduce((a, r) => a + (usdFor(r, prices).usd || 0), 0);
   const noun = all.length === 1 ? 'old token to migrate' : 'old tokens to migrate';
   const blocked = all.length - ready.length;
   el.innerHTML = `
-    <h2>${num(all.length)} ${noun} found${total > 0 ? `, about <span class="count" data-to="${total}">${usdCompact(total, true)}</span> in total` : ''}.</h2>
+    <h2>${num(all.length)} ${noun} found${total > 0 ? `, ${total < 0.01 ? '' : 'about '}<span class="count" data-to="${total}">${usdCompact(total, true)}</span> ${ready.length === all.length ? 'in total' : 'ready to migrate'}` : ''}.</h2>
     <p>${ready.length === all.length
       ? `${all.length === 1 ? 'It can' : all.length === 2 ? 'Both can' : `All ${num(all.length)} can`} be migrated by you right now.`
       : `${num(ready.length)} can be migrated by you right now; ${num(blocked)} need${blocked === 1 ? 's' : ''} a closer look.`}
@@ -462,7 +464,7 @@ function pendingCard(f) {
   return `
     <article class="card" id="${esc(cardId(f))}" data-status="pending" aria-busy="true">
       <div class="card-top">
-        <div class="card-amount"><strong>${esc(fmtAmount(f.balance, e.oldToken.decimals))} ${esc(e.oldToken.symbol)}</strong></div>
+        <div class="card-amount"><strong>${esc(fmtAmount(f.balance, e.oldToken.decimals))} ${esc(e.oldToken.symbol)}</strong>${e.holding ? `<span class="usd">${esc(e.holding.label)}</span>` : ''}</div>
         <span class="pill" data-tone="pending">Simulating…</span>
       </div>
       <p class="card-meta"><b>${esc(e.name)}</b><span class="sep">·</span>${esc(chainName(e.chainId))}${e.project ? `<span class="sep">·</span>${esc(e.project)}` : ''}</p>
@@ -503,7 +505,8 @@ function note(level, html) {
 function resultCard(r, prices) {
   const e = r.entry;
   const chain = CHAINS[e.chainId];
-  const st = STATUS[r.status] || { tone: 'warn', label: r.status };
+  const blockedByProtocol = e.status === 'blocked' && r.status !== 'ready';
+  const st = blockedByProtocol ? { tone: 'warn', label: 'Blocked for now' } : STATUS[r.status] || { tone: 'warn', label: r.status };
   const sym = outSymbol(e);
   const dec = outDecimals(e);
   const ready = r.status === 'ready';
@@ -519,7 +522,7 @@ function resultCard(r, prices) {
     ? `${ready ? `<strong class="roll"><span class="roll-old" aria-hidden="true">${oldAmt}</span><span class="roll-new">${newAmt}</span></strong>` : `<strong>${newAmt}</strong>`}${outs.length > 1 ? `<span class="plus">+ ${esc(outs.slice(1).map((o) => o.symbol).join(', '))}</span>` : ''}${usd != null ? `<span class="usd">${usd > 0 && usd < 0.01 ? '' : '≈ '}${esc(usdCompact(usd, true))}${partial ? '+' : ''}</span>` : ''}`
     : `<strong>${esc(fmtAmount(r.balance, e.oldToken.decimals))} ${esc(e.oldToken.symbol)}</strong>`;
 
-  const meta = `<b>${esc(e.oldToken.symbol)} → ${esc(e.newToken ? e.newToken.symbol : sym)}</b><span class="sep">·</span>${esc(chain.name)}<span class="sep">·</span>you hold ${esc(fmtAmount(r.balance, e.oldToken.decimals))} ${esc(e.oldToken.symbol)}<span class="sep">·</span>migrator`;
+  const meta = `<b>${esc(e.oldToken.symbol)} → ${esc(e.newToken ? e.newToken.symbol : sym)}</b><span class="sep">·</span>${esc(chain.name)}<span class="sep">·</span>${e.holding ? 'you have' : 'you hold'} ${esc(fmtAmount(r.balance, e.oldToken.decimals))} ${esc(e.oldToken.symbol)}${e.holding ? ` ${esc(e.holding.label)}` : ''}<span class="sep">·</span>migrator`;
   const monoLine = `<p class="card-mono">${explorerLink(e.chainId, e.migrator)}</p>`;
 
   // notes: verification first, then registry warnings, then deadline
@@ -537,7 +540,7 @@ function resultCard(r, prices) {
   } else if (r.status === 'sim-failed') {
     const bad = r.sim.calls.findIndex((c) => !c.ok);
     const step = r.steps[bad];
-    notes.push(note('danger', `The simulation failed at step ${bad + 1} (${esc(step ? step.fnName : '?')}): <span class="mono">${esc(r.sim.calls[bad] ? r.sim.calls[bad].error : '')}</span>. A real transaction would most likely fail and waste gas. The migration may be paused or closed.`));
+    notes.push(note('danger', `The simulation failed at step ${bad + 1} (${esc(step ? step.fnName : '?')}): <span class="mono">${esc(r.sim.calls[bad] ? r.sim.calls[bad].error : '')}</span>. A real transaction would most likely fail and waste gas.${blockedByProtocol ? '' : ' The migration may be paused or closed.'}`));
   } else if (r.status === 'sim-unavailable') {
     notes.push(note('warn', `We couldn't simulate this on ${esc(chain.name)}: its public RPCs support neither <code>eth_simulateV1</code> nor state overrides${r.sim && r.sim.error ? ` (${esc(r.sim.error)})` : ''}. <strong>This result is unverified</strong> — confirm on the official site first.`));
   } else if (r.status === 'sim-no-output') {
@@ -605,7 +608,7 @@ function contractsHtml(r) {
     { role: 'Official migrator', addr: e.migrator },
   ].filter(Boolean);
   for (const s of r.steps || []) {
-    if (!contracts.some((c) => c.addr.toLowerCase() === s.to.toLowerCase())) contracts.push({ role: `Step contract · ${s.fnName}`, addr: s.to });
+    if (!contracts.some((c) => c.addr.toLowerCase() === s.to.toLowerCase())) contracts.push({ role: s.contractLabel ? `${s.contractLabel}` : `Step contract · ${s.fnName}`, addr: s.to });
   }
   if (r.reserve && r.reserve.holder && !contracts.some((c) => c.addr.toLowerCase() === r.reserve.holder.toLowerCase())) {
     contracts.push({ role: 'Pays out from', addr: r.reserve.holder });
@@ -681,7 +684,8 @@ function howToHtml(r, chain) {
       <li class="step">
         <h4>${title}</h4>
         <ol class="step-list">
-          <li>Open <a href="${esc(url)}" target="_blank" rel="noopener noreferrer">the ${esc(s.kind === 'approve' ? `${e.oldToken.symbol} token` : 'migrator')} contract on ${esc(chain.explorerName)}</a> (${esc(tab)}).${i === 0 ? ` Press <strong>Connect to Web3</strong> and make sure your wallet is on ${esc(chain.name)}.` : ''}</li>
+          ${s.waitSeconds ? `<li><strong>Wait at least ${esc(String(s.waitSeconds))} seconds</strong> after the previous step confirms (the cooldown), then continue.</li>` : ''}
+          <li>Open <a href="${esc(url)}" target="_blank" rel="noopener noreferrer">the ${esc(s.contractLabel || (s.kind === 'approve' ? `${e.oldToken.symbol} token` : 'migrator'))} contract on ${esc(chain.explorerName)}</a> (${esc(tab)}).${i === 0 ? ` Press <strong>Connect to Web3</strong> and make sure your wallet is on ${esc(chain.name)}.` : ''}</li>
           <li>Check the address in the URL is <span class="mono">${esc(s.to)}</span> ${copyBtn(s.to)}</li>
           <li>${s.fields.length
             ? `Expand <strong class="mono">${esc(s.fnName)}</strong> and fill in, in order:

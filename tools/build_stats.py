@@ -32,6 +32,8 @@ def call_uint(chain, to, data):
 bal = lambda chain, tok, who: call_uint(chain, tok, "0x70a08231" + who[2:].lower().rjust(64, "0"))
 
 entries = [e for f in ["registry.eth.json", "registry.multichain.json"] for e in json.load(open(f"data/{f}"))]
+# positions held in contracts (e.g. staked) would double-count the old token supply; blocked paths are not "open"
+entries = [e for e in entries if not e.get("holding") and e.get("status", "open") == "open"]
 rejected = sum(len(json.load(open(f"data/{f}"))) for f in ["rejected.eth.json", "rejected.multichain.json"])
 
 keys = sorted({f"{LLAMA[e['chainId']]}:{e['newToken']['address']}" for e in entries if e.get("newToken")})
