@@ -465,17 +465,18 @@
    "simulatedIn": "28580077665000000000000000",
    "simulatedOut": "93149403583602323429260425",
    "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-   "notes": "NU VendingMachine, ratio()=3259242493160745 / 1e15; input rounded down to 3 decimals (simulatedIn = pulled amount; holder had 28580077.665071… NU). Capacity: ~629.3M T left (~193M NU worth) vs ~2.70B NU outside the machine (much of it likely locked in legacy NuCypher staking) — partially covered."
+   "notes": "NU VendingMachine, ratio()=3259242493160745 / 1e15; input rounded down to 3 decimals (simulatedIn = pulled amount; holder had 28580077.665071… NU). Capacity: ~629.3M T left (~193M NU worth) vs ~2.70B NU outside the machine (much of it likely locked in legacy NuCypher staking) — partially covered. Capacity re-checked 2026-09-30: excluding the StakingEscrow's unminted reserve, the vending machine's T covers all circulating NU plus user stakes."
   },
-  "warnings": [
-   {
-    "level": "danger",
-    "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
-   }
-  ],
+  "warnings": [],
   "payoutReserve": {
    "holder": "0x1cca7e410ee41739792ea0a24e00349dd247680e"
-  }
+  },
+  "statsExclude": [
+   {
+    "address": "0xbbD3C0C794F40c4f993B03F65343aCC6fcfCb2e2",
+    "why": "NuCypher StakingEscrow: ~2.5B unminted NU reserve (user stakes are covered by nu-staked-to-t)"
+   }
+  ]
  },
  {
   "id": "ocean-to-fet",

@@ -1,0 +1,702 @@
+[
+  {
+    "id": "thales-escrowed-optimism",
+    "name": "Escrowed THALES → OVER",
+    "project": "Thales / Overtime",
+    "chainId": 10,
+    "oldToken": {
+      "address": "0x217D47011b23BB961eB6D93cA9945B7501a5BB11",
+      "symbol": "THALES",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xedF38688b27036816A50185cAA430D5479e1C63e",
+      "symbol": "OVER",
+      "decimals": 18
+    },
+    "migrator": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "holding": {
+      "contract": "0xa25816b9605009aa446d4d597F0AA46FD828f056",
+      "signature": "claimable(address)",
+      "label": "in staking-reward escrow (vested)"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0xa25816b9605009aa446d4d597F0AA46FD828f056",
+        "signature": "vest(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Thales reward escrow (EscrowThales)"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6"
+      },
+      {
+        "type": "call",
+        "to": "0xd71841fcF6F5862Ceb69d8432800D0A02B1d3cb6",
+        "signature": "migrateThalesToOver(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "blocked",
+    "deadline": null,
+    "statusCheck": null,
+    "payoutReserve": null,
+    "officialUi": "https://www.overtime.io",
+    "sources": [
+      "https://github.com/thales-markets/overtime-improvement-proposals/blob/main/OIPs/TIP-238.md",
+      "https://github.com/thales-markets/contracts-og/blob/main/contracts/EscrowAndStaking/EscrowThales.sol",
+      "https://github.com/thales-markets/contracts-og/blob/main/scripts/deployments.json",
+      "https://optimistic.etherscan.io/address/0xa25816b9605009aa446d4d597F0AA46FD828f056",
+      "https://optimistic.etherscan.io/tx/0xec413675580a1c7aaf392da68969670bb7d8104d6ea2fdededae8ca3e912a01b"
+    ],
+    "warnings": [
+      {
+        "level": "danger",
+        "text": "Thales staking was shut down under TIP-238, and on 2026-06-01 the THALES in the reward escrow contract was moved out in a multisig transaction. Vesting fails until the team puts it back. There's no migration deadline: contact the Overtime team (discord.gg/thales) with your address."
+      },
+      {
+        "level": "info",
+        "text": "If the escrow is refilled, this check turns Ready on its own and the steps below will work: vest your escrowed THALES, then migrate it to OVER 1:1."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 157572002,
+      "holderUsed": "0x0F45156F109e474295913D78036FA213b1745D5A",
+      "simulatedIn": "83985571441947488358",
+      "simulatedOut": null,
+      "method": "eth_simulateV1 vest+approve+migrate from holder at latest, traceTransfers, validation:false; repeated with a stateOverride giving the escrow THALES",
+      "notes": "EscrowThales proxy; iStakingThales() and StakingThales.iEscrowThales() point at each other. claimable(address) = totalAccountEscrowedAmount minus entries still inside the 10-period vesting window. Live: vest reverts 'SafeERC20: low-level call failed' because the escrow holds ~0 THALES (drain tx listed in sources upgraded the proxy and sent the full escrow balance to 0x1777C6d588fd931751762836811529c0073D6376). With a stateOverride of the escrow's THALES balance (block 157572003) the full path succeeds: vest pays 83985571441947488358 raw THALES, migrateThalesToOver pays the same raw amount of OVER. StakingThales still closes weekly periods, so unvested entries keep maturing into claimable(). Accounting total totalEscrowedRewards() = 190,767.9 THALES; drained 190,767.87 on 2026-06-01. OVER in migrator ~83.6k at check time, so a refilled escrow would still hit the migrator's payout limit."
+    }
+  },
+  {
+    "id": "thales-escrowed-arbitrum",
+    "name": "Escrowed THALES → OVER",
+    "project": "Thales / Overtime",
+    "chainId": 42161,
+    "oldToken": {
+      "address": "0xE85B662Fe97e8562f4099d8A1d5A92D4B453bF30",
+      "symbol": "THALES",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x5829D6FE7528bc8E92c4e81CC8F20a528820B51a",
+      "symbol": "OVER",
+      "decimals": 18
+    },
+    "migrator": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "holding": {
+      "contract": "0x391a45F31c1837E3d837c23e05F42A098329D50d",
+      "signature": "claimable(address)",
+      "label": "in staking-reward escrow (vested)"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x391a45F31c1837E3d837c23e05F42A098329D50d",
+        "signature": "vest(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Thales reward escrow (EscrowThales)"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8"
+      },
+      {
+        "type": "call",
+        "to": "0xb308f26b7dc1eCdB52ce05dceb10818c41BA75E8",
+        "signature": "migrateThalesToOver(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "blocked",
+    "deadline": null,
+    "statusCheck": null,
+    "payoutReserve": null,
+    "officialUi": "https://www.overtime.io",
+    "sources": [
+      "https://github.com/thales-markets/overtime-improvement-proposals/blob/main/OIPs/TIP-238.md",
+      "https://github.com/thales-markets/contracts-og/blob/main/contracts/EscrowAndStaking/EscrowThales.sol",
+      "https://github.com/thales-markets/contracts-og/blob/main/scripts/deployments.json",
+      "https://arbiscan.io/address/0x391a45F31c1837E3d837c23e05F42A098329D50d",
+      "https://arbiscan.io/tx/0x505dff5f9e0cdd910ae1c697f1be48f674f9dc34e7b4d7e1fd51e406aa348aac"
+    ],
+    "warnings": [
+      {
+        "level": "danger",
+        "text": "Thales staking was shut down under TIP-238, and on 2026-06-01 the THALES in the reward escrow contract was moved out in a multisig transaction. Vesting fails until the team puts it back. There's no migration deadline: contact the Overtime team (discord.gg/thales) with your address."
+      },
+      {
+        "level": "info",
+        "text": "If the escrow is refilled, this check turns Ready on its own and the steps below will work: vest your escrowed THALES, then migrate it to OVER 1:1."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 510241868,
+      "holderUsed": "0x45BF64fC90f65Ee4ECc47C1b00B8f2fa797E7100",
+      "simulatedIn": "8752833587226878979442",
+      "simulatedOut": null,
+      "method": "eth_simulateV1 vest+approve+migrate from holder at latest, traceTransfers, validation:false; repeated with a stateOverride giving the escrow THALES",
+      "notes": "EscrowThales proxy; iStakingThales() and StakingThales.iEscrowThales() point at each other. claimable(address) = totalAccountEscrowedAmount minus entries still inside the 10-period vesting window. Live: vest reverts 'SafeERC20: low-level call failed' because the escrow holds ~0 THALES (drain tx listed in sources upgraded the proxy and sent the full escrow balance to 0x1777C6d588fd931751762836811529c0073D6376). With a stateOverride of the escrow's THALES balance (block 510242103) the full path succeeds: vest pays 8752833587226878979442 raw THALES, migrateThalesToOver pays the same raw amount of OVER. StakingThales still closes weekly periods, so unvested entries keep maturing into claimable(). Accounting total 49,029.9 THALES; drained 49,029.54 on 2026-06-01. Escrow address not in the official deployments file (which only lists Optimism); identified via StakingThales.iEscrowThales() on the staking contract already in the registry. OVER in migrator ~320.5k."
+    }
+  },
+  {
+    "id": "thales-escrowed-base",
+    "name": "Escrowed THALES → OVER",
+    "project": "Thales / Overtime",
+    "chainId": 8453,
+    "oldToken": {
+      "address": "0xf34e0cff046e154CAfCae502C7541b9E5FD8C249",
+      "symbol": "THALES",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x7750C092e284e2c7366f50C8306F43c7EB2e82a2",
+      "symbol": "OVER",
+      "decimals": 18
+    },
+    "migrator": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "holding": {
+      "contract": "0x29dfc5fee05578CD913c75fF1C7A0d315595939A",
+      "signature": "claimable(address)",
+      "label": "in staking-reward escrow (vested)"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x29dfc5fee05578CD913c75fF1C7A0d315595939A",
+        "signature": "vest(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Thales reward escrow (EscrowThales)"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D"
+      },
+      {
+        "type": "call",
+        "to": "0x2152A0bC2DE4a1D4FA1E81F60e094C44ec24Fe2D",
+        "signature": "migrateThalesToOver(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "blocked",
+    "deadline": null,
+    "statusCheck": null,
+    "payoutReserve": null,
+    "officialUi": "https://www.overtime.io",
+    "sources": [
+      "https://github.com/thales-markets/overtime-improvement-proposals/blob/main/OIPs/TIP-238.md",
+      "https://github.com/thales-markets/contracts-og/blob/main/contracts/EscrowAndStaking/EscrowThales.sol",
+      "https://github.com/thales-markets/contracts-og/blob/main/scripts/deployments.json",
+      "https://basescan.org/address/0x29dfc5fee05578CD913c75fF1C7A0d315595939A",
+      "https://basescan.org/tx/0x60f88ea93551527cac11d5660645574020f2ab9fc675704b8ef62d255d25ae4d"
+    ],
+    "warnings": [
+      {
+        "level": "danger",
+        "text": "Thales staking was shut down under TIP-238, and on 2026-06-01 the THALES in the reward escrow contract was moved out in a multisig transaction. Vesting fails until the team puts it back. There's no migration deadline: contact the Overtime team (discord.gg/thales) with your address."
+      },
+      {
+        "level": "info",
+        "text": "If the escrow is refilled, this check turns Ready on its own and the steps below will work: vest your escrowed THALES, then migrate it to OVER 1:1."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 51976716,
+      "holderUsed": "0xBb1e599e15f2bf248732ef060cadFFeB6363cC4C",
+      "simulatedIn": "1360022452698354192192",
+      "simulatedOut": null,
+      "method": "eth_simulateV1 vest+approve+migrate from holder at latest, traceTransfers, validation:false; repeated with a stateOverride giving the escrow THALES",
+      "notes": "EscrowThales proxy; iStakingThales() and StakingThales.iEscrowThales() point at each other. claimable(address) = totalAccountEscrowedAmount minus entries still inside the 10-period vesting window. Live: vest reverts 'SafeERC20: low-level call failed' because the escrow holds ~0 THALES (drain tx listed in sources upgraded the proxy and sent the full escrow balance to 0x1777C6d588fd931751762836811529c0073D6376). With a stateOverride of the escrow's THALES balance (block 51976716) the full path succeeds: vest pays 1360022452698354192192 raw THALES, migrateThalesToOver pays the same raw amount of OVER. StakingThales still closes weekly periods, so unvested entries keep maturing into claimable(). Accounting total 4,873.8 THALES; drained 4,873.84 on 2026-06-01. Escrow address identified via StakingThales.iEscrowThales() (Base staking contract already in the registry)."
+    }
+  },
+  {
+    "id": "knc-legacy-staked-kyberdao",
+    "name": "Staked KNCL (old KyberDAO) → KNC",
+    "project": "Kyber Network",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0xdd974D5C2e2928deA5F71b9825b8b646686BD200",
+      "symbol": "KNC",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+      "symbol": "KNC",
+      "decimals": 18
+    },
+    "migrator": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "holding": {
+      "contract": "0xECf0bdB7B3F349AbfD68C3563678124c5e8aaea3",
+      "signature": "getLatestStakeBalance(address)",
+      "label": "staked in the old KyberDAO"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0xECf0bdB7B3F349AbfD68C3563678124c5e8aaea3",
+        "signature": "withdraw(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "old KyberDAO staking (KyberStaking)"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202"
+      },
+      {
+        "type": "call",
+        "to": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+        "signature": "mintWithOldKnc(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "payoutReserve": null,
+    "officialUi": "https://kyberswap.com/kyberdao/stake-knc",
+    "sources": [
+      "https://etherscan.io/address/0xecf0bdb7b3f349abfd68c3563678124c5e8aaea3",
+      "https://blog.kyber.network/kyberdao-staking-and-voting-overview-70be71ee58f0",
+      "https://support.kyberswap.com/hc/en-us/articles/15983607020825-How-to-Migrate-KNCL-to-KNC-v2"
+    ],
+    "warnings": [],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 26087838,
+      "holderUsed": "0xfF0Cb0351a356ad16987E5809a8dAAaF34F5ADBe",
+      "simulatedIn": "84524396193936611431629",
+      "simulatedOut": "84524396193936611431629",
+      "method": "eth_simulateV1 withdraw+approve+mintWithOldKnc from holder at latest, traceTransfers, validation:false",
+      "notes": "KyberStaking (verified source, Etherscan label 'Kyber: Staking', kncToken() = legacy KNC). withdraw(uint256) has no lock or cooldown: it only needs stakerLatestData.stake >= amount and sends KNCL straight back. Then the existing KNCL→KNC mint (burn old, mint new 1:1, no reserve). ~712.6k KNCL staked across 1,487 addresses (contract holds 715.1k). Current KyberDAO docs list a newer KyberStaking (0xeadb96F1…) for KNC v2; this one is the legacy KNCL staking."
+    }
+  },
+  {
+    "id": "nu-staked-to-t",
+    "name": "Staked NU (NuCypher) → T",
+    "project": "Threshold Network",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x4fE83213D56308330EC302a8BD641f1d0113A4Cc",
+      "symbol": "NU",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+      "symbol": "T",
+      "decimals": 18
+    },
+    "migrator": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e",
+    "ratio": {
+      "num": "3259242493160745",
+      "den": "1000000000000000"
+    },
+    "holding": {
+      "contract": "0xbbD3C0C794F40c4f993B03F65343aCC6fcfCb2e2",
+      "signature": "getAllTokens(address)",
+      "label": "staked in NuCypher StakingEscrow"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0xbbD3C0C794F40c4f993B03F65343aCC6fcfCb2e2",
+        "signature": "withdraw(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "NuCypher StakingEscrow"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e"
+      },
+      {
+        "type": "call",
+        "to": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e",
+        "signature": "wrap(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "payoutReserve": {
+      "holder": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e"
+    },
+    "officialUi": null,
+    "sources": [
+      "https://etherscan.io/address/0xbbD3C0C794F40c4f993B03F65343aCC6fcfCb2e2",
+      "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc",
+      "https://p2p.org/economy/threshold-staking-guide/"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "The vending machine converts in steps of 0.001 NU, so a tiny remainder may stay in your wallet."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 26087845,
+      "holderUsed": "0x15a7E8815B08FB8f2B96E207C13A9DD6Dc054485",
+      "simulatedIn": "5000000000000000000000000",
+      "simulatedOut": "16296212465803725000000000",
+      "method": "eth_simulateV1 withdraw+approve+wrap from holder at latest, traceTransfers, validation:false",
+      "notes": "StakingEscrow Dispatcher → impl StakingEscrow 0x939f82a1Aa8560E7a6Ef5Ae5C3752618fbA75698 (solc 0.8.23, verified). Current impl removed sub-stake locks: withdraw(uint256) only checks stakerInfo.value >= amount (onlyStaker), no lock/vesting check, also works for stakers linked to a T staking provider (simulated 1.5M NU for 0x04670e07…, OK). getAllTokens(address) = stakerInfo.value. 232 of 2,155 stakers still hold 27.30M NU. The other ~2.50B NU in the contract is the unminted reward reserve, not user stakes. Vending machine holds 629.3M T = 193.09M NU worth, which equals NU outside escrow+machine (165.8M) plus these stakes (27.3M): fully covered. Also simulated from the largest staker 0x7fff5512… (6.99M NU, a contract): OK."
+    }
+  },
+  {
+    "id": "rbn-verbn-to-aevo",
+    "name": "Locked RBN (veRBN) → AEVO",
+    "project": "Ribbon / Aevo",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x6123B0049F904d730dB3C36a31167D9d4121fA6B",
+      "symbol": "RBN",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xB528edBef013aff855ac3c50b381f253aF13b997",
+      "symbol": "AEVO",
+      "decimals": 18
+    },
+    "migrator": "0x38913051E01D4F6910cB66bB9aC3cb77D746Ad81",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "holding": {
+      "contract": "0x19854C9A5fFa8116f48f984bDF946fB9CEa9B5f7",
+      "signature": "locked(address)",
+      "label": "locked as veRBN"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x19854C9A5fFa8116f48f984bDF946fB9CEa9B5f7",
+        "signature": "withdraw()",
+        "args": [],
+        "contractLabel": "Ribbon vote-escrow (veRBN)"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x38913051E01D4F6910cB66bB9aC3cb77D746Ad81"
+      },
+      {
+        "type": "call",
+        "to": "0x38913051E01D4F6910cB66bB9aC3cb77D746Ad81",
+        "signature": "migrate(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "payoutReserve": {
+      "holder": "0x38913051E01D4F6910cB66bB9aC3cb77D746Ad81"
+    },
+    "officialUi": null,
+    "sources": [
+      "https://docs.ribbon.finance/developers/contract-addresses",
+      "https://docs.ribbon.finance/ribbonomics/overview-and-rbn-tokenomics/vote-escrowed-rbn",
+      "https://etherscan.io/address/0x19854c9a5ffa8116f48f984bdf946fb9cea9b5f7"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "withdraw() releases your whole veRBN lock at once."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 26087959,
+      "holderUsed": "0x1Dd01835E0Eb26ABe597e2e69FfAC1A6cd00283A",
+      "simulatedIn": "46738158073042714937134",
+      "simulatedOut": "46738158073042714937134",
+      "method": "eth_simulateV1 withdraw+approve+migrate from holder at latest, traceTransfers, validation:false",
+      "notes": "veRBN VotingEscrow (Vyper) listed in Ribbon's deployed-contracts docs. locked(address) returns (int128 amount, uint256 end); word 0 is the RBN amount. withdraw() requires lock expired OR is_unlocked; is_unlocked() = true today and every one of the 203 remaining locks has expired anyway (latest end 2026-01-08), so withdraw works either way. 426,289.6 RBN still locked. Then the existing RBN→AEVO migrate (AevoStaking, ~67.7M AEVO reserve)."
+    }
+  },
+  {
+    "id": "gntb-to-glm",
+    "name": "GNTb (batched GNT) → GLM",
+    "project": "Golem",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0xa74476443119A942dE498590Fe1f2454d7D4aC0d",
+      "symbol": "GNT",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x7DD9c5Cba05E151C895FDe1CF355C9A1D5DA6429",
+      "symbol": "GLM",
+      "decimals": 18
+    },
+    "migrator": "0xa74476443119A942dE498590Fe1f2454d7D4aC0d",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "holding": {
+      "contract": "0xA7dfb33234098c66FdE44907e918DAD70a3f211c",
+      "signature": "balanceOf(address)",
+      "label": "wrapped as GNTb"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0xA7dfb33234098c66FdE44907e918DAD70a3f211c",
+        "signature": "withdraw(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Golem GNTb (batching token)"
+      },
+      {
+        "type": "call",
+        "to": "0xa74476443119A942dE498590Fe1f2454d7D4aC0d",
+        "signature": "migrate(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "payoutReserve": null,
+    "officialUi": "https://migrate.golem.network",
+    "sources": [
+      "https://blog.golem.network/gnt-to-glm-migration/",
+      "https://docs.golem.network/docs/golem/migrate/guideline",
+      "https://etherscan.io/token/0xa7dfb33234098c66fde44907e918dad70a3f211c"
+    ],
+    "warnings": [],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 26087966,
+      "holderUsed": "0xe5dd2b19E70660937AE538aA3C557a6aDAEE1ac1",
+      "simulatedIn": "936419121619992194763",
+      "simulatedOut": "936419121619992194763",
+      "method": "eth_simulateV1 withdraw+migrate from holder at latest, traceTransfers, validation:false",
+      "notes": "GolemNetworkTokenBatching (verified; TOKEN() = GNT). withdraw(uint256) burns GNTb and transfers the same GNT 1:1, no lock. Then GNT.migrate mints GLM 1:1 (no approve). GNTb supply 93,357 backed by 93,357 GNT; Golem's migration FAQ says GNTb holders should migrate too. 151.8 GNTb more sits in GNTDeposit (0x98d3ca65…, Clay payment deposits): too small to add."
+    }
+  },
+  {
+    "id": "kwenta-staked-v1-optimism",
+    "name": "Staked KWENTA (staking v1) → SNX",
+    "project": "Synthetix / Kwenta",
+    "chainId": 10,
+    "oldToken": {
+      "address": "0x920Cf626a271321C151D027030D5d08aF699456b",
+      "symbol": "KWENTA",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4",
+      "symbol": "SNX",
+      "decimals": 18
+    },
+    "migrator": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+    "ratio": {
+      "num": "17",
+      "den": "1"
+    },
+    "holding": {
+      "contract": "0x6e56A5D49F775BA08041e28030bc7826b13489e0",
+      "signature": "nonEscrowedBalanceOf(address)",
+      "label": "staked in Kwenta staking v1"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x6e56A5D49F775BA08041e28030bc7826b13489e0",
+        "signature": "unstake(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Kwenta StakingRewards v1"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8"
+      },
+      {
+        "type": "call",
+        "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "signature": "lockAndConvert()",
+        "args": []
+      },
+      {
+        "type": "call",
+        "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "signature": "vest()",
+        "args": []
+      }
+    ],
+    "status": "open",
+    "deadline": "2026-11-15",
+    "statusCheck": null,
+    "payoutReserve": {
+      "holder": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8"
+    },
+    "officialUi": "https://kwenta-migration.synthetix.io/",
+    "sources": [
+      "https://docs.kwenta.io/developers/deployed-contracts",
+      "https://sips.synthetix.io/sips/sip-411/",
+      "https://kwenta-migration.synthetix.io/"
+    ],
+    "warnings": [
+      {
+        "level": "warn",
+        "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
+      },
+      {
+        "level": "warn",
+        "text": "lockAndConvert takes your whole KWENTA wallet balance. If you already hold KWENTA in your wallet, convert that first (the wallet check), or approve your wallet plus staked total, or this step fails."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 157572059,
+      "holderUsed": "0x61668c17f00635Dc8c4f95EF6F6431D29C2742E0",
+      "simulatedIn": "137645798411459196955",
+      "simulatedOut": "2339978572994806348235",
+      "method": "eth_simulateV1 unstake+approve+lockAndConvert+vest from holder at latest, traceTransfers, validation:false",
+      "notes": "Address from Kwenta deployed-contracts docs. nonEscrowedBalanceOf(address) = liquid staked KWENTA (escrowed stake is separate and needs RewardEscrow.vest(entryIDs[]), not expressible). unstake(uint256) is not paused; v1 has no unstake cooldown. Contract holds 2,395 liquid KWENTA. Conversion lock+linear vest have fully elapsed, so vest() pays 17x SNX immediately. A holder who also had wallet KWENTA failed at lockAndConvert (allowance < balance) in simulation: see warning."
+    }
+  },
+  {
+    "id": "kwenta-staked-v2-optimism",
+    "name": "Staked KWENTA (staking v2) → SNX",
+    "project": "Synthetix / Kwenta",
+    "chainId": 10,
+    "oldToken": {
+      "address": "0x920Cf626a271321C151D027030D5d08aF699456b",
+      "symbol": "KWENTA",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4",
+      "symbol": "SNX",
+      "decimals": 18
+    },
+    "migrator": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+    "ratio": {
+      "num": "17",
+      "den": "1"
+    },
+    "holding": {
+      "contract": "0x61294940CE7cD1BDA10e349adC5B538B722CeB88",
+      "signature": "nonEscrowedBalanceOf(address)",
+      "label": "staked in Kwenta staking v2"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x61294940CE7cD1BDA10e349adC5B538B722CeB88",
+        "signature": "unstake(uint256)",
+        "args": [
+          "$amount"
+        ],
+        "contractLabel": "Kwenta StakingRewards v2"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8"
+      },
+      {
+        "type": "call",
+        "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "signature": "lockAndConvert()",
+        "args": []
+      },
+      {
+        "type": "call",
+        "to": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8",
+        "signature": "vest()",
+        "args": []
+      }
+    ],
+    "status": "open",
+    "deadline": "2026-11-15",
+    "statusCheck": null,
+    "payoutReserve": {
+      "holder": "0x20231C8e25fc751bb72F795Fe58cCa6e45A75eC8"
+    },
+    "officialUi": "https://kwenta-migration.synthetix.io/",
+    "sources": [
+      "https://docs.kwenta.io/developers/deployed-contracts",
+      "https://sips.synthetix.io/sips/sip-411/",
+      "https://kwenta-migration.synthetix.io/"
+    ],
+    "warnings": [
+      {
+        "level": "warn",
+        "text": "Hard deadline 2026-11-15: after that the Synthetix treasury can sweep the SNX and conversions pay nothing."
+      },
+      {
+        "level": "warn",
+        "text": "lockAndConvert takes your whole KWENTA wallet balance. If you already hold KWENTA in your wallet, convert that first (the wallet check), or approve your wallet plus staked total, or this step fails."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "simulatedAt": 157572060,
+      "holderUsed": "0x14C272eaB191F56aD167054fC4aB070564254B3a",
+      "simulatedIn": "794526861033079613675",
+      "simulatedOut": "13506956637562353432475",
+      "method": "eth_simulateV1 unstake+approve+lockAndConvert+vest from holder at latest, traceTransfers, validation:false",
+      "notes": "Address from Kwenta deployed-contracts docs. nonEscrowedBalanceOf(address) = liquid staked KWENTA (escrowed stake is separate and needs RewardEscrow.vest(entryIDs[]), not expressible). unstake(uint256) is not paused; v2 cooldownPeriod() = 7 days from userLastStakeTime; staking rewards ended 2024-11-15, so every holder is past it. Contract holds 9,852 liquid KWENTA. Conversion lock+linear vest have fully elapsed, so vest() pays 17x SNX immediately. A holder who also had wallet KWENTA failed at lockAndConvert (allowance < balance) in simulation: see warning."
+    }
+  }
+]

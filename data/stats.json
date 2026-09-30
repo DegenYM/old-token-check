@@ -1,5 +1,5 @@
 {
- "unmigratedUsd": 303459656,
+ "unmigratedUsd": 302031685,
  "paths": 45,
  "chains": [
   1,
@@ -16,6 +16,6 @@
   "eps-to-epx-bsc"
  ],
  "asOf": "2026-09-30",
- "ethBlock": 26087859,
+ "ethBlock": 26088016,
  "method": "Per path: min(outstanding old supply x ratio, payout reserve) x DefiLlama price. Outstanding = totalSupply minus migrator, burn-address and known non-user balances (statsExclude, e.g. converted veNFTs held by a sink)."
 }

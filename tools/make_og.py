@@ -4,6 +4,9 @@ import json, os, subprocess, tempfile
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 s = json.load(open(os.path.join(root, "data/stats.json")))
 usd = s["unmigratedUsd"]
+# same count the site shows: every open path in the registry files the site loads (wallet + holdings)
+files = json.load(open(os.path.join(root, "data/index.json")))
+paths = sum(1 for f in files for e in json.load(open(os.path.join(root, "data", f))) if e.get("status", "open") == "open")
 big = f"${usd/1e9:.1f}B" if usd >= 1e9 else f"${usd/1e6:.0f}M"
 html = f"""<!doctype html><html><head><meta charset="utf-8"><style>
 *{{margin:0;box-sizing:border-box}}
@@ -25,7 +28,7 @@ body{{width:1200px;height:630px;background:#0b0d13;color:#f2f4f7;font-family:-ap
 <div>
   <div class="big">{big}</div>
   <div class="label">in old tokens not yet migrated</div>
-  <div class="sub">MATIC → POL · MKR → SKY · GNT → GLM · SAI → WETH · {s['paths']} official paths</div>
+  <div class="sub">MATIC → POL · MKR → SKY · GNT → GLM · SAI → WETH · {paths} official paths</div>
 </div>
 <div class="row">
   <div class="search"><span class="ph">0x… your wallet address</span><span class="btn">Check</span></div>
