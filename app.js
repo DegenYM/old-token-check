@@ -92,14 +92,19 @@ async function loadStats() {
 
 /* ------------------------------------------------------------- tip jar */
 
-/** A single quiet footer line; stays hidden until TIP_ADDRESS is set in config.js. */
+/** A compact coffee strip above the footer; stays hidden until TIP_ADDRESS is set in config.js. */
 function renderTip() {
   const addr = TIP_ADDRESS && isAddress(TIP_ADDRESS) ? toChecksumAddress(TIP_ADDRESS) : null;
   if (!addr) return;
   const el = $('#tip');
-  el.innerHTML = `Useful? Coffee fund, any EVM chain: <span class="tip-addr mono" id="tip-addr">${esc(TIP_ENS || addr)}</span>
-    <button type="button" class="copy" data-copy="${esc(addr)}">Copy</button>
-    <details class="tip-qr"><summary>QR</summary><a class="qr" href="ethereum:${esc(addr)}" aria-label="Open the coffee fund address in a wallet app">${qrSvg(addr)}</a></details>`;
+  el.innerHTML = `
+    <a class="coffee-qr" href="ethereum:${esc(addr)}" aria-label="Open the coffee fund address in a wallet app">${qrSvg(addr)}</a>
+    <div class="coffee-body">
+      <p class="coffee-title">Found something you forgot about? Buy me a coffee.</p>
+      <p class="coffee-sub">Free, no wallet connection, no fee skimmed. Any EVM chain, any token.</p>
+      <p class="coffee-addr">${TIP_ENS ? `<span class="coffee-ens">${esc(TIP_ENS)}</span> ` : ''}<span class="mono" id="tip-addr">${esc(addr)}</span>
+        <button type="button" class="copy" data-copy="${esc(addr)}">Copy</button></p>
+    </div>`;
   el.hidden = false;
 }
 
