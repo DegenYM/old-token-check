@@ -162,23 +162,25 @@ function parseAddresses(text) {
   let dupes = 0;
   for (const line of text.split(/\r?\n/)) {
     const found = [...line.matchAll(ADDRESS_RE)].map((m) => m[2]);
+    const raw = [...line.matchAll(NAME_RE)].map((m) => m[2]);
+    // Free text on a line is a label only when the line holds exactly one address or name;
+    // "a.eth, 0x…" or "0x…, 0x…" are lists, not labels
+    const single = found.length + raw.length === 1;
     for (const a of found) {
       if (checkAddress(a) === 'bad-checksum') { skipped.push(a); continue; }
       const cs = toChecksumAddress(a);
       if (seen.has(cs)) { dupes++; continue; }
       seen.add(cs);
       valid.push(cs);
-      const label = found.length === 1 ? cleanLabel(line.replace(a, ' ')) : '';
+      const label = single ? cleanLabel(line.replace(a, ' ')) : '';
       if (label) labels.set(cs, label);
     }
-    if (found.length) continue; // an address on the line wins; a name next to it is just its label
-    const raw = [...line.matchAll(NAME_RE)].map((m) => m[2]);
     for (const r of raw) {
       const name = normalizeName(r.split(/[/=?#@]/).pop());
       if (!name) { badNames.push(r); continue; }
       if (seenNames.has(name)) { dupes++; continue; }
       seenNames.add(name);
-      const rest = raw.length === 1 ? cleanLabel(line.replace(r, ' ')) : '';
+      const rest = single ? cleanLabel(line.replace(r, ' ')) : '';
       names.push({ name, label: rest ? `${rest} (${name})` : name });
     }
   }
