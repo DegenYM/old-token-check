@@ -672,6 +672,18 @@
     "holding": {
       "reads": [
         {
+          "call": "0xA618E54de493ec29432EbD2CA7f14eFbF6Ac17F7",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "iou"
+        },
+        {
+          "require": "$iou",
+          "is": "nonzero"
+        },
+        {
           "each": "delegate",
           "in": [
             "0x0f4Be9f208C552A6b04d9A1222F385785f95beAA",
@@ -883,7 +895,7 @@
       "codeExists": true,
       "holderUsed": "0xbf7fbcd1792354c69f64d32c88a3f3658763798f",
       "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
-      "notes": "VoteDelegate v1 factory 0xD897F108670903D1D6070fcF818f9db3615AF272: 139 of 351 delegate contracts (CreateVoteDelegate logs) still hold MKR in the 2020 chief (42.05 MKR). delegate.stake(user) = user's MKR; free(wad) pulls the IOU from the user, so the IOU approval goes to the delegate. Delegate expiry only blocks lock, not free."
+      "notes": "VoteDelegate v1 factory 0xD897F108670903D1D6070fcF818f9db3615AF272: 139 of 351 delegate contracts (CreateVoteDelegate logs) still hold MKR in the 2020 chief (42.05 MKR). delegate.stake(user) = user's MKR; free(wad) pulls the IOU from the user, so the IOU approval goes to the delegate. Delegate expiry only blocks lock, not free. Only users holding the 2020 chief IOU are checked (delegate.free pulls it back, so without it there is nothing to free)."
     }
   }
 ]

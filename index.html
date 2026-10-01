@@ -49,14 +49,16 @@
       <label for="addresses" class="sr-only">Wallet address</label>
       <svg class="search-icon" aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       <textarea id="addresses" name="addresses" rows="1" spellcheck="false" autocomplete="off" autocapitalize="off"
-        placeholder="0x… wallet address" aria-describedby="search-note input-error"></textarea>
+        placeholder="0x… wallet address" aria-describedby="search-note addr-status input-error"></textarea>
       <button id="submit" type="submit" class="btn-check" disabled>Check</button>
     </form>
+    <p id="addr-status" class="addr-status" aria-live="polite" hidden></p>
     <p id="input-error" class="field-error" role="alert" hidden></p>
     <p id="search-note" class="search-note">
       <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 017 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
-      <span>Read-only. No wallet connection, no signatures. EVM addresses; several at once works too.</span>
+      <span>Read-only. No wallet connection, no signatures. Paste up to 100 addresses at once, or <button type="button" id="upload" class="text-btn">upload a list</button>.</span>
     </p>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/plain" hidden>
 
     <section class="stats" aria-label="What this checker covers">
       <div class="stat">

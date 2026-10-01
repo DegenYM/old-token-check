@@ -31,12 +31,12 @@ export const CHAINS = {
   },
   10: {
     name: 'OP Mainnet', native: 'ETH', llama: 'optimism',
-    rpcs: ['https://optimism.drpc.org', 'https://optimism-rpc.publicnode.com'],
+    rpcs: ['https://optimism.drpc.org', 'https://optimism-rpc.publicnode.com', 'https://mainnet.optimism.io'],
     explorer: 'https://optimistic.etherscan.io', explorerName: 'Optimistic Etherscan',
   },
   8453: {
     name: 'Base', native: 'ETH', llama: 'base',
-    rpcs: ['https://base.drpc.org', 'https://base-rpc.publicnode.com'],
+    rpcs: ['https://base.drpc.org', 'https://mainnet.base.org', 'https://base-rpc.publicnode.com'],
     explorer: 'https://basescan.org', explorerName: 'BaseScan',
   },
   56: {
@@ -46,12 +46,12 @@ export const CHAINS = {
   },
   43114: {
     name: 'Avalanche C-Chain', native: 'AVAX', llama: 'avax',
-    rpcs: ['https://avalanche.drpc.org', 'https://avalanche-c-chain-rpc.publicnode.com', 'https://api.avax.network/ext/bc/C/rpc'],
+    rpcs: ['https://api.avax.network/ext/bc/C/rpc', 'https://avalanche.drpc.org', 'https://avalanche-c-chain-rpc.publicnode.com'],
     explorer: 'https://snowscan.xyz', explorerName: 'SnowScan',
   },
   100: {
     name: 'Gnosis', native: 'xDAI', llama: 'xdai',
-    rpcs: ['https://gnosis.drpc.org', 'https://gnosis-rpc.publicnode.com'],
+    rpcs: ['https://gnosis.drpc.org', 'https://gnosis-rpc.publicnode.com', 'https://rpc.gnosischain.com'],
     explorer: 'https://gnosisscan.io', explorerName: 'GnosisScan',
   },
   324: {

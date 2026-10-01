@@ -7,8 +7,9 @@ import { loadRegistry, scanChain, analyzeFinding, outSymbol, outDecimals, amount
 import { checkAddress, isAddress, toChecksumAddress, formatUnits, parseFraction } from './lib/evm.js';
 import qrcode from './lib/vendor/qrcode.mjs';
 
-const MAX_ADDRESSES = 25;
-const SIM_CONCURRENCY = 2;
+const MAX_ADDRESSES = 100;
+const SIM_CONCURRENCY = 3;
+const MAX_FILE_BYTES = 2_000_000;
 
 const $ = (sel) => document.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -33,7 +34,23 @@ async function init() {
   ta.addEventListener('keydown', (ev) => {
     if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); $('#form').requestSubmit(); }
   });
-  ta.addEventListener('input', () => { autosize(ta); showInputError(''); });
+  ta.addEventListener('input', () => { autosize(ta); showInputError(''); scheduleStatus(); });
+  // Batch input: upload a .csv/.txt, or drop it on the search bar
+  $('#upload').addEventListener('click', () => $('#file').click());
+  $('#file').addEventListener('change', (ev) => {
+    const f = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    if (f) loadList(f);
+  });
+  const form = $('#form');
+  const hasFiles = (ev) => ev.dataTransfer && [...ev.dataTransfer.types].includes('Files');
+  form.addEventListener('dragover', (ev) => { if (hasFiles(ev)) { ev.preventDefault(); form.classList.add('dragging'); } });
+  form.addEventListener('dragleave', (ev) => { if (!form.contains(ev.relatedTarget)) form.classList.remove('dragging'); });
+  form.addEventListener('drop', (ev) => {
+    form.classList.remove('dragging');
+    const f = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
+    if (f) { ev.preventDefault(); loadList(f); }
+  });
   renderTip();
   try {
     registry = await loadRegistry('data/');
@@ -44,7 +61,7 @@ async function init() {
   loadStats();
   $('#submit').disabled = registry.entries.length === 0;
   const q = new URLSearchParams(location.search).get('address');
-  if (q) { ta.value = q; autosize(ta); $('#form').requestSubmit(); }
+  if (q) { ta.value = q; autosize(ta); updateStatus(); $('#form').requestSubmit(); }
 }
 
 // Fallback for browsers without CSS field-sizing
@@ -123,21 +140,106 @@ function qrSvg(text) {
 
 /* ------------------------------------------------------------- input */
 
+const ADDRESS_RE = /(^|[^0-9a-zA-Z])(0x[0-9a-fA-F]{40})(?![0-9a-zA-Z])/g;
+const NEAR_RE = /(^|[^0-9a-zA-Z])(0x(?:[0-9a-fA-F]{20,39}|[0-9a-fA-F]{41,50}))(?![0-9a-zA-Z])/g;
+const ENS_RE = /(^|[\s,;:"'])([a-z0-9-]+(?:\.[a-z0-9-]+)*\.eth)(?=$|[\s,;:"'])/gi;
+
+/**
+ * Pull every EVM address out of free text: one per line, comma lists, a spreadsheet column,
+ * explorer URLs, a CSV export. Text sharing a line with exactly one address becomes its label
+ * ("Cold wallet: 0x…"). Labels never leave the browser.
+ */
 function parseAddresses(text) {
-  const tokens = text.split(/[\s,;]+/).map((t) => t.trim()).filter(Boolean);
   const valid = [];
-  const errors = [];
+  const labels = new Map();
+  const skipped = [];
   const seen = new Set();
-  for (const t of tokens) {
-    const s = checkAddress(t);
-    if (s === 'invalid') { errors.push(`"${t.length > 50 ? `${t.slice(0, 50)}…` : t}" isn't an EVM address (0x followed by 40 hex characters).`); continue; }
-    if (s === 'bad-checksum') { errors.push(`${short(t)} has a mixed-case checksum that doesn't match — there may be a typo.`); continue; }
-    const cs = toChecksumAddress(t);
-    if (seen.has(cs)) continue;
-    seen.add(cs);
-    valid.push(cs);
+  let dupes = 0;
+  for (const line of text.split(/\r?\n/)) {
+    const found = [...line.matchAll(ADDRESS_RE)].map((m) => m[2]);
+    for (const a of found) {
+      if (checkAddress(a) === 'bad-checksum') { skipped.push(a); continue; }
+      const cs = toChecksumAddress(a);
+      if (seen.has(cs)) { dupes++; continue; }
+      seen.add(cs);
+      valid.push(cs);
+      const label = found.length === 1 ? cleanLabel(line.replace(a, ' ')) : '';
+      if (label) labels.set(cs, label);
+    }
   }
-  return { valid, errors };
+  const near = [...text.matchAll(NEAR_RE)].map((m) => m[2]);
+  const ens = [...text.matchAll(ENS_RE)].map((m) => m[2]);
+  return { valid, labels, skipped, dupes, near, ens, empty: !text.trim() };
+}
+
+/** "  Cold wallet:  " -> "Cold wallet"; drops URLs, numbers and other non-labels */
+function cleanLabel(rest) {
+  const t = rest.replace(/\S*(?:https?:\/\/|www\.)\S*/gi, ' ').replace(/["'`]/g, ' ').replace(/[\s,;|:=\t]+/g, ' ').trim();
+  if (!t || t.length > 40 || /\/|https?|www\./i.test(t) || !/[a-z]/i.test(t)) return '';
+  return t;
+}
+
+function batchNotes(p) {
+  const out = [];
+  if (p.dupes) out.push(`${plural(p.dupes, 'duplicate')} removed`);
+  if (p.skipped.length) out.push(`${num(p.skipped.length)} skipped because the checksum doesn't match (${p.skipped.slice(0, 2).map(short).join(', ')}${p.skipped.length > 2 ? '…' : ''})`);
+  if (p.valid.length && p.near.length) out.push(`${num(p.near.length)} ignored, not a full address`);
+  if (p.ens.length) out.push("ENS names aren't supported yet");
+  return out;
+}
+
+function noAddressError(p) {
+  if (p.empty) return 'Paste at least one wallet address to check.';
+  if (p.skipped.length) return `${short(p.skipped[0])} has a mixed-case checksum that doesn't match — there may be a typo.`;
+  if (p.ens.length) return `ENS names like ${p.ens[0]} aren't supported yet. Paste the 0x address instead.`;
+  if (p.near.length) return `"${p.near[0].length > 50 ? `${p.near[0].slice(0, 50)}…` : p.near[0]}" isn't a full EVM address (0x followed by 40 hex characters).`;
+  return 'No EVM address found. Paste addresses that start with 0x followed by 40 hex characters.';
+}
+
+let statusTimer;
+function scheduleStatus() { clearTimeout(statusTimer); statusTimer = setTimeout(updateStatus, 120); }
+
+/** One quiet line under the search bar once a list is pasted: how many will be checked, what was dropped */
+function updateStatus() {
+  const el = $('#addr-status');
+  const p = parseAddresses($('#addresses').value);
+  const n = p.valid.length;
+  if (n > MAX_ADDRESSES) {
+    el.dataset.tone = 'bad';
+    el.innerHTML = `<b>${num(n)}</b> addresses. The limit is ${MAX_ADDRESSES} per check, so split the list.`;
+    el.hidden = false;
+    return;
+  }
+  delete el.dataset.tone;
+  const notes = batchNotes(p);
+  if (n < 2 && !notes.length) { el.hidden = true; return; }
+  el.innerHTML = `${n ? `<b>${num(n)}</b> ${n === 1 ? 'address' : 'addresses'} ready to check` : ''}${notes.length ? `<span class="muted">${n ? ' · ' : ''}${esc(notes.join(' · '))}</span>` : ''}`;
+  el.hidden = false;
+}
+
+/** A dropped or uploaded .csv/.txt: keep only the addresses (with labels), one per line */
+async function loadList(file) {
+  const ta = $('#addresses');
+  if (file.size > MAX_FILE_BYTES) return showInputError(`${file.name} is over 2 MB. Paste the addresses instead, or split the file.`);
+  let text;
+  try { text = await file.text(); } catch { return showInputError(`Couldn't read ${file.name}.`); }
+  const p = parseAddresses(text);
+  if (!p.valid.length && !p.skipped.length) return showInputError(`No EVM addresses found in ${file.name}.`);
+  showInputError('');
+  ta.value = [...p.valid.map((a) => (p.labels.has(a) ? `${p.labels.get(a)}: ${a}` : a)), ...p.skipped].join('\n');
+  autosize(ta);
+  updateStatus();
+  // What the file had that the tidy list no longer shows (shown until the list is edited)
+  const dropped = batchNotes({ ...p, skipped: [] });
+  if (dropped.length) {
+    const el = $('#addr-status');
+    el.insertAdjacentHTML('beforeend', `<span class="muted"> · in the file: ${esc(dropped.join(' · '))}</span>`);
+    el.hidden = false;
+  }
+  ta.focus();
+  ta.setSelectionRange(0, 0);
+  ta.scrollTop = 0;
+  toast(`Loaded ${plural(p.valid.length, 'address', 'addresses')} from ${file.name}`);
 }
 
 function showInputError(msg) {
@@ -149,10 +251,10 @@ function showInputError(msg) {
 async function onSubmit(ev) {
   ev.preventDefault();
   if (running) return;
-  const { valid, errors } = parseAddresses($('#addresses').value);
-  if (errors.length) return showInputError(errors.join('\n'));
-  if (!valid.length) return showInputError('Paste at least one wallet address to check.');
-  if (valid.length > MAX_ADDRESSES) return showInputError(`You can check up to ${MAX_ADDRESSES} addresses at once.`);
+  const parsed = parseAddresses($('#addresses').value);
+  const { valid } = parsed;
+  if (!valid.length) return showInputError(noAddressError(parsed));
+  if (valid.length > MAX_ADDRESSES) return showInputError(`That's ${num(valid.length)} addresses. You can check up to ${MAX_ADDRESSES} at once, so split the list.`);
   showInputError('');
   running = true;
   const btn = $('#submit');
@@ -160,7 +262,7 @@ async function onSubmit(ev) {
   btn.dataset.busy = 'true';
   btn.textContent = 'Checking';
   try {
-    await runScan(valid);
+    await runScan(valid, parsed.labels);
   } finally {
     running = false;
     btn.disabled = false;
@@ -171,7 +273,9 @@ async function onSubmit(ev) {
 
 /* -------------------------------------------------------------- scan */
 
-async function runScan(users) {
+let lastScan = null; // for the CSV download
+
+async function runScan(users, labels = new Map()) {
   const byChain = groupBy(registry.entries, (e) => e.chainId);
   const chainIds = [...byChain.keys()];
   const multi = users.length > 1;
@@ -192,8 +296,8 @@ async function runScan(users) {
       <p>Reading balances for ${plural(registry.entries.length, 'migration path')} on ${plural(chainIds.length, 'chain')}.</p>
     </div>
     ${users.map((u) => `
-      <section class="addr-group" id="addr-${u}" aria-label="Results for ${esc(u)}">
-        ${multi ? `<header class="addr-head"><span class="mono">${esc(u)}</span><span class="addr-count"></span></header>` : ''}
+      <section class="addr-group" id="addr-${u}" aria-label="Results for ${esc(labels.get(u) || u)}"${multi ? ' hidden' : ''}>
+        ${multi ? `<header class="addr-head">${labels.has(u) ? `<span class="addr-label">${esc(labels.get(u))}</span>` : ''}<span class="mono">${esc(u)}</span><span class="addr-count"></span></header>` : ''}
         <div class="cards"></div>
       </section>`).join('')}`;
 
@@ -238,19 +342,44 @@ async function runScan(users) {
   const prices = await fetchPrices(all);
   for (const r of all) insertCard(r, resultCard(r, prices));
 
-  // Per-address empty states and counts
-  for (const u of users) {
-    const mine = all.filter((r) => r.user === u);
-    const sec = document.getElementById(`addr-${u}`);
-    if (multi) sec.querySelector('.addr-count').textContent = mine.length ? plural(mine.length, 'migration') : '';
-    if (!mine.length) {
-      sec.querySelector('.cards').innerHTML = `
+  const checkedLine = `Checked ${plural(registry.entries.length, 'migration path')} on ${plural(chainIds.length - failedChains.length, 'chain')}${failedChains.length ? ` — ${listJoin(failedChains.map(chainName))} couldn't be checked, try again later` : ''}.`;
+  if (!multi) {
+    if (!all.length) {
+      document.getElementById(`addr-${users[0]}`).querySelector('.cards').innerHTML = `
         <div class="empty">
-          <p><strong>Nothing to migrate${multi ? ' for this address' : ''}.</strong></p>
-          <p>Checked ${plural(registry.entries.length, 'migration path')} on ${plural(chainIds.length - failedChains.length, 'chain')}${failedChains.length ? ` — ${listJoin(failedChains.map(chainName))} couldn't be checked, try again later` : ''}.</p>
+          <p><strong>Nothing to migrate.</strong></p>
+          <p>${checkedLine}</p>
         </div>`;
     }
+  } else {
+    // Addresses with something to migrate first, most valuable first; the rest fold into one line
+    const tally = new Map(users.map((u) => [u, { n: 0, usd: 0 }]));
+    for (const r of all) {
+      const t = tally.get(r.user);
+      t.n++;
+      if (r.status === 'ready') t.usd += usdFor(r, prices).usd || 0;
+    }
+    const found = users.filter((u) => tally.get(u).n)
+      .sort((a, b) => tally.get(b).usd - tally.get(a).usd || tally.get(b).n - tally.get(a).n);
+    for (const u of found) {
+      const sec = document.getElementById(`addr-${u}`);
+      const t = tally.get(u);
+      sec.querySelector('.addr-count').textContent = `${plural(t.n, 'migration')}${t.usd > 0 ? ` · about ${usdCompact(t.usd, true)} ready` : ''}`;
+      sec.hidden = false;
+      results.appendChild(sec);
+    }
+    const empty = users.filter((u) => !tally.get(u).n);
+    for (const u of empty) document.getElementById(`addr-${u}`).remove();
+    if (empty.length) {
+      results.insertAdjacentHTML('beforeend', `
+        <details class="empty empty-list">
+          <summary><strong>Nothing to migrate in ${found.length ? '' : 'any of '}${plural(empty.length, 'address', 'addresses')}.</strong> <span class="link">Show ${empty.length === 1 ? 'it' : 'them'} <span class="arrow" aria-hidden="true">→</span></span></summary>
+          <ul class="addr-list">${empty.map((u) => `<li>${labels.has(u) ? `<span class="addr-label">${esc(labels.get(u))}</span>` : ''}<span class="mono">${esc(u)}</span></li>`).join('')}</ul>
+          <p class="fine">${checkedLine}</p>
+        </details>`);
+    }
   }
+  lastScan = { all, users, labels, prices };
 
   renderSummary(all, users, prices);
   collapseChains(chainIds, failedChains, all);
@@ -279,6 +408,15 @@ function renderSummary(all, users, prices) {
   if (ready.length) parts.push(`${num(ready.length)} can be migrated by you right now`);
   if (locked) parts.push(`${num(locked)} unlock${locked === 1 ? 's' : ''} later (the date is on the card)`);
   if (blocked) parts.push(`${num(blocked)} need${blocked === 1 ? 's' : ''} a closer look`);
+  if (users.length > 1) {
+    const holders = new Set(all.map((r) => r.user)).size;
+    el.innerHTML = `
+    <h2>Old tokens in ${num(holders)} of ${plural(users.length, 'address', 'addresses')}${total > 0 ? `, ${total < 0.01 ? '' : 'about '}<span class="count" data-to="${total}">${usdCompact(total, true)}</span> ready to migrate` : ''}.</h2>
+    <p>${num(all.length)} found: ${parts.join('; ')}. Sorted by value; each one has step-by-step instructions.</p>
+    <p class="summary-actions"><button type="button" class="btn-soft" data-csv>${ICON.download}Download results (CSV)</button></p>`;
+    if (ready.length) celebrate(el);
+    return;
+  }
   el.innerHTML = `
     <h2>${num(all.length)} ${noun} found${total > 0 ? `, ${total < 0.01 ? '' : 'about '}<span class="count" data-to="${total}">${usdCompact(total, true)}</span> ${ready.length === all.length ? 'in total' : 'ready to migrate'}` : ''}.</h2>
     <p>${ready.length === all.length
@@ -406,6 +544,7 @@ function insertCard(f, html, animate = false) {
     if (wasOpen) { const d = now.querySelector('details.steps-wrap'); if (d) d.open = true; }
     return;
   }
+  sec.hidden = false;
   sec.querySelector('.cards').insertAdjacentHTML('beforeend', html);
 }
 
@@ -462,6 +601,7 @@ const ICON = {
   warn: '<svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path d="M12 4l9 16H3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v4.5M12 17.2v.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   info: '<svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v5.5M12 7.8v.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   clock: '<svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  download: '<svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"><path d="M12 4.5v10m0 0l-4-4m4 4l4-4M5 18.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 };
 
 function pendingCard(f) {
@@ -753,6 +893,7 @@ function tickCountdowns() {
 /* ------------------------------------------------------------- copy */
 
 async function onCopyClick(ev) {
+  if (ev.target.closest('button[data-csv]')) return downloadCsv();
   const btn = ev.target.closest('button[data-copy]');
   if (!btn) return;
   const value = btn.dataset.copy;
@@ -777,6 +918,49 @@ async function onCopyClick(ev) {
   btn.classList.toggle('copied', ok);
   toast(ok ? 'Copied to clipboard' : "Couldn't copy — the text is selected, copy it manually");
   setTimeout(() => { btn.textContent = label; btn.classList.remove('copied'); }, 1600);
+}
+
+/* -------------------------------------------------------------- CSV */
+
+/** Every result as a spreadsheet row; built in the browser, nothing is uploaded */
+function downloadCsv() {
+  if (!lastScan) return;
+  const { all, users, labels, prices } = lastScan;
+  const order = new Map(users.map((u, i) => [u, i]));
+  const plain = (raw, dec) => formatUnits(BigInt(raw), dec, dec).replace(/,/g, '');
+  const statusText = (r) => (r.status === 'locked' ? `Unlocks ${new Date(r.lockedUntil * 1000).toISOString().slice(0, 10)}`
+    : r.entry.status === 'blocked' && r.status !== 'ready' ? 'Blocked for now' : (STATUS[r.status] || { label: r.status }).label);
+  const rows = [['label', 'address', 'chain', 'migration', 'project', 'status', 'amount', 'token', 'held in', 'you receive', 'receive token', 'also receive', 'usd', 'unlocks (UTC)', 'deadline', 'migrator']];
+  for (const r of [...all].sort((a, b) => order.get(a.user) - order.get(b.user))) {
+    const e = r.entry;
+    const held = heldToken(e);
+    const outs = outputsOf(r);
+    const { usd } = usdFor(r, prices);
+    rows.push([
+      labels.get(r.user) || '', r.user, chainName(e.chainId), e.name, e.project || '', statusText(r),
+      plain(r.balance, held.decimals), held.symbol, e.holding ? holdingLabel(e, r.vars) : 'wallet',
+      outs[0] ? plain(outs[0].amount, outs[0].decimals) : '', outs[0] ? outs[0].symbol : '',
+      outs.slice(1).map((o) => `${plain(o.amount, o.decimals)} ${o.symbol}`).join('; '),
+      usd != null ? usd.toFixed(2) : '', r.lockedUntil ? new Date(r.lockedUntil * 1000).toISOString().replace('.000Z', 'Z') : '',
+      e.deadline || '', e.migrator,
+    ]);
+  }
+  // Quote every cell; neutralize spreadsheet formulas in text that came from outside (labels, token symbols)
+  const cell = (v) => {
+    let t = String(v ?? '');
+    if (/^[=+\-@\t\r]/.test(t) && !/^-?\d/.test(t)) t = `'${t}`;
+    return `"${t.replace(/"/g, '""')}"`;
+  };
+  const csv = rows.map((row) => row.map(cell).join(',')).join('\r\n');
+  const url = URL.createObjectURL(new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `old-token-check-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  toast(`Downloaded ${plural(all.length, 'row')}`);
 }
 
 let toastTimer;
