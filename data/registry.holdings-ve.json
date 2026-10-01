@@ -75,6 +75,10 @@
     ],
     "warnings": [
       {
+        "level": "warn",
+        "text": "OCEAN trades on its own again (Ocean Protocol left the ASI alliance in October 2025), and lately migrating has paid less than OCEAN's market price. Compare the FET you'd get with what your OCEAN sells for before you migrate."
+      },
+      {
         "level": "info",
         "text": "veOCEAN was retired on 3 May 2024, but locks were not released early: each lock unlocks on its own end date. Until then the withdraw step fails; the card shows your date."
       },
@@ -232,6 +236,383 @@
       "holderUsed": "0x12311fe66e429d39dc37aede0539fe4634d0446e",
       "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
       "notes": "VotingEscrow v1 0x9c73…2e26. balanceOf/tokenOfOwnerByIndex enumerate the user's veNFTs; locked(id) = (int128 amount, uint256 end). Voted NFTs need Voter.reset first; NFTs attached to a gauge are skipped (they need a gauge detach first). withdraw needs end passed; the engine simulates unexpired locks at their end date. 2.88M VELO v1 in 9,368 user veNFTs, 79% already unlocked."
+    }
+  },
+  {
+    "id": "velo-v1-gauge-rewards-optimism",
+    "name": "Unclaimed VELO v1 gauge rewards → VELO v2",
+    "project": "Velodrome",
+    "chainId": 10,
+    "oldToken": {
+      "address": "0x3c8B650257cFb5f272f799F5e2b4e65093a11a05",
+      "symbol": "VELO",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db",
+      "symbol": "VELO",
+      "decimals": 18
+    },
+    "migrator": "0x5aeE5F0E6C2055EbD776DB25F48f6c9A68ABcdaE",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "$gauge",
+        "signature": "getReward(address account, address[] tokens)",
+        "args": [
+          "$user",
+          [
+            "0x3c8B650257cFb5f272f799F5e2b4e65093a11a05"
+          ]
+        ],
+        "contractLabel": "Velodrome v1 gauge",
+        "title": "Claim your VELO v1 rewards"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x5aeE5F0E6C2055EbD776DB25F48f6c9A68ABcdaE"
+      },
+      {
+        "type": "call",
+        "to": "0x5aeE5F0E6C2055EbD776DB25F48f6c9A68ABcdaE",
+        "signature": "convertVELO(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://velodrome.finance",
+    "sources": [
+      "https://paragraph.com/@velodrome/v2",
+      "https://github.com/velodrome-finance/contracts/tree/v2-optimism"
+    ],
+    "payoutReserve": null,
+    "holding": {
+      "reads": [
+        {
+          "each": "gauge",
+          "in": [
+            "0x2F303E56aAeC15d3e29f7526454f910e70E0Fb6F",
+            "0x6b8EDC43de878Fd5Cd5113C42747d32500Db3873",
+            "0x0299d40E99F2a5a1390261f5A71d13C3932E214C",
+            "0xC95A593e62bbCBFF7F7AC723c25c77DCeADE56EA",
+            "0xb03f52D2DB3e758DD49982Defd6AeEFEa9454e80",
+            "0x1F36f95a02C744f2B3cD196b5e44E749c153D3B9",
+            "0x461ba7FA5c2e94EB93e881b7C7E3A7DC4c1CD6b4",
+            "0x0aAf1de71910D9f2BE10e6C75B3eB6Eca377CBF2",
+            "0xE2CEc8aB811B648bA7B1691Ce08d5E800Dd0a60a",
+            "0x8C339Cd8E99cDd2fE691d4Fc1feECf78187D6B63",
+            "0x2f733b00127449fcF8B5a195bC51Abb73B7F7A75",
+            "0x3786d4419D6B4A902607cEb2BB319Bb336735Df8",
+            "0x101D5e5651D7f949154258C1C7516da1eC273476",
+            "0xc4fF55A961bC04b880e60219CCBBDD139c6451A4",
+            "0xa2eA21320698765F45E6820850e5D8b433bBAedd",
+            "0xAFD2c84b9d1cd50E7E18a55e419749A6c9055E1F",
+            "0xAF307D86B08C54Bb840Ab17ef66AbBBA87C6aaBe",
+            "0x5f006F54475cE2bC9Ee6182f49b991e779CBe08a",
+            "0x8fB0C5CD62351d4d381c83a0F9eCe034f3e90f62",
+            "0x099b3368eb5BBE6f67f14a791ECAeF8bC1628A7F",
+            "0x11E062bdA39198B3F5f7B5b834B66Ad5de85DdCf",
+            "0xBF6C935A2B6Ec453704Ea72c8E14592f2FB27130",
+            "0x654F9e476865CE72EF2FB73861C03804AA5208D1",
+            "0xDF479E13E71ce207CE1e58D6f342c039c3D90b7D",
+            "0x89C1a33011Fab92e497963a6FA069aEE5c1f5D44",
+            "0x975950c2cf5c4d317B750df4ed139d608AdE21f4",
+            "0xFC4B6deA9276D906AD36828dc2e7DbaCfC01B47f",
+            "0x497E7F08F153FB58f522032B408D7DAfC29FcAC8",
+            "0x22c568D702E3c117f14b1826Fc8A927aF935c4B4",
+            "0x055EE7DDc298Dca46172a7A9A43E28b76C17Ad26",
+            "0x95F66e00f38Ebf7531259C7E2379712a1830CCB4",
+            "0xe9111e0D7BBb5a06F908AaCd7398266e39F49c5f",
+            "0x0f1e2ACeC0Af7e8f77C8F0c6DF213FF7e7511A10",
+            "0xB4d9036B81b9B6A7De1C70887c29938eC8df6048",
+            "0x330C3C1E493a95bf45bC0147c5F68d983A9d4E00",
+            "0x36c90fD9d126945E3B9734E654CE792579DA17D3",
+            "0x1B87CeA9cFF792f350C363F9ad52Aa031B4EcB37",
+            "0x50a0059A2A9FE69174B78b0182FB38725F4CB7F2",
+            "0x045afa57797686c538BAb5C6201ea005fac6E0aC",
+            "0x631dCe3a422e1af1AD9d3952B06f9320e2f2ed72",
+            "0xDFc1eCf1Dcb82B1daeA91fdDA2023973447c4309",
+            "0x05eF41Da0B0c76b6E17Be79BdaacF66306CbeBB5",
+            "0x7A0515af042090Dd634Af5d6b43303EA90703b69",
+            "0x3dac764b79AcDbc9FC4d3F6A58C15260Ed3dB230",
+            "0x1d37704877e38b48F4600c20Ac8E5EfEC768094A",
+            "0xE07c4b7F4fA019f41C74A61666664228Bf8c5015",
+            "0x53Af9d703C42Cbf26582E0FEb28dcf1551d35f02",
+            "0x102D8A1Dfd8eAaDB86d758B3968E13A1573599b4",
+            "0x58D556a59fDb96A411662adB9D5EFE6526763f2e",
+            "0xE786138e0c14D804C79b6a7B5E67513292B1e65a",
+            "0xd2d95775D35A6D492CED7C7e26817aAcB7D264F2",
+            "0x1d87cee5C2F88B60588dD97E24D4B7c3d4f74935",
+            "0xFc73bD75f1493f39de41ff41C20AF69C7563F33a",
+            "0x59Bc700Acd8826675C3B729794B1647978be2d7F",
+            "0x02146da20e781CfD3c7541BDef8fE45693843e99",
+            "0x85706b4F83357E0084A2f34E2DBeb0Bc9e9d72B8",
+            "0xB30EAC66C790178438667aB220C98Cc983D77383",
+            "0x14d60F07924e3a7226DDD368409243eDF87e6205",
+            "0x883C6d437D45b7CE61c07606Fb390e6c28bE27B8",
+            "0x64dC7701209588ce3661B5D03c3b5a621C741aCf",
+            "0x6aF999D0Cb99773398Ddb265aDf0243fbf5125DF",
+            "0x150dc0e12d473347BECd0f7352e9dAE6CD30d8aB",
+            "0xAEA343b1EF5ECfa0D252d7078425BaC047cf5d18",
+            "0xa513630D21C45185bb8Bc37b66c90F26958B24Fd",
+            "0x97f7884C1e57cA991B949B9aC2c6A04599e8F988",
+            "0xF776675BDFB3f402b267E44B589BFF178C0B9cC4",
+            "0x8f6C12218609df76E8c4fc7a126CdC6251C5C5D3",
+            "0x829D9D158779e93EeDB17da33551960F93D28e7F",
+            "0x0C80fa299e0F3dAf3047008F5F4cd80ccFeA301a",
+            "0xF8854e5F6A03Af2Ae1434bd992BD881333332A28",
+            "0x7dd032B7f6Cc924110cB3ceB0aE4338376E7d31d",
+            "0x4f06748dd36fB9B90C6db8e98eB8283CDb23a6C6",
+            "0x8d074F796c87CC0c8A488de70CF568F388289f73",
+            "0x8b1ad293f4C1D4f66643D779637C72EAEfbb37DA",
+            "0x131Ae347E654248671Afc885F0767cB605C065d7",
+            "0x9237cBd5ba18c567bcE30671fF1D3252A35770bE",
+            "0x212ceDC5c942304D0F8E139B5BFA4e78196B37Ca",
+            "0x72C85CA5F68b0e327233618eA777d9e2071e71DA",
+            "0x1d8867B65C90DD7B40760A693e309d6CB467947a",
+            "0x3324539a66203EddBE8DA4E45DFa8D8fD8985eBb",
+            "0x790122903f5F53D6F7f89E8752770286442959f3",
+            "0x2EE6587E32BED1CEddaC42618320c4839D4a3F9c",
+            "0xc8110F2544a8E5075a9b3f00dC1c95543342c7a2",
+            "0x05d74f34ff651e80b0a1a4bD96D8867626Ac2ddD",
+            "0xc4eAB0D1d7616eA99c15698bb075C2Adb8D2fDc5",
+            "0xb857d9F07DF28423e35537c13ec0857a07EE855e"
+          ]
+        },
+        {
+          "call": "$gauge",
+          "signature": "earned(address,address)",
+          "args": [
+            "0x3c8B650257cFb5f272f799F5e2b4e65093a11a05",
+            "$user"
+          ],
+          "out": "amount"
+        }
+      ],
+      "label": "earned in a Velodrome v1 gauge ($gauge)"
+    },
+    "warnings": [
+      {
+        "level": "info",
+        "text": "LP rewards you earned in a Velodrome v1 gauge and never claimed. They arrive as VELO v1, which converts 1:1 to VELO v2."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x1a0335b908dce97a4ed4f265f2b649a2133fcbba",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Voter v1 0x0923…Cf7e: 402 pools/gauges. The 86 gauges holding at least 1,000 VELO v1 (99% of the 2.8M VELO v1 in user gauges; the protocol's sink gauge 0x987E…95d6 is excluded) are checked with earned(VELO v1, user). getReward(account, tokens) pays the account."
+    }
+  },
+  {
+    "id": "ocean-df-rewards-to-fet",
+    "name": "Unclaimed Ocean Data Farming rewards → FET",
+    "project": "Ocean Protocol / Artificial Superintelligence Alliance",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x967da4048cD07aB37855c090aAF366e4ce1b9F48",
+      "symbol": "OCEAN",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xaea46A60368A7bD060eec7DF8CBa43b7EF41Ad85",
+      "symbol": "FET",
+      "decimals": 18
+    },
+    "migrator": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+    "ratio": {
+      "num": "433226",
+      "den": "1000000"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0xFe27534EA0c016634b2DaA97Ae3eF43fEe71EEB0",
+        "signature": "claimFor(address _to, address _tokenAddress)",
+        "args": [
+          "$user",
+          "0x967da4048cD07aB37855c090aAF366e4ce1b9F48"
+        ],
+        "contractLabel": "Ocean DFRewards",
+        "title": "Claim your OCEAN rewards"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663"
+      },
+      {
+        "type": "call",
+        "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+        "signature": "migrateTokens(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+      "signature": "paused()",
+      "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "officialUi": "https://df.oceandao.org/rewards",
+    "sources": [
+      "https://docs.oceanprotocol.com/data-farming",
+      "https://etherscan.io/address/0xFe27534EA0c016634b2DaA97Ae3eF43fEe71EEB0"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "Data Farming rewards and the veOCEAN retirement airdrop that were never claimed. Claiming sends plain OCEAN to your wallet; you can stop after step 1 and keep it."
+      },
+      {
+        "level": "warn",
+        "text": "OCEAN trades on its own again (Ocean Protocol left the ASI alliance in October 2025), and lately migrating has paid less than OCEAN's market price. Compare the FET you'd get with what your OCEAN sells for before you migrate."
+      },
+      {
+        "level": "warn",
+        "text": "OCEAN trades on its own again (Ocean Protocol left the ASI alliance in October 2025), and lately migrating has paid less than OCEAN's market price. Compare the FET you'd get with what your OCEAN sells for before you migrate."
+      }
+    ],
+    "payoutReserve": {
+      "holder": "0x664d2f142cbc89ee9ed20c8e4eeb66c63b9ce663"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0xFe27534EA0c016634b2DaA97Ae3eF43fEe71EEB0",
+          "signature": "claimable(address,address)",
+          "args": [
+            "$user",
+            "0x967da4048cD07aB37855c090aAF366e4ce1b9F48"
+          ],
+          "out": "amount"
+        }
+      ],
+      "label": "in unclaimed Data Farming rewards"
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0xbd9d44ca38746b1497b326b6a6682df420117d02",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "DFRewards 0xFe27…EB0: claimable(user, OCEAN) for 193 addresses = 321,205 OCEAN, exactly the contract's OCEAN balance (fully funded). claimFor(user, token) is callable by anyone and pays the user. Recipients collected from Allocated(address[],uint256[],address) logs (858 ever)."
+    }
+  },
+  {
+    "id": "ocean-ve-fees-to-fet",
+    "name": "Unclaimed veOCEAN fees → FET",
+    "project": "Ocean Protocol / Artificial Superintelligence Alliance",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x967da4048cD07aB37855c090aAF366e4ce1b9F48",
+      "symbol": "OCEAN",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xaea46A60368A7bD060eec7DF8CBa43b7EF41Ad85",
+      "symbol": "FET",
+      "decimals": 18
+    },
+    "migrator": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+    "ratio": {
+      "num": "433226",
+      "den": "1000000"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x256c54219816603BB8327F9019533B020a76e936",
+        "signature": "claim(address _addr)",
+        "args": [
+          "$user"
+        ],
+        "contractLabel": "veOCEAN FeeDistributor",
+        "title": "Claim your veOCEAN fees"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663"
+      },
+      {
+        "type": "call",
+        "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+        "signature": "migrateTokens(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+      "signature": "paused()",
+      "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "officialUi": "https://df.oceandao.org/rewards",
+    "sources": [
+      "https://docs.oceanprotocol.com/data-farming",
+      "https://etherscan.io/address/0x256c54219816603BB8327F9019533B020a76e936"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "Fees paid to veOCEAN lockers that were never claimed. Claiming sends plain OCEAN to your wallet; you can stop after step 1 and keep it."
+      },
+      {
+        "level": "warn",
+        "text": "OCEAN trades on its own again (Ocean Protocol left the ASI alliance in October 2025), and lately migrating has paid less than OCEAN's market price. Compare the FET you'd get with what your OCEAN sells for before you migrate."
+      },
+      {
+        "level": "warn",
+        "text": "OCEAN trades on its own again (Ocean Protocol left the ASI alliance in October 2025), and lately migrating has paid less than OCEAN's market price. Compare the FET you'd get with what your OCEAN sells for before you migrate."
+      }
+    ],
+    "payoutReserve": {
+      "holder": "0x664d2f142cbc89ee9ed20c8e4eeb66c63b9ce663"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0xE86Bf3B0D3a20444DE7c78932ACe6e5EfFE92379",
+          "signature": "user_point_epoch(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "epochs"
+        },
+        {
+          "require": "$epochs",
+          "is": "nonzero"
+        },
+        {
+          "call": "0x256c54219816603BB8327F9019533B020a76e936",
+          "signature": "claim(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "amount"
+        }
+      ],
+      "label": "in unclaimed veOCEAN fees"
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x36a0d4dca6d768333f916368b73bc689438e18a1",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Curve-style FeeDistributor 0x256c…e936 (is_killed = false). It has no claimable view, so the amount is read by calling claim(address) in eth_call, which returns what would be paid. Only addresses with veOCEAN history (user_point_epoch > 0) are checked. ~36k OCEAN across ~524 ever-lockers."
     }
   }
 ]

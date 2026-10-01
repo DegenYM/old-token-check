@@ -27,7 +27,7 @@ reshapes the rows. A reverted call (or one to an address without code) drops tha
 | call | `{ "call": "0x…" \| "$proxy", "signature": "locked(uint256)", "args": ["$tokenId"], "out": { "amount": "int256@0", "unlock": 1 } }` | View call. `out` maps variables to return words: a number (uint256 at that word), `"type"` (word 0) or `"type@word"`. Types: uint*, int*, address, bool, bytes32, `uint256[]`/`address[]` (dynamic, offset at that word). `"out": "amount"` = word 0 as uint256. |
 | each | `{ "each": "index", "range": "$n" }` · `{ "each": "delegate", "in": ["0x…", …] }` · `{ "each": "grant", "in": "$ids" }` | One row per item. `range` and variable lists are capped at 100; literal lists aren't. The item joins the card id. |
 | require | `{ "require": "$owner", "is": "$user" }` · `"is": "nonzero"` · `"is": "zero"` | Drops rows that don't match. |
-| set | `{ "set": "total", "sum": ["$wallet", "$amount"] }` · `"min"` · `"max"` · `"value"` | Arithmetic on variables. |
+| set | `{ "set": "total", "sum": ["$wallet", "$amount"] }` · `"mul"` · `"sub"` (stops at 0) · `"div"` (0 if dividing by 0) · `"mulDiv": [a, b, c]` (a·b/c) · `"sqrt": "$k"` · `"min"` · `"max"` · `"value"` | Integer arithmetic on variables. `registry.holdings-lp.json` uses it to replay Uniswap v2's protocol-fee mint before a burn, so the computed share matches what the pool pays. |
 | collect | `{ "collect": { "ids": "$index" }, "sum": ["amount"] }` | Merges the rows of the last `each` back into one: lists and sums. |
 
 The program must leave `$amount` (raw units of the held token). Special variables:
@@ -49,7 +49,9 @@ Steps:
 - `"if": "$voted"` / `"if": "!$voted"` includes a step only when that variable is (not) set/non-zero.
 - `waitSeconds`: the user must wait this long after the previous step. The simulator runs the steps as separate
   `eth_simulateV1` blocks with pinned timestamps (60 days is fine). The how-to says "Wait at least 60 days".
-- `contractLabel`, `title`, `tokenMeta` (for approving a third token such as the chief IOU) as before.
+- `contractLabel`, `title`, `tokenMeta` (for approving a third token such as the chief IOU, or an LP token) as before.
+- `hints: { "6": "Any future unix time works" }` replaces the hint under that field (by argument index) in the how-to.
+- An argument can be a literal list (`["$user", ["0x…"]]` for `getReward(address,address[])`).
 
 Entry-level: `minAmount` (raw) hides balances below what the migrator accepts (the KEEP/NU vending machines floor
 to 0.001 and revert on zero).
@@ -69,8 +71,10 @@ Entries with `holding` are excluded from `data/stats.json` totals (they would do
   then withdraws the grant. Needs a grant → stake contract → operator walk.
 - Velodrome v1 veNFTs attached to a gauge (need `Gauge.withdrawToken` on the right gauge first; they are skipped).
 - Vote-proxy **hot** wallets (the MKR goes to the cold wallet; check that address instead).
-- Two-argument rewards views keyed by token (Velodrome v1 gauge `earned(token, user)`, Ocean DFRewards).
-- LP / index shares that contain an old token.
+- L2 → L1 withdrawals that were never finalized (Polygon PoS exits, Arbitrum outbox, Linea claims). Finding a user's
+  old burns needs an indexer with full history; the public Blockscout instances don't have it (Polygon's is missing
+  2021-era logs), and public RPCs cap log ranges at ~10k blocks.
+- LP tokens staked in a farm (Sushi MasterChef etc.), index tokens (DPI), Uniswap v3/v4 positions.
 
 ## Verification bar (same as the wallet registry)
 

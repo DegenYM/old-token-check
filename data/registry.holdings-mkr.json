@@ -897,5 +897,193 @@
       "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
       "notes": "VoteDelegate v1 factory 0xD897F108670903D1D6070fcF818f9db3615AF272: 139 of 351 delegate contracts (CreateVoteDelegate logs) still hold MKR in the 2020 chief (42.05 MKR). delegate.stake(user) = user's MKR; free(wad) pulls the IOU from the user, so the IOU approval goes to the delegate. Delegate expiry only blocks lock, not free. Only users holding the 2020 chief IOU are checked (delegate.free pulls it back, so without it there is nothing to free)."
     }
+  },
+  {
+    "id": "aave-v2-mkr-to-sky",
+    "name": "MKR supplied on Aave v2 → SKY",
+    "project": "Sky (MakerDAO) / Aave",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+      "symbol": "MKR",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+      "symbol": "SKY",
+      "decimals": 18
+    },
+    "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "ratio": {
+      "num": "22800",
+      "den": "1"
+    },
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+      "signature": "fee()",
+      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+    },
+    "payoutReserve": {
+      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+    },
+    "officialUi": "https://upgrademkrtosky.skyeco.com/",
+    "holding": {
+      "reads": [
+        {
+          "call": "0xc713e5E149D5D0715DcD1c156a020976e7E56B88",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "amount"
+        }
+      ],
+      "label": "supplied on Aave v2"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
+        "signature": "withdraw(address asset, uint256 amount, address to)",
+        "args": [
+          "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+          "$amount",
+          "$user"
+        ],
+        "contractLabel": "Aave v2 LendingPool",
+        "title": "Withdraw your MKR from Aave v2"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+      },
+      {
+        "type": "call",
+        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+        "signature": "mkrToSky(address usr, uint256 mkrAmt)",
+        "args": [
+          "$user",
+          "$amount"
+        ],
+        "contractLabel": "Sky MKR → SKY converter"
+      }
+    ],
+    "sources": [
+      "https://github.com/bgd-labs/aave-address-book",
+      "https://developers.skyeco.com/guides/sky/token-governance-upgrade/token-holders/"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This MKR is supplied on Aave v2. Withdraw it, then upgrade it to SKY. If it backs a loan, repay the loan first or the withdrawal fails."
+      },
+      {
+        "level": "warn",
+        "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "0x8b973db7b174a14cfaa64567f970877f6a83b105",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "aMKR (Aave v2) UNDERLYING_ASSET_ADDRESS() = MKR, POOL() = LendingPool 0x7d27…A9. 60.25 aMKR supplied, 60.24 MKR liquid in the aToken. withdraw(asset, amount, to) burns aMKR and sends MKR; it reverts if the MKR backs a loan and the health factor would drop too low."
+    }
+  },
+  {
+    "id": "aave-v3-mkr-to-sky",
+    "name": "MKR supplied on Aave v3 → SKY",
+    "project": "Sky (MakerDAO) / Aave",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+      "symbol": "MKR",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+      "symbol": "SKY",
+      "decimals": 18
+    },
+    "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "ratio": {
+      "num": "22800",
+      "den": "1"
+    },
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+      "signature": "fee()",
+      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+    },
+    "payoutReserve": {
+      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+    },
+    "officialUi": "https://upgrademkrtosky.skyeco.com/",
+    "holding": {
+      "reads": [
+        {
+          "call": "0x8A458A9dc9048e005d22849F470891b840296619",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "amount"
+        }
+      ],
+      "label": "supplied on Aave v3"
+    },
+    "steps": [
+      {
+        "type": "call",
+        "to": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+        "signature": "withdraw(address asset, uint256 amount, address to)",
+        "args": [
+          "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+          "$amount",
+          "$user"
+        ],
+        "contractLabel": "Aave v3 Pool",
+        "title": "Withdraw your MKR from Aave v3"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+      },
+      {
+        "type": "call",
+        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+        "signature": "mkrToSky(address usr, uint256 mkrAmt)",
+        "args": [
+          "$user",
+          "$amount"
+        ],
+        "contractLabel": "Sky MKR → SKY converter"
+      }
+    ],
+    "sources": [
+      "https://github.com/bgd-labs/aave-address-book",
+      "https://developers.skyeco.com/guides/sky/token-governance-upgrade/token-holders/"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This MKR is supplied on Aave v3. Withdraw it, then upgrade it to SKY. If it backs a loan, repay the loan first or the withdrawal fails."
+      },
+      {
+        "level": "warn",
+        "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
+      }
+    ],
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "aEthMKR (Aave v3 Ethereum) UNDERLYING_ASSET_ADDRESS() = MKR, POOL() = 0x8787…E2. 125.59 supplied, 124.27 MKR liquid. Most of it backs loans, so many holders must repay first (the simulation then fails with HealthFactorLowerThanLiquidationThreshold)."
+    }
   }
 ]

@@ -1,1270 +1,1274 @@
 [
-  {
-    "id": "matic-to-pol",
-    "name": "MATIC → POL",
-    "project": "Polygon",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
-      "symbol": "MATIC",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6",
-      "symbol": "POL",
-      "decimals": 18
-    },
-    "migrator": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e",
-    "ratio": {
-      "num": "1",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e"
-      },
-      {
-        "type": "call",
-        "to": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e",
-        "signature": "migrate(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": "https://portal.polygon.technology",
-    "sources": [
-      "https://docs.polygon.technology/pos/concepts/tokens/matic-to-pol",
-      "https://support.polygon.technology/support/solutions/articles/82000906989-information-related-to-pol-contract-and-migration",
-      "https://polygon.technology/blog/matic-to-pol-migration-is-now-live-everything-you-need-to-know"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080686,
-      "holderUsed": "0x39c696CE999f7C9Ad4d1Ac41bD204FA136f09AAa",
-      "simulatedIn": "5757998462354434495659267",
-      "simulatedOut": "5757998462354434495659267",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "PolygonMigration proxy (impl 0xB037347ef306db3b41aB0b250F891887039d9231). 1:1, holder received POL from migrator. Migrator holds ~376.59M POL vs ~376.59M MATIC still outstanding (fully covered). No pause switch on migrate()."
-    },
-    "warnings": [],
-    "payoutReserve": {
-      "holder": "0x29e7df7b6a1b2b07b731457f499e1696c60e2c4e"
-    }
+ {
+  "id": "matic-to-pol",
+  "name": "MATIC → POL",
+  "project": "Polygon",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+   "symbol": "MATIC",
+   "decimals": 18
   },
-  {
-    "id": "mkr-to-sky",
-    "name": "MKR → SKY",
-    "project": "Sky (MakerDAO)",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
-      "symbol": "MKR",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
-      "symbol": "SKY",
-      "decimals": 18
-    },
-    "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-    "ratio": {
-      "num": "22800",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
-      },
-      {
-        "type": "call",
-        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-        "signature": "mkrToSky(address,uint256)",
-        "args": [
-          "$user",
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": {
-      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-      "signature": "fee()",
-      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
-    },
-    "officialUi": "https://upgrademkrtosky.skyeco.com/",
-    "sources": [
-      "https://developers.skyeco.com/guides/sky/token-governance-upgrade/token-holders/",
-      "https://vote.makerdao.com/executive/template-executive-vote-mkr-to-sky-upgrade-phase-one-adding-protego-to-the-chainlog-spark-proxy-spell-may-15-2025",
-      "https://etherscan.io/address/0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080691,
-      "holderUsed": "0x4a18a50a8328b42773268B4b436254056b7d70CE",
-      "simulatedIn": "6775693565952983876841",
-      "simulatedOut": "154485813303728032391974800",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "New one-way MkrSky converter (the old 0xBDcFCA94…470B converter reverts Sky/not-authorized). Base rate 24000 SKY/MKR minus governance \"delayed upgrade penalty\" fee(): on-chain fee = 0.05 (5%) at simulation, so effective 22800 SKY/MKR (simulated out/in = 22800.0 exactly). Penalty steps up +1% roughly every 3 months (1% from 2025-09-22) and is governance-adjustable, so ratio WILL drift; statusCheck pins fee()=5% so the frontend can detect a change and should recompute as 24000*(1-fee/1e18). MKR is burned (no Transfer log from holder; DSToken Burn). Converter holds ~2.06B SKY vs ~84.5k MKR supply (covered)."
-    },
-    "warnings": [
-      {
-        "level": "warn",
-        "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
-      }
-    ],
-    "payoutReserve": {
-      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
-    }
+  "newToken": {
+   "address": "0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6",
+   "symbol": "POL",
+   "decimals": 18
   },
-  {
-    "id": "sai-to-weth",
-    "name": "SAI → WETH (SCD shutdown cash-out)",
-    "project": "MakerDAO (Single-Collateral Dai)",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359",
-      "symbol": "SAI",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      "symbol": "WETH",
-      "decimals": 18
-    },
-    "migrator": "0xBda109309f9FafA6Dd6A9CB9f1Df4085B27Ee8eF",
-    "ratio": {
-      "num": "5285551943761727318375221",
-      "den": "1000000000000000000000000000"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0xBda109309f9FafA6Dd6A9CB9f1Df4085B27Ee8eF"
-      },
-      {
-        "type": "call",
-        "to": "0xBda109309f9FafA6Dd6A9CB9f1Df4085B27Ee8eF",
-        "signature": "cash(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": null,
-    "sources": [
-      "https://github.com/makerdao/sai",
-      "https://support.token.im/hc/en-us/articles/900000668366-A-Guide-to-Single-Collateral-Dai-Sai-Shutdown",
-      "https://docs.makerdao.com/clis/dai-and-collateral-redemption-during-emergency-shutdown"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080806,
-      "holderUsed": "0xec69acc35320b383580Cbcc3c75a4441164d7660",
-      "simulatedIn": "236554082920240000000000",
-      "simulatedOut": "1250318892783847353260",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "SaiTap.cash() after SCD global settlement (off()=true): burns SAI, pays WETH at fixed fix()=0.005285551943761727 WETH/SAI (ray). Tap holds ~14,024.6 WETH ≈ entire outstanding SAI supply (~2.653M × fix). Approve needed because DSToken burn(from) uses allowance. The SAI→DAI ScdMcdMigration path is dead (see rejected), this is the only exit. Big forgotten balances exist (simulated holder: 236,554 SAI → 1,250 WETH). Note: legacy SAI contract symbol() still returns \"DAI\" (bytes32); relabelled SAI here."
-    },
-    "warnings": [
-      {
-        "level": "info",
-        "text": "SAI was settled when single-collateral Dai (SCD) shut down. This is the only exit left: SAI redeems for WETH at a fixed rate."
-      }
-    ],
-    "payoutReserve": {
-      "holder": "0xbda109309f9fafa6dd6a9cb9f1df4085b27ee8ef"
-    }
+  "migrator": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e",
+  "ratio": {
+   "num": "1",
+   "den": "1"
   },
-  {
-    "id": "gnt-to-glm",
-    "name": "GNT → GLM",
-    "project": "Golem",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0xa74476443119A942dE498590Fe1f2454d7D4aC0d",
-      "symbol": "GNT",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0x7DD9c5Cba05E151C895FDe1CF355C9A1D5DA6429",
-      "symbol": "GLM",
-      "decimals": 18
-    },
-    "migrator": "0xa74476443119A942dE498590Fe1f2454d7D4aC0d",
-    "ratio": {
-      "num": "1",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "call",
-        "to": "0xa74476443119A942dE498590Fe1f2454d7D4aC0d",
-        "signature": "migrate(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": "https://migrate.golem.network",
-    "sources": [
-      "https://blog.golem.network/gnt-to-glm-migration/",
-      "https://docs.golem.network/docs/golem/migrate/guideline",
-      "https://migration-tracker.golem.network/"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080727,
-      "holderUsed": "0x06b0E09b2727bbF1EE834D56961926Ab6e3a767a",
-      "simulatedIn": "25358009116373270000000000",
-      "simulatedOut": "25358009116373270000000000",
-      "method": "eth_simulateV1 single call from holder at latest, traceTransfers, validation=false",
-      "notes": "No approve needed: holder calls migrate(uint256) on the OLD GNT contract, which calls GNTMigrationAgent 0xBFAd98d76598961827bA832108c21445aa4FEE9A to mint GLM 1:1 (GLM minted from 0x0). Golem: no deadline. ~203M GNT still unmigrated — large forgotten-holder pool."
-    },
-    "warnings": [],
-    "payoutReserve": null
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e"
+   },
+   {
+    "type": "call",
+    "to": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e",
+    "signature": "migrate(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": "https://portal.polygon.technology",
+  "sources": [
+   "https://docs.polygon.technology/pos/concepts/tokens/matic-to-pol",
+   "https://support.polygon.technology/support/solutions/articles/82000906989-information-related-to-pol-contract-and-migration",
+   "https://polygon.technology/blog/matic-to-pol-migration-is-now-live-everything-you-need-to-know"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080686,
+   "holderUsed": "0x39c696CE999f7C9Ad4d1Ac41bD204FA136f09AAa",
+   "simulatedIn": "5757998462354434495659267",
+   "simulatedOut": "5757998462354434495659267",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "PolygonMigration proxy (impl 0xB037347ef306db3b41aB0b250F891887039d9231). 1:1, holder received POL from migrator. Migrator holds ~376.59M POL vs ~376.59M MATIC still outstanding (fully covered). No pause switch on migrate()."
   },
-  {
-    "id": "knc-legacy-to-knc",
-    "name": "KNCL → KNC",
-    "project": "Kyber Network",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0xdd974D5C2e2928deA5F71b9825b8b646686BD200",
-      "symbol": "KNC",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
-      "symbol": "KNC",
-      "decimals": 18
-    },
-    "migrator": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
-    "ratio": {
-      "num": "1",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202"
-      },
-      {
-        "type": "call",
-        "to": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
-        "signature": "mintWithOldKnc(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": "https://kyberswap.com/kyberdao/stake-knc",
-    "sources": [
-      "https://blog.kyberswap.com/knc-token-migration-guide/",
-      "https://support.kyberswap.com/hc/en-us/articles/15983607020825-How-to-Migrate-KNCL-to-KNC-v2",
-      "https://medium.com/kybernetwork/knc-token-migration-guide-fda08bfe62c2"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080698,
-      "holderUsed": "0xDdEB3A5D35984014b732E71Ac99F622fae483544",
-      "simulatedIn": "500000000000000000000000",
-      "simulatedOut": "500000000000000000000000",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "Migrator is the new KNC token itself (proxy, impl KyberNetworkTokenV2 0xe5E8E834086F1a964f9A089eB6Ae11796862e4CE). Old KNC burned, new KNC minted 1:1. Legacy token symbol on-chain is still \"KNC\" (commonly labelled KNCL). Kyber states no hard deadline."
-    },
-    "warnings": [],
-    "payoutReserve": null
-  },
-  {
-    "id": "rpl-v1-to-rpl",
-    "name": "RPL (legacy) → RPL",
-    "project": "Rocket Pool",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0xB4EFd85c19999D84251304bDA99E90B92300Bd93",
-      "symbol": "RPL",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f",
-      "symbol": "RPL",
-      "decimals": 18
-    },
-    "migrator": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f",
-    "ratio": {
-      "num": "1",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f"
-      },
-      {
-        "type": "call",
-        "to": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f",
-        "signature": "swapTokens(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": null,
-    "sources": [
-      "https://medium.com/rocket-pool/rocket-pool-rpl-token-upgrade-new-addresses-e96c12c55adf"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080724,
-      "holderUsed": "0x486a28815A35A637E3f668783FB8538af1A4459F",
-      "simulatedIn": "62890000000000000000000",
-      "simulatedOut": "62890000000000000000000",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "Migrator is the new RocketTokenRPL contract; pays out new RPL it holds (~702,989 RPL vs ~686,203 legacy RPL outstanding — covered). Both tokens have symbol \"RPL\" on-chain; UI should label the old one \"RPL (legacy fixed-supply)\"."
-    },
-    "warnings": [],
-    "payoutReserve": {
-      "holder": "0xd33526068d116ce69f19a9ee46f0bd304f21a51f"
-    }
-  },
-  {
-    "id": "keep-to-t",
-    "name": "KEEP → T",
-    "project": "Threshold Network",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x85Eee30c52B0b379b046Fb0F85F4f3Dc3009aFEC",
-      "symbol": "KEEP",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
-      "symbol": "T",
-      "decimals": 18
-    },
-    "migrator": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
-    "ratio": {
-      "num": "4783188631255016",
-      "den": "1000000000000000"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0"
-      },
-      {
-        "type": "call",
-        "to": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
-        "signature": "wrap(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": null,
-    "sources": [
-      "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc",
-      "https://github.com/threshold-network/solidity-contracts/issues/53",
-      "https://etherscan.io/address/0xe47c80e8c23f6b4a1ae41c34837a0599d5d16bb0"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080722,
-      "holderUsed": "0xfC4626dE3C387970E59D47d63d6E47762a357198",
-      "simulatedIn": "13234447292000000000000000",
-      "simulatedOut": "63302857828038133062616672",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "KEEP VendingMachine, ratio()=4783188631255016 / FLOATING_POINT_DIVISOR 1e15. wrap() only pulls amounts rounded DOWN to 3 decimals (WRAPPED_TOKEN_CONVERSION_PRECISION=3): simulatedIn is the amount actually pulled (holder had 13234447.292447… KEEP). Contract is two-way (unwrap exists) but KEEP is the legacy side. Capacity: ~390.8M T left in machine (~81.7M KEEP worth) vs ~140.8M KEEP outside the machine — partially covered."
-    },
-    "warnings": [
-      {
-        "level": "danger",
-        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
-      }
-    ],
-    "payoutReserve": {
-      "holder": "0xe47c80e8c23f6b4a1ae41c34837a0599d5d16bb0"
-    },
-    "minAmount": "1000000000000000"
-  },
-  {
-    "id": "nu-to-t",
-    "name": "NU → T",
-    "project": "Threshold Network",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x4fE83213D56308330EC302a8BD641f1d0113A4Cc",
-      "symbol": "NU",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
-      "symbol": "T",
-      "decimals": 18
-    },
-    "migrator": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e",
-    "ratio": {
-      "num": "3259242493160745",
-      "den": "1000000000000000"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e"
-      },
-      {
-        "type": "call",
-        "to": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e",
-        "signature": "wrap(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": null,
-    "sources": [
-      "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc",
-      "https://github.com/threshold-network/solidity-contracts/issues/53",
-      "https://etherscan.io/address/0x1CCA7E410eE41739792eA0A24e00349Dd247680e"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080723,
-      "holderUsed": "0xA533574c3199db25BB91184eCC37E254fA08bee3",
-      "simulatedIn": "28580077665000000000000000",
-      "simulatedOut": "93149403583602323429260425",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "NU VendingMachine, ratio()=3259242493160745 / 1e15; input rounded down to 3 decimals (simulatedIn = pulled amount; holder had 28580077.665071… NU). Capacity: ~629.3M T left (~193M NU worth) vs ~2.70B NU outside the machine (much of it likely locked in legacy NuCypher staking) — partially covered. Capacity re-checked 2026-09-30: excluding the StakingEscrow's unminted reserve, the vending machine's T covers all circulating NU plus user stakes."
-    },
-    "warnings": [],
-    "payoutReserve": {
-      "holder": "0x1cca7e410ee41739792ea0a24e00349dd247680e"
-    },
-    "statsExclude": [
-      {
-        "address": "0xbbD3C0C794F40c4f993B03F65343aCC6fcfCb2e2",
-        "why": "NuCypher StakingEscrow: ~2.5B unminted NU reserve (user stakes are covered by nu-staked-to-t)"
-      }
-    ],
-    "minAmount": "1000000000000000"
-  },
-  {
-    "id": "ocean-to-fet",
-    "name": "OCEAN → FET (ASI)",
-    "project": "Artificial Superintelligence Alliance / Fetch.ai",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x967da4048cD07aB37855c090aAF366e4ce1b9F48",
-      "symbol": "OCEAN",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0xaea46A60368A7bD060eec7DF8CBa43b7EF41Ad85",
-      "symbol": "FET",
-      "decimals": 18
-    },
-    "migrator": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
-    "ratio": {
-      "num": "433226",
-      "den": "1000000"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663"
-      },
-      {
-        "type": "call",
-        "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
-        "signature": "migrateTokens(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": {
-      "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
-      "signature": "paused()",
-      "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
-    },
-    "officialUi": null,
-    "sources": [
-      "https://www.fetch.ai/blog/navigating-the-asi-token-merger-a-comprehensive-guide",
-      "https://docs.superintelligence.io/artificial-superintelligence-alliance/archive/navigating-the-asi-token-merger-a-comprehensive-guide",
-      "https://blog.oceanprotocol.com/ocean-protocol-foundation-withdraws-from-the-artificial-superintelligence-alliance-4619c4604ea3",
-      "https://support.kraken.com/articles/ocean-protocol-and-fet-migration"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080717,
-      "holderUsed": "0xd2DD7b597Fd2435b6dB61ddf48544fd931e6869F",
-      "simulatedIn": "10655929066819170000000000",
-      "simulatedOut": "4616425525901801742420000",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "MigrateToken clone (impl 0x966cAD95974a88017071c831EC321857BfD49463); conversionRatio()=0.433226e18 matches official rate; OCEAN sent to 0xdead. Address NOT published in docs I could reach — identified on-chain (OCEAN->0xdead burns routed through it, oldToken/newToken/rate getters match). Ocean left the ASI alliance 2025-10-09; converter is controlled by Fetch.ai and is pausable (statusCheck paused()=false). CAPACITY LIMITED: migrator holds ~5.60M FET = ~12.9M OCEAN of ~268M OCEAN outstanding; larger holders may hit a revert unless Fetch.ai refills. WARNING: web results cite 0x695B704D…F2B9 as the ASI migrator — that address is an EOA (no code); sending tokens there would lose them."
-    },
-    "warnings": [
-      {
-        "level": "danger",
-        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
-      },
-      {
-        "level": "info",
-        "text": "Migrator address confirmed on-chain; it isn't listed in the official docs."
-      }
-    ],
-    "payoutReserve": {
-      "holder": "0x664d2f142cbc89ee9ed20c8e4eeb66c63b9ce663"
-    }
-  },
-  {
-    "id": "rbn-to-aevo",
-    "name": "RBN → AEVO",
-    "project": "Aevo (formerly Ribbon Finance)",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x6123B0049F904d730dB3C36a31167D9d4121fA6B",
-      "symbol": "RBN",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0xB528edBef013aff855ac3c50b381f253aF13b997",
-      "symbol": "AEVO",
-      "decimals": 18
-    },
-    "migrator": "0x38913051E01D4F6910cB66bB9aC3cb77D746Ad81",
-    "ratio": {
-      "num": "1",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x38913051E01D4F6910cB66bB9aC3cb77D746Ad81"
-      },
-      {
-        "type": "call",
-        "to": "0x38913051E01D4F6910cB66bB9aC3cb77D746Ad81",
-        "signature": "migrate(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": null,
-    "sources": [
-      "https://etherscan.io/address/0x38913051e01d4f6910cb66bb9ac3cb77d746ad81",
-      "https://docs.aevo.xyz/trading-and-staking-rewards/staking",
-      "https://docs.aevo.xyz/aevo-governance/token-distribution/legacy-rbn-tokenomics"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080746,
-      "holderUsed": "0x4633327c47970b48457654d87BF6109DBBDFc535",
-      "simulatedIn": "23330000000000000000000000",
-      "simulatedOut": "23330000000000000000000000",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "AevoStaking contract migrate(): requires block.timestamp >= migration (1715760000, passed); no pause on migrate. Aevo docs: 1:1, no limits or deadlines. Holds ~67.71M AEVO vs ~67.26M RBN outstanding (covered). Address confirmed via Etherscan label \"Aevo: Staking\" + verified source; not found in a docs page I could fetch."
-    },
-    "warnings": [
-      {
-        "level": "info",
-        "text": "Migrator address confirmed on-chain and by its Etherscan label; it isn't listed in the official docs."
-      }
-    ],
-    "payoutReserve": {
-      "holder": "0x38913051e01d4f6910cb66bb9ac3cb77d746ad81"
-    }
-  },
-  {
-    "id": "ogv-to-ogn",
-    "name": "OGV → OGN",
-    "project": "Origin Protocol",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x9c354503C38481a7A7a51629142963F98eCC12D0",
-      "symbol": "OGV",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0x8207c1FfC5B6804F6024322CcF34F29c3541Ae26",
-      "symbol": "OGN",
-      "decimals": 18
-    },
-    "migrator": "0x95c347D6214614A780847b8aAF4f96Eb84f4da6d",
-    "ratio": {
-      "num": "9137",
-      "den": "100000"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x95c347D6214614A780847b8aAF4f96Eb84f4da6d"
-      },
-      {
-        "type": "call",
-        "to": "0x95c347D6214614A780847b8aAF4f96Eb84f4da6d",
-        "signature": "migrate(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": "https://app.originprotocol.com",
-    "sources": [
-      "https://www.originprotocol.com/token-migration-guide",
-      "https://x.com/OriginProtocol/status/1795549181911748763"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080793,
-      "holderUsed": "0x36D7E55B72020c4E6e84213d766ad653D8F5F599",
-      "simulatedIn": "34999000000000000000000000",
-      "simulatedOut": "3197858630000000000000000",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "Origin Migrator proxy (impl 0x936B7855c3f20b09685770467f7621AC41B03063), CONVERSION_RATE 0.09137e18. Official window \"closed\" 2025-05-28 (isMigrationActive()=false), BUT source comments say migrate() intentionally does not check the window \"until we decommission\" and it succeeds today; contract is fully solvent (~17.90M OGN for all outstanding OGV). Governance can decommission at any time via transferExcessTokens() — treat as open-but-at-risk. Address identified on-chain (OGV burns routed through it) and verified source; not listed on a docs page I could fetch."
-    },
-    "warnings": [
-      {
-        "level": "warn",
-        "text": "The announced deadline has passed, but the contract still works. Governance could switch it off at any time."
-      },
-      {
-        "level": "info",
-        "text": "Migrator address confirmed on-chain; it isn't listed in the official docs."
-      }
-    ],
-    "payoutReserve": {
-      "holder": "0x95c347d6214614a780847b8aaf4f96eb84f4da6d"
-    }
-  },
-  {
-    "id": "gal-to-g",
-    "name": "GAL → G",
-    "project": "Gravity (formerly Galxe)",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x5fAa989Af96Af85384b8a938c2EdE4A7378D9875",
-      "symbol": "GAL",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0x9C7BEBa8F6eF6643aBd725e45a4E8387eF260649",
-      "symbol": "G",
-      "decimals": 18
-    },
-    "migrator": "0x249aC00402716b7bf6d6ED24531d7B4C10788942",
-    "ratio": {
-      "num": "60",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x249aC00402716b7bf6d6ED24531d7B4C10788942"
-      },
-      {
-        "type": "call",
-        "to": "0x249aC00402716b7bf6d6ED24531d7B4C10788942",
-        "signature": "upgradeToken(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": {
-      "to": "0x249aC00402716b7bf6d6ED24531d7B4C10788942",
-      "signature": "paused()",
-      "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
-    },
-    "officialUi": "https://g.xyz/GAL-G-Portal",
-    "sources": [
-      "https://docs.galxe.com/about/gal/tokenomics",
-      "https://www.galxe.com/blog/gal-g",
-      "https://support.binance.us/hc/en-us/articles/25294762369431-Binance-US-will-support-the-Galxe-GAL-token-migration-to-Gravity-G"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080797,
-      "holderUsed": "0xB282dce9821b065E332850A712E124B183217cA2",
-      "simulatedIn": "94218663118000000000000",
-      "simulatedOut": "5653119787080000000000000",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "TokenUpgrader (SPLIT_RATIO=60), GAL sent to 0xdead, G paid from contract; pausable (statusCheck paused()=false). Address identified on-chain (GAL->0xdead burns routed through it, oldToken/newToken getters match); official portal g.xyz/GAL-G-Portal, docs say open \"at least one year\" from 2024-07-09. CAPACITY LIMITED: holds ~16.61M G = ~277k GAL, while ~74.7M GAL is outstanding (mostly in TokenVesting contracts); large holders may revert unless refilled."
-    },
-    "warnings": [
-      {
-        "level": "danger",
-        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
-      },
-      {
-        "level": "info",
-        "text": "Migrator address confirmed on-chain; it isn't listed in the official docs."
-      }
-    ],
-    "payoutReserve": {
-      "holder": "0x249ac00402716b7bf6d6ed24531d7b4c10788942"
-    }
-  },
-  {
-    "id": "ant-v1-to-ant-v2",
-    "name": "ANT v1 → ANT v2",
-    "project": "Aragon",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x960b236A07cf122663c4303350609A66A7B288C0",
-      "symbol": "ANT",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0xa117000000f279D81A1D3cc75430fAA017FA5A2e",
-      "symbol": "ANT",
-      "decimals": 18
-    },
-    "migrator": "0x078BEbC744B819657e1927bF41aB8C74cBBF912D",
-    "ratio": {
-      "num": "1",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x078BEbC744B819657e1927bF41aB8C74cBBF912D"
-      },
-      {
-        "type": "call",
-        "to": "0x078BEbC744B819657e1927bF41aB8C74cBBF912D",
-        "signature": "migrate(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": null,
-    "sources": [
-      "https://github.com/aragon/aragon-network-token/blob/master/docs/antv1/upgrade-contract-interaction.md",
-      "https://legacy-docs.aragon.org/the-ant-token/upgrading-to-antv2/contract-interaction/",
-      "https://blog.aragon.org/ant-redemption-initiative-report/"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080700,
-      "holderUsed": "0x31F1DeFC3902EA5c1683fC5E0A463a514E91Cda2",
-      "simulatedIn": "117793511222282815327652",
-      "simulatedOut": "117793511222282815327652",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "ANTv2Migrator, 1:1, no end date per Aragon docs; ANTv1 sent to 0xdead, ANTv2 paid from migrator (holds ~3.98M ANTv2 vs ~3.82M ANTv1 outstanding). CAVEAT for UI: the follow-on ANTv2→ETH redemption (0x80fBB6122b8E023988e640dB1ae348a10A7933E8) ENDED 2024-11-02 and is empty, and the Aragon Association dissolved; ANTv2 has limited value/liquidity. Worth flagging so users are not misled about recoverable value."
-    },
-    "warnings": [
-      {
-        "level": "warn",
-        "text": "ANT v2's ETH redemption ended in 2024, so ANT v2 may be worth very little."
-      }
-    ],
-    "payoutReserve": {
-      "holder": "0x078bebc744b819657e1927bf41ab8c74cbbf912d"
-    }
-  },
-  {
-    "id": "tribe-redeem",
-    "name": "TRIBE → DAI + stETH + LQTY + FOX (redemption)",
-    "project": "Fei Protocol / Tribe DAO",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B",
-      "symbol": "TRIBE",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-      "symbol": "DAI",
-      "decimals": 18
-    },
-    "migrator": "0x4d9629e80118082B939e3D59E69c82A2ec08b4d5",
-    "ratio": {
-      "num": "1791819867795069337060605",
-      "den": "25040971014379239118687254"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x4d9629e80118082B939e3D59E69c82A2ec08b4d5"
-      },
-      {
-        "type": "call",
-        "to": "0x4d9629e80118082B939e3D59E69c82A2ec08b4d5",
-        "signature": "redeem(address,uint256)",
-        "args": [
-          "$user",
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": null,
-    "sources": [
-      "https://github.com/fei-protocol/fei-protocol-core/blob/develop/protocol-configuration/mainnetAddresses.ts",
-      "https://github.com/code-423n4/2022-09-tribe",
-      "https://code4rena.com/reports/2022-09-tribe"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080759,
-      "holderUsed": "0x4a78D9383573BEEA5085A8e3D83226282775D04d",
-      "simulatedIn": "793424494516102980839908",
-      "simulatedOut": "56773907531494995431759",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "TribeRedeemer (listed as tribeRedeemer in Fei repo). Pro-rata BASKET: per TRIBE the holder gets balance_i/redeemBase of each of stETH, LQTY, FOX, DAI. newToken/ratio record only the DAI leg (≈0.071556 DAI/TRIBE = DAI balance / redeemBase at block 26080759); simulation also delivered 99.70 stETH, 1903.8 LQTY, 26478 FOX to the holder for 793,424 TRIBE. Ratio is stable (both terms shrink proportionally) but stETH leg rebases. Only redeemBase (~25.04M TRIBE) can ever be redeemed — first-come."
-    },
-    "warnings": [
-      {
-        "level": "danger",
-        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
-      },
-      {
-        "level": "info",
-        "text": "Fei Protocol wound down. TRIBE redeems pro rata for a basket of DAI, stETH, LQTY and FOX."
-      }
-    ],
-    "payoutReserve": {
-      "holder": "0x4d9629e80118082b939e3d59e69c82a2ec08b4d5"
-    }
-  },
-  {
-    "id": "fei-to-dai",
-    "name": "FEI → DAI",
-    "project": "Fei Protocol",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x956F47F50A910163D8BF957Cf5846D573E7f87CA",
-      "symbol": "FEI",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-      "symbol": "DAI",
-      "decimals": 18
-    },
-    "migrator": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce",
-    "ratio": {
-      "num": "1",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce"
-      },
-      {
-        "type": "call",
-        "to": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce",
-        "signature": "redeem(address,uint256,uint256)",
-        "args": [
-          "$user",
-          "$amount",
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": {
-      "to": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce",
-      "signature": "redeemPaused()",
-      "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
-    },
-    "officialUi": null,
-    "sources": [
-      "https://github.com/fei-protocol/fei-protocol-core/blob/develop/protocol-configuration/mainnetAddresses.ts",
-      "https://github.com/code-423n4/2022-09-tribe/blob/main/contracts/peg/SimpleFeiDaiPSM.sol"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080761,
-      "holderUsed": "0x4a78D9383573BEEA5085A8e3D83226282775D04d",
-      "simulatedIn": "244342785932840753042448",
-      "simulatedOut": "244342785932840753042448",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "SimpleFeiDaiPSM (immutable 1:1 FEI<->DAI wrapper, fee 0). Third arg is minAmountOut (= $amount since 1:1). PSM holds ~2.842M DAI vs ~2.842M FEI outside PSM (covered). statusCheck: redeemPaused() must be false."
-    },
-    "warnings": [],
-    "payoutReserve": {
-      "holder": "0x7842186cdd11270c4af8c0a99a5e0589c7f249ce"
-    }
-  },
-  {
-    "id": "xdata-to-data",
-    "name": "XDATA (old DATA) → DATA",
-    "project": "Streamr",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x0Cf0Ee63788A0849fE5297F3407f701E122cC023",
-      "symbol": "XDATA",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0x8f693ca8D21b157107184d29D398A8D082b38b76",
-      "symbol": "DATA",
-      "decimals": 18
-    },
-    "migrator": "0x0Cf0Ee63788A0849fE5297F3407f701E122cC023",
-    "ratio": {
-      "num": "1",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "call",
-        "to": "0x0Cf0Ee63788A0849fE5297F3407f701E122cC023",
-        "signature": "upgrade(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": "https://streamr.network/token-migration/",
-    "sources": [
-      "https://streamr.network/token-migration/",
-      "https://blog.streamr.network/its-time-to-upgrade-your-streamr-data-tokens/"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080755,
-      "holderUsed": "0xf9857e5daFb80C618eB8E354341Bd1A53468D77D",
-      "simulatedIn": "1605124397211788127226340",
-      "simulatedOut": "1605124397211788127226340",
-      "method": "eth_simulateV1 single call from holder at latest, traceTransfers, validation=false",
-      "notes": "No approve: holder calls upgrade(uint256) on the OLD token (upgrade state=Upgrading); agent DataTokenMigrator 0xc7AAF6C62e86a36395D8108FE95D5f758794c16c pays new DATA 1:1. Agent holds exactly the outstanding old supply (~98.83M) — fully covered. Old token symbol on-chain is \"XDATA\"."
-    },
-    "warnings": [],
-    "payoutReserve": {
-      "holder": "0xc7aaf6c62e86a36395d8108fe95d5f758794c16c"
-    }
-  },
-  {
-    "id": "mft-to-hifi",
-    "name": "MFT → HIFI",
-    "project": "Hifi Finance (formerly Mainframe)",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0xDF2C7238198Ad8B389666574f2d8bc411A4b7428",
-      "symbol": "MFT",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0x4b9278b94a1112cAD404048903b8d343a810B07e",
-      "symbol": "HIFI",
-      "decimals": 18
-    },
-    "migrator": "0x4b9278b94a1112cAD404048903b8d343a810B07e",
-    "ratio": {
-      "num": "1",
-      "den": "100"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x4b9278b94a1112cAD404048903b8d343a810B07e"
-      },
-      {
-        "type": "call",
-        "to": "0x4b9278b94a1112cAD404048903b8d343a810B07e",
-        "signature": "swap(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": null,
-    "sources": [
-      "https://blog.hifi.finance/token-swap-is-live-78df04ea2bd3",
-      "https://blog.hifi.finance/hifi-token-swap-tutorial-210fe5fcdc8d"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080749,
-      "holderUsed": "0x769550b49c0501DCA861c3f79447Eb5F510bBFd1",
-      "simulatedIn": "36355700167945373838614044",
-      "simulatedOut": "363557001679453738386140",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "Migrator is the HIFI token: swap() sends MFT to 0x…0001 and mints HIFI = mftAmount/100 (swapRatio()=100). Hifi: no deadline. HIFI price is down >99% from peak, so value recovered may be small."
-    },
-    "warnings": [],
-    "payoutReserve": null
-  },
-  {
-    "id": "adx-legacy-to-adx",
-    "name": "ADX (legacy) → ADX",
-    "project": "AdEx",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0x4470BB87d77b963A013DB939BE332f927f2b992e",
-      "symbol": "ADX",
-      "decimals": 4
-    },
-    "newToken": {
-      "address": "0xADE00C28244d5CE17D72E40330B1c318cD12B7c3",
-      "symbol": "ADX",
-      "decimals": 18
-    },
-    "migrator": "0xADE00C28244d5CE17D72E40330B1c318cD12B7c3",
-    "ratio": {
-      "num": "1",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0xADE00C28244d5CE17D72E40330B1c318cD12B7c3"
-      },
-      {
-        "type": "call",
-        "to": "0xADE00C28244d5CE17D72E40330B1c318cD12B7c3",
-        "signature": "swap(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": null,
-    "sources": [
-      "https://www.adex.network/blog/adx-token-upgrade-swap-tokens/",
-      "https://etherscan.io/token/0xade00c28244d5ce17d72e40330b1c318cd12b7c3"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080751,
-      "holderUsed": "0xc426057cb55Da808b671D95ab4EFda4c29cb9b02",
-      "simulatedIn": "2000000000",
-      "simulatedOut": "200000000000000000000000",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "Migrator is the new ADX token; swap() mints prevAmount*1e14 (legacy has 4 decimals, new 18) = 1:1 whole-token, no deadline/pause in code. UNCERTAIN: a third-party summary cites an AdEx help-centre \"deadline\" of 2022-03-16 for self-custody swaps (page now redirects, could not confirm); the contract has no deadline logic and the swap succeeds today."
-    },
-    "warnings": [
-      {
-        "level": "warn",
-        "text": "The announced deadline has passed, but the contract still works."
-      }
-    ],
-    "payoutReserve": null
-  },
-  {
-    "id": "mln-v1-to-mln",
-    "name": "MLN (2017) → MLN",
-    "project": "Enzyme (formerly Melon)",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0xBEB9eF514a379B997e0798FDcC901Ee474B6D9A1",
-      "symbol": "MLN",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0xec67005c4E498Ec7f55E092bd1d35cbC47C91892",
-      "symbol": "MLN",
-      "decimals": 18
-    },
-    "migrator": "0x3C75D37B579E0E4896f02c0122BAA4dE05383a6A",
-    "ratio": {
-      "num": "1",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x3C75D37B579E0E4896f02c0122BAA4dE05383a6A"
-      },
-      {
-        "type": "call",
-        "to": "0x3C75D37B579E0E4896f02c0122BAA4dE05383a6A",
-        "signature": "transmute(uint256)",
-        "args": [
-          "$amount"
-        ]
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": null,
-    "officialUi": null,
-    "sources": [
-      "https://medium.com/enzymefinance/mln-token-migration-instructions-196a645fc3ac",
-      "https://medium.com/enzymefinance/mln-token-migration-event-96b1c8003876"
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26080812,
-      "holderUsed": "0xd27717D11E4747684380f25ad7C09406F8d953C6",
-      "simulatedIn": "24776500000000000000000",
-      "simulatedOut": "24776500000000000000000",
-      "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
-      "notes": "Alchemist contract (address given in Enzyme migration instructions), transmute() 1:1, no admin/pause. CAPACITY LIMITED: holds ~119,594 new MLN vs ~436,980 old MLN outstanding — first-come."
-    },
-    "warnings": [
-      {
-        "level": "danger",
-        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
-      }
-    ],
-    "payoutReserve": {
-      "holder": "0x3c75d37b579e0e4896f02c0122baa4de05383a6a"
-    }
-  },
-  {
-    "id": "old-mkr-to-sky",
-    "name": "Old MKR (pre-2017) → SKY",
-    "project": "Sky (MakerDAO)",
-    "chainId": 1,
-    "oldToken": {
-      "address": "0xC66eA802717bFb9833400264Dd12c2bCeAa34a6d",
-      "symbol": "MKR (old)",
-      "decimals": 18
-    },
-    "newToken": {
-      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
-      "symbol": "SKY",
-      "decimals": 18
-    },
-    "migrator": "0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
-    "ratio": {
-      "num": "22800",
-      "den": "1"
-    },
-    "steps": [
-      {
-        "type": "approve",
-        "token": "old",
-        "spender": "0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
-        "title": "Approve the MKR redeemer to take your old MKR"
-      },
-      {
-        "type": "call",
-        "to": "0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
-        "signature": "redeem()",
-        "args": [],
-        "contractLabel": "MKR redeemer",
-        "title": "Redeem old MKR for current MKR"
-      },
-      {
-        "type": "approve",
-        "token": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
-        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-        "tokenMeta": {
-          "symbol": "MKR",
-          "decimals": 18
-        },
-        "title": "Approve the Sky converter to use your MKR"
-      },
-      {
-        "type": "call",
-        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-        "signature": "mkrToSky(address,uint256)",
-        "args": [
-          "$user",
-          "$amount"
-        ],
-        "contractLabel": "Sky MKR→SKY converter",
-        "title": "Upgrade MKR to SKY"
-      }
-    ],
-    "status": "open",
-    "deadline": null,
-    "statusCheck": {
-      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
-      "signature": "fee()",
-      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
-    },
-    "payoutReserve": {
-      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
-    },
-    "officialUi": null,
-    "sources": [
-      "https://etherscan.io/address/0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
-      "https://etherscan.io/token/0xC66eA802717bFb9833400264Dd12c2bCeAa34a6d"
-    ],
-    "warnings": [
-      {
-        "level": "info",
-        "text": "This is the original 2015–2017 MKR token. Maker governance's redeemer swaps it 1:1 for current MKR, which then upgrades to SKY at the current converter rate."
-      },
-      {
-        "level": "warn",
-        "text": "The redeemer is owned by Maker governance (the pause proxy), which could stop it. It holds enough MKR to cover every unredeemed old token today."
-      }
-    ],
-    "verification": {
-      "codeExists": true,
-      "simulatedAt": 26087900,
-      "holderUsed": "0xEc9cE6E59ce95248Ecef070408E7cF35bBc79989",
-      "simulatedIn": "1108780733812860500000",
-      "simulatedOut": "25280200730900000000000000",
-      "method": "eth_simulateV1 approve(OMKR→redeemer) + redeem() + approve(MKR→converter) + mkrToSky from holder, traceTransfers",
-      "notes": "Redeemer owner = MCD_PAUSE_PROXY, stopped() = 0, holds 8,909.98 MKR vs 8,899.18 OMKR unredeemed."
-    }
+  "warnings": [],
+  "payoutReserve": {
+   "holder": "0x29e7df7b6a1b2b07b731457f499e1696c60e2c4e"
   }
+ },
+ {
+  "id": "mkr-to-sky",
+  "name": "MKR → SKY",
+  "project": "Sky (MakerDAO)",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+   "symbol": "MKR",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+   "symbol": "SKY",
+   "decimals": 18
+  },
+  "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+  "ratio": {
+   "num": "22800",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+   },
+   {
+    "type": "call",
+    "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "signature": "mkrToSky(address,uint256)",
+    "args": [
+     "$user",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": {
+   "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+   "signature": "fee()",
+   "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+  },
+  "officialUi": "https://upgrademkrtosky.skyeco.com/",
+  "sources": [
+   "https://developers.skyeco.com/guides/sky/token-governance-upgrade/token-holders/",
+   "https://vote.makerdao.com/executive/template-executive-vote-mkr-to-sky-upgrade-phase-one-adding-protego-to-the-chainlog-spark-proxy-spell-may-15-2025",
+   "https://etherscan.io/address/0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080691,
+   "holderUsed": "0x4a18a50a8328b42773268B4b436254056b7d70CE",
+   "simulatedIn": "6775693565952983876841",
+   "simulatedOut": "154485813303728032391974800",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "New one-way MkrSky converter (the old 0xBDcFCA94…470B converter reverts Sky/not-authorized). Base rate 24000 SKY/MKR minus governance \"delayed upgrade penalty\" fee(): on-chain fee = 0.05 (5%) at simulation, so effective 22800 SKY/MKR (simulated out/in = 22800.0 exactly). Penalty steps up +1% roughly every 3 months (1% from 2025-09-22) and is governance-adjustable, so ratio WILL drift; statusCheck pins fee()=5% so the frontend can detect a change and should recompute as 24000*(1-fee/1e18). MKR is burned (no Transfer log from holder; DSToken Burn). Converter holds ~2.06B SKY vs ~84.5k MKR supply (covered)."
+  },
+  "warnings": [
+   {
+    "level": "warn",
+    "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+  }
+ },
+ {
+  "id": "sai-to-weth",
+  "name": "SAI → WETH (SCD shutdown cash-out)",
+  "project": "MakerDAO (Single-Collateral Dai)",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359",
+   "symbol": "SAI",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+   "symbol": "WETH",
+   "decimals": 18
+  },
+  "migrator": "0xBda109309f9FafA6Dd6A9CB9f1Df4085B27Ee8eF",
+  "ratio": {
+   "num": "5285551943761727318375221",
+   "den": "1000000000000000000000000000"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xBda109309f9FafA6Dd6A9CB9f1Df4085B27Ee8eF"
+   },
+   {
+    "type": "call",
+    "to": "0xBda109309f9FafA6Dd6A9CB9f1Df4085B27Ee8eF",
+    "signature": "cash(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/makerdao/sai",
+   "https://support.token.im/hc/en-us/articles/900000668366-A-Guide-to-Single-Collateral-Dai-Sai-Shutdown",
+   "https://docs.makerdao.com/clis/dai-and-collateral-redemption-during-emergency-shutdown"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080806,
+   "holderUsed": "0xec69acc35320b383580Cbcc3c75a4441164d7660",
+   "simulatedIn": "236554082920240000000000",
+   "simulatedOut": "1250318892783847353260",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "SaiTap.cash() after SCD global settlement (off()=true): burns SAI, pays WETH at fixed fix()=0.005285551943761727 WETH/SAI (ray). Tap holds ~14,024.6 WETH ≈ entire outstanding SAI supply (~2.653M × fix). Approve needed because DSToken burn(from) uses allowance. The SAI→DAI ScdMcdMigration path is dead (see rejected), this is the only exit. Big forgotten balances exist (simulated holder: 236,554 SAI → 1,250 WETH). Note: legacy SAI contract symbol() still returns \"DAI\" (bytes32); relabelled SAI here."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "SAI was settled when single-collateral Dai (SCD) shut down. This is the only exit left: SAI redeems for WETH at a fixed rate."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0xbda109309f9fafa6dd6a9cb9f1df4085b27ee8ef"
+  }
+ },
+ {
+  "id": "gnt-to-glm",
+  "name": "GNT → GLM",
+  "project": "Golem",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0xa74476443119A942dE498590Fe1f2454d7D4aC0d",
+   "symbol": "GNT",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x7DD9c5Cba05E151C895FDe1CF355C9A1D5DA6429",
+   "symbol": "GLM",
+   "decimals": 18
+  },
+  "migrator": "0xa74476443119A942dE498590Fe1f2454d7D4aC0d",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "call",
+    "to": "0xa74476443119A942dE498590Fe1f2454d7D4aC0d",
+    "signature": "migrate(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": "https://migrate.golem.network",
+  "sources": [
+   "https://blog.golem.network/gnt-to-glm-migration/",
+   "https://docs.golem.network/docs/golem/migrate/guideline",
+   "https://migration-tracker.golem.network/"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080727,
+   "holderUsed": "0x06b0E09b2727bbF1EE834D56961926Ab6e3a767a",
+   "simulatedIn": "25358009116373270000000000",
+   "simulatedOut": "25358009116373270000000000",
+   "method": "eth_simulateV1 single call from holder at latest, traceTransfers, validation=false",
+   "notes": "No approve needed: holder calls migrate(uint256) on the OLD GNT contract, which calls GNTMigrationAgent 0xBFAd98d76598961827bA832108c21445aa4FEE9A to mint GLM 1:1 (GLM minted from 0x0). Golem: no deadline. ~203M GNT still unmigrated — large forgotten-holder pool."
+  },
+  "warnings": [],
+  "payoutReserve": null
+ },
+ {
+  "id": "knc-legacy-to-knc",
+  "name": "KNCL → KNC",
+  "project": "Kyber Network",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0xdd974D5C2e2928deA5F71b9825b8b646686BD200",
+   "symbol": "KNC",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+   "symbol": "KNC",
+   "decimals": 18
+  },
+  "migrator": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202"
+   },
+   {
+    "type": "call",
+    "to": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+    "signature": "mintWithOldKnc(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": "https://kyberswap.com/kyberdao/stake-knc",
+  "sources": [
+   "https://blog.kyberswap.com/knc-token-migration-guide/",
+   "https://support.kyberswap.com/hc/en-us/articles/15983607020825-How-to-Migrate-KNCL-to-KNC-v2",
+   "https://medium.com/kybernetwork/knc-token-migration-guide-fda08bfe62c2"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080698,
+   "holderUsed": "0xDdEB3A5D35984014b732E71Ac99F622fae483544",
+   "simulatedIn": "500000000000000000000000",
+   "simulatedOut": "500000000000000000000000",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "Migrator is the new KNC token itself (proxy, impl KyberNetworkTokenV2 0xe5E8E834086F1a964f9A089eB6Ae11796862e4CE). Old KNC burned, new KNC minted 1:1. Legacy token symbol on-chain is still \"KNC\" (commonly labelled KNCL). Kyber states no hard deadline."
+  },
+  "warnings": [],
+  "payoutReserve": null
+ },
+ {
+  "id": "rpl-v1-to-rpl",
+  "name": "RPL (legacy) → RPL",
+  "project": "Rocket Pool",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0xB4EFd85c19999D84251304bDA99E90B92300Bd93",
+   "symbol": "RPL",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f",
+   "symbol": "RPL",
+   "decimals": 18
+  },
+  "migrator": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f"
+   },
+   {
+    "type": "call",
+    "to": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f",
+    "signature": "swapTokens(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://medium.com/rocket-pool/rocket-pool-rpl-token-upgrade-new-addresses-e96c12c55adf"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080724,
+   "holderUsed": "0x486a28815A35A637E3f668783FB8538af1A4459F",
+   "simulatedIn": "62890000000000000000000",
+   "simulatedOut": "62890000000000000000000",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "Migrator is the new RocketTokenRPL contract; pays out new RPL it holds (~702,989 RPL vs ~686,203 legacy RPL outstanding — covered). Both tokens have symbol \"RPL\" on-chain; UI should label the old one \"RPL (legacy fixed-supply)\"."
+  },
+  "warnings": [],
+  "payoutReserve": {
+   "holder": "0xd33526068d116ce69f19a9ee46f0bd304f21a51f"
+  }
+ },
+ {
+  "id": "keep-to-t",
+  "name": "KEEP → T",
+  "project": "Threshold Network",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x85Eee30c52B0b379b046Fb0F85F4f3Dc3009aFEC",
+   "symbol": "KEEP",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+   "symbol": "T",
+   "decimals": 18
+  },
+  "migrator": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+  "ratio": {
+   "num": "4783188631255016",
+   "den": "1000000000000000"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0"
+   },
+   {
+    "type": "call",
+    "to": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+    "signature": "wrap(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc",
+   "https://github.com/threshold-network/solidity-contracts/issues/53",
+   "https://etherscan.io/address/0xe47c80e8c23f6b4a1ae41c34837a0599d5d16bb0"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080722,
+   "holderUsed": "0xfC4626dE3C387970E59D47d63d6E47762a357198",
+   "simulatedIn": "13234447292000000000000000",
+   "simulatedOut": "63302857828038133062616672",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "KEEP VendingMachine, ratio()=4783188631255016 / FLOATING_POINT_DIVISOR 1e15. wrap() only pulls amounts rounded DOWN to 3 decimals (WRAPPED_TOKEN_CONVERSION_PRECISION=3): simulatedIn is the amount actually pulled (holder had 13234447.292447… KEEP). Contract is two-way (unwrap exists) but KEEP is the legacy side. Capacity: ~390.8M T left in machine (~81.7M KEEP worth) vs ~140.8M KEEP outside the machine — partially covered."
+  },
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0xe47c80e8c23f6b4a1ae41c34837a0599d5d16bb0"
+  },
+  "minAmount": "1000000000000000"
+ },
+ {
+  "id": "nu-to-t",
+  "name": "NU → T",
+  "project": "Threshold Network",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x4fE83213D56308330EC302a8BD641f1d0113A4Cc",
+   "symbol": "NU",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+   "symbol": "T",
+   "decimals": 18
+  },
+  "migrator": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e",
+  "ratio": {
+   "num": "3259242493160745",
+   "den": "1000000000000000"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e"
+   },
+   {
+    "type": "call",
+    "to": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e",
+    "signature": "wrap(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc",
+   "https://github.com/threshold-network/solidity-contracts/issues/53",
+   "https://etherscan.io/address/0x1CCA7E410eE41739792eA0A24e00349Dd247680e"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080723,
+   "holderUsed": "0xA533574c3199db25BB91184eCC37E254fA08bee3",
+   "simulatedIn": "28580077665000000000000000",
+   "simulatedOut": "93149403583602323429260425",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "NU VendingMachine, ratio()=3259242493160745 / 1e15; input rounded down to 3 decimals (simulatedIn = pulled amount; holder had 28580077.665071… NU). Capacity: ~629.3M T left (~193M NU worth) vs ~2.70B NU outside the machine (much of it likely locked in legacy NuCypher staking) — partially covered. Capacity re-checked 2026-09-30: excluding the StakingEscrow's unminted reserve, the vending machine's T covers all circulating NU plus user stakes."
+  },
+  "warnings": [],
+  "payoutReserve": {
+   "holder": "0x1cca7e410ee41739792ea0a24e00349dd247680e"
+  },
+  "statsExclude": [
+   {
+    "address": "0xbbD3C0C794F40c4f993B03F65343aCC6fcfCb2e2",
+    "why": "NuCypher StakingEscrow: ~2.5B unminted NU reserve (user stakes are covered by nu-staked-to-t)"
+   }
+  ],
+  "minAmount": "1000000000000000"
+ },
+ {
+  "id": "ocean-to-fet",
+  "name": "OCEAN → FET (ASI)",
+  "project": "Artificial Superintelligence Alliance / Fetch.ai",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x967da4048cD07aB37855c090aAF366e4ce1b9F48",
+   "symbol": "OCEAN",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xaea46A60368A7bD060eec7DF8CBa43b7EF41Ad85",
+   "symbol": "FET",
+   "decimals": 18
+  },
+  "migrator": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+  "ratio": {
+   "num": "433226",
+   "den": "1000000"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663"
+   },
+   {
+    "type": "call",
+    "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+    "signature": "migrateTokens(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": {
+   "to": "0x664D2f142cbc89Ee9Ed20c8E4EeB66C63b9cE663",
+   "signature": "paused()",
+   "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "officialUi": null,
+  "sources": [
+   "https://www.fetch.ai/blog/navigating-the-asi-token-merger-a-comprehensive-guide",
+   "https://docs.superintelligence.io/artificial-superintelligence-alliance/archive/navigating-the-asi-token-merger-a-comprehensive-guide",
+   "https://blog.oceanprotocol.com/ocean-protocol-foundation-withdraws-from-the-artificial-superintelligence-alliance-4619c4604ea3",
+   "https://support.kraken.com/articles/ocean-protocol-and-fet-migration"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080717,
+   "holderUsed": "0xd2DD7b597Fd2435b6dB61ddf48544fd931e6869F",
+   "simulatedIn": "10655929066819170000000000",
+   "simulatedOut": "4616425525901801742420000",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "MigrateToken clone (impl 0x966cAD95974a88017071c831EC321857BfD49463); conversionRatio()=0.433226e18 matches official rate; OCEAN sent to 0xdead. Address NOT published in docs I could reach — identified on-chain (OCEAN->0xdead burns routed through it, oldToken/newToken/rate getters match). Ocean left the ASI alliance 2025-10-09; converter is controlled by Fetch.ai and is pausable (statusCheck paused()=false). CAPACITY LIMITED: migrator holds ~5.60M FET = ~12.9M OCEAN of ~268M OCEAN outstanding; larger holders may hit a revert unless Fetch.ai refills. WARNING: web results cite 0x695B704D…F2B9 as the ASI migrator — that address is an EOA (no code); sending tokens there would lose them."
+  },
+  "warnings": [
+   {
+    "level": "warn",
+    "text": "OCEAN trades on its own again (Ocean Protocol left the ASI alliance in October 2025), and lately migrating has paid less than OCEAN's market price. Compare the FET you'd get with what your OCEAN sells for before you migrate."
+   },
+   {
+    "level": "danger",
+    "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+   },
+   {
+    "level": "info",
+    "text": "Migrator address confirmed on-chain; it isn't listed in the official docs."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0x664d2f142cbc89ee9ed20c8e4eeb66c63b9ce663"
+  }
+ },
+ {
+  "id": "rbn-to-aevo",
+  "name": "RBN → AEVO",
+  "project": "Aevo (formerly Ribbon Finance)",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x6123B0049F904d730dB3C36a31167D9d4121fA6B",
+   "symbol": "RBN",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xB528edBef013aff855ac3c50b381f253aF13b997",
+   "symbol": "AEVO",
+   "decimals": 18
+  },
+  "migrator": "0x38913051E01D4F6910cB66bB9aC3cb77D746Ad81",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x38913051E01D4F6910cB66bB9aC3cb77D746Ad81"
+   },
+   {
+    "type": "call",
+    "to": "0x38913051E01D4F6910cB66bB9aC3cb77D746Ad81",
+    "signature": "migrate(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://etherscan.io/address/0x38913051e01d4f6910cb66bb9ac3cb77d746ad81",
+   "https://docs.aevo.xyz/trading-and-staking-rewards/staking",
+   "https://docs.aevo.xyz/aevo-governance/token-distribution/legacy-rbn-tokenomics"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080746,
+   "holderUsed": "0x4633327c47970b48457654d87BF6109DBBDFc535",
+   "simulatedIn": "23330000000000000000000000",
+   "simulatedOut": "23330000000000000000000000",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "AevoStaking contract migrate(): requires block.timestamp >= migration (1715760000, passed); no pause on migrate. Aevo docs: 1:1, no limits or deadlines. Holds ~67.71M AEVO vs ~67.26M RBN outstanding (covered). Address confirmed via Etherscan label \"Aevo: Staking\" + verified source; not found in a docs page I could fetch."
+  },
+  "warnings": [
+   {
+    "level": "info",
+    "text": "Migrator address confirmed on-chain and by its Etherscan label; it isn't listed in the official docs."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0x38913051e01d4f6910cb66bb9ac3cb77d746ad81"
+  }
+ },
+ {
+  "id": "ogv-to-ogn",
+  "name": "OGV → OGN",
+  "project": "Origin Protocol",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x9c354503C38481a7A7a51629142963F98eCC12D0",
+   "symbol": "OGV",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x8207c1FfC5B6804F6024322CcF34F29c3541Ae26",
+   "symbol": "OGN",
+   "decimals": 18
+  },
+  "migrator": "0x95c347D6214614A780847b8aAF4f96Eb84f4da6d",
+  "ratio": {
+   "num": "9137",
+   "den": "100000"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x95c347D6214614A780847b8aAF4f96Eb84f4da6d"
+   },
+   {
+    "type": "call",
+    "to": "0x95c347D6214614A780847b8aAF4f96Eb84f4da6d",
+    "signature": "migrate(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": "https://app.originprotocol.com",
+  "sources": [
+   "https://www.originprotocol.com/token-migration-guide",
+   "https://x.com/OriginProtocol/status/1795549181911748763"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080793,
+   "holderUsed": "0x36D7E55B72020c4E6e84213d766ad653D8F5F599",
+   "simulatedIn": "34999000000000000000000000",
+   "simulatedOut": "3197858630000000000000000",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "Origin Migrator proxy (impl 0x936B7855c3f20b09685770467f7621AC41B03063), CONVERSION_RATE 0.09137e18. Official window \"closed\" 2025-05-28 (isMigrationActive()=false), BUT source comments say migrate() intentionally does not check the window \"until we decommission\" and it succeeds today; contract is fully solvent (~17.90M OGN for all outstanding OGV). Governance can decommission at any time via transferExcessTokens() — treat as open-but-at-risk. Address identified on-chain (OGV burns routed through it) and verified source; not listed on a docs page I could fetch."
+  },
+  "warnings": [
+   {
+    "level": "warn",
+    "text": "The announced deadline has passed, but the contract still works. Governance could switch it off at any time."
+   },
+   {
+    "level": "info",
+    "text": "Migrator address confirmed on-chain; it isn't listed in the official docs."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0x95c347d6214614a780847b8aaf4f96eb84f4da6d"
+  }
+ },
+ {
+  "id": "gal-to-g",
+  "name": "GAL → G",
+  "project": "Gravity (formerly Galxe)",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x5fAa989Af96Af85384b8a938c2EdE4A7378D9875",
+   "symbol": "GAL",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x9C7BEBa8F6eF6643aBd725e45a4E8387eF260649",
+   "symbol": "G",
+   "decimals": 18
+  },
+  "migrator": "0x249aC00402716b7bf6d6ED24531d7B4C10788942",
+  "ratio": {
+   "num": "60",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x249aC00402716b7bf6d6ED24531d7B4C10788942"
+   },
+   {
+    "type": "call",
+    "to": "0x249aC00402716b7bf6d6ED24531d7B4C10788942",
+    "signature": "upgradeToken(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": {
+   "to": "0x249aC00402716b7bf6d6ED24531d7B4C10788942",
+   "signature": "paused()",
+   "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "officialUi": "https://g.xyz/GAL-G-Portal",
+  "sources": [
+   "https://docs.galxe.com/about/gal/tokenomics",
+   "https://www.galxe.com/blog/gal-g",
+   "https://support.binance.us/hc/en-us/articles/25294762369431-Binance-US-will-support-the-Galxe-GAL-token-migration-to-Gravity-G"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080797,
+   "holderUsed": "0xB282dce9821b065E332850A712E124B183217cA2",
+   "simulatedIn": "94218663118000000000000",
+   "simulatedOut": "5653119787080000000000000",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "TokenUpgrader (SPLIT_RATIO=60), GAL sent to 0xdead, G paid from contract; pausable (statusCheck paused()=false). Address identified on-chain (GAL->0xdead burns routed through it, oldToken/newToken getters match); official portal g.xyz/GAL-G-Portal, docs say open \"at least one year\" from 2024-07-09. CAPACITY LIMITED: holds ~16.61M G = ~277k GAL, while ~74.7M GAL is outstanding (mostly in TokenVesting contracts); large holders may revert unless refilled."
+  },
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+   },
+   {
+    "level": "info",
+    "text": "Migrator address confirmed on-chain; it isn't listed in the official docs."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0x249ac00402716b7bf6d6ed24531d7b4c10788942"
+  }
+ },
+ {
+  "id": "ant-v1-to-ant-v2",
+  "name": "ANT v1 → ANT v2",
+  "project": "Aragon",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x960b236A07cf122663c4303350609A66A7B288C0",
+   "symbol": "ANT",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xa117000000f279D81A1D3cc75430fAA017FA5A2e",
+   "symbol": "ANT",
+   "decimals": 18
+  },
+  "migrator": "0x078BEbC744B819657e1927bF41aB8C74cBBF912D",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x078BEbC744B819657e1927bF41aB8C74cBBF912D"
+   },
+   {
+    "type": "call",
+    "to": "0x078BEbC744B819657e1927bF41aB8C74cBBF912D",
+    "signature": "migrate(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/aragon/aragon-network-token/blob/master/docs/antv1/upgrade-contract-interaction.md",
+   "https://legacy-docs.aragon.org/the-ant-token/upgrading-to-antv2/contract-interaction/",
+   "https://blog.aragon.org/ant-redemption-initiative-report/"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080700,
+   "holderUsed": "0x31F1DeFC3902EA5c1683fC5E0A463a514E91Cda2",
+   "simulatedIn": "117793511222282815327652",
+   "simulatedOut": "117793511222282815327652",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "ANTv2Migrator, 1:1, no end date per Aragon docs; ANTv1 sent to 0xdead, ANTv2 paid from migrator (holds ~3.98M ANTv2 vs ~3.82M ANTv1 outstanding). CAVEAT for UI: the follow-on ANTv2→ETH redemption (0x80fBB6122b8E023988e640dB1ae348a10A7933E8) ENDED 2024-11-02 and is empty, and the Aragon Association dissolved; ANTv2 has limited value/liquidity. Worth flagging so users are not misled about recoverable value."
+  },
+  "warnings": [
+   {
+    "level": "warn",
+    "text": "ANT v2's ETH redemption ended in 2024, so ANT v2 may be worth very little."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0x078bebc744b819657e1927bf41ab8c74cbbf912d"
+  }
+ },
+ {
+  "id": "tribe-redeem",
+  "name": "TRIBE → DAI + stETH + LQTY + FOX (redemption)",
+  "project": "Fei Protocol / Tribe DAO",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B",
+   "symbol": "TRIBE",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+   "symbol": "DAI",
+   "decimals": 18
+  },
+  "migrator": "0x4d9629e80118082B939e3D59E69c82A2ec08b4d5",
+  "ratio": {
+   "num": "1791819867795069337060605",
+   "den": "25040971014379239118687254"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x4d9629e80118082B939e3D59E69c82A2ec08b4d5"
+   },
+   {
+    "type": "call",
+    "to": "0x4d9629e80118082B939e3D59E69c82A2ec08b4d5",
+    "signature": "redeem(address,uint256)",
+    "args": [
+     "$user",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://github.com/fei-protocol/fei-protocol-core/blob/develop/protocol-configuration/mainnetAddresses.ts",
+   "https://github.com/code-423n4/2022-09-tribe",
+   "https://code4rena.com/reports/2022-09-tribe"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080759,
+   "holderUsed": "0x4a78D9383573BEEA5085A8e3D83226282775D04d",
+   "simulatedIn": "793424494516102980839908",
+   "simulatedOut": "56773907531494995431759",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "TribeRedeemer (listed as tribeRedeemer in Fei repo). Pro-rata BASKET: per TRIBE the holder gets balance_i/redeemBase of each of stETH, LQTY, FOX, DAI. newToken/ratio record only the DAI leg (≈0.071556 DAI/TRIBE = DAI balance / redeemBase at block 26080759); simulation also delivered 99.70 stETH, 1903.8 LQTY, 26478 FOX to the holder for 793,424 TRIBE. Ratio is stable (both terms shrink proportionally) but stETH leg rebases. Only redeemBase (~25.04M TRIBE) can ever be redeemed — first-come."
+  },
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+   },
+   {
+    "level": "info",
+    "text": "Fei Protocol wound down. TRIBE redeems pro rata for a basket of DAI, stETH, LQTY and FOX."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0x4d9629e80118082b939e3d59e69c82a2ec08b4d5"
+  }
+ },
+ {
+  "id": "fei-to-dai",
+  "name": "FEI → DAI",
+  "project": "Fei Protocol",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x956F47F50A910163D8BF957Cf5846D573E7f87CA",
+   "symbol": "FEI",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+   "symbol": "DAI",
+   "decimals": 18
+  },
+  "migrator": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce"
+   },
+   {
+    "type": "call",
+    "to": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce",
+    "signature": "redeem(address,uint256,uint256)",
+    "args": [
+     "$user",
+     "$amount",
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": {
+   "to": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce",
+   "signature": "redeemPaused()",
+   "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "officialUi": null,
+  "sources": [
+   "https://github.com/fei-protocol/fei-protocol-core/blob/develop/protocol-configuration/mainnetAddresses.ts",
+   "https://github.com/code-423n4/2022-09-tribe/blob/main/contracts/peg/SimpleFeiDaiPSM.sol"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080761,
+   "holderUsed": "0x4a78D9383573BEEA5085A8e3D83226282775D04d",
+   "simulatedIn": "244342785932840753042448",
+   "simulatedOut": "244342785932840753042448",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "SimpleFeiDaiPSM (immutable 1:1 FEI<->DAI wrapper, fee 0). Third arg is minAmountOut (= $amount since 1:1). PSM holds ~2.842M DAI vs ~2.842M FEI outside PSM (covered). statusCheck: redeemPaused() must be false."
+  },
+  "warnings": [],
+  "payoutReserve": {
+   "holder": "0x7842186cdd11270c4af8c0a99a5e0589c7f249ce"
+  }
+ },
+ {
+  "id": "xdata-to-data",
+  "name": "XDATA (old DATA) → DATA",
+  "project": "Streamr",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x0Cf0Ee63788A0849fE5297F3407f701E122cC023",
+   "symbol": "XDATA",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x8f693ca8D21b157107184d29D398A8D082b38b76",
+   "symbol": "DATA",
+   "decimals": 18
+  },
+  "migrator": "0x0Cf0Ee63788A0849fE5297F3407f701E122cC023",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "call",
+    "to": "0x0Cf0Ee63788A0849fE5297F3407f701E122cC023",
+    "signature": "upgrade(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": "https://streamr.network/token-migration/",
+  "sources": [
+   "https://streamr.network/token-migration/",
+   "https://blog.streamr.network/its-time-to-upgrade-your-streamr-data-tokens/"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080755,
+   "holderUsed": "0xf9857e5daFb80C618eB8E354341Bd1A53468D77D",
+   "simulatedIn": "1605124397211788127226340",
+   "simulatedOut": "1605124397211788127226340",
+   "method": "eth_simulateV1 single call from holder at latest, traceTransfers, validation=false",
+   "notes": "No approve: holder calls upgrade(uint256) on the OLD token (upgrade state=Upgrading); agent DataTokenMigrator 0xc7AAF6C62e86a36395D8108FE95D5f758794c16c pays new DATA 1:1. Agent holds exactly the outstanding old supply (~98.83M) — fully covered. Old token symbol on-chain is \"XDATA\"."
+  },
+  "warnings": [],
+  "payoutReserve": {
+   "holder": "0xc7aaf6c62e86a36395d8108fe95d5f758794c16c"
+  }
+ },
+ {
+  "id": "mft-to-hifi",
+  "name": "MFT → HIFI",
+  "project": "Hifi Finance (formerly Mainframe)",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0xDF2C7238198Ad8B389666574f2d8bc411A4b7428",
+   "symbol": "MFT",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x4b9278b94a1112cAD404048903b8d343a810B07e",
+   "symbol": "HIFI",
+   "decimals": 18
+  },
+  "migrator": "0x4b9278b94a1112cAD404048903b8d343a810B07e",
+  "ratio": {
+   "num": "1",
+   "den": "100"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x4b9278b94a1112cAD404048903b8d343a810B07e"
+   },
+   {
+    "type": "call",
+    "to": "0x4b9278b94a1112cAD404048903b8d343a810B07e",
+    "signature": "swap(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://blog.hifi.finance/token-swap-is-live-78df04ea2bd3",
+   "https://blog.hifi.finance/hifi-token-swap-tutorial-210fe5fcdc8d"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080749,
+   "holderUsed": "0x769550b49c0501DCA861c3f79447Eb5F510bBFd1",
+   "simulatedIn": "36355700167945373838614044",
+   "simulatedOut": "363557001679453738386140",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "Migrator is the HIFI token: swap() sends MFT to 0x…0001 and mints HIFI = mftAmount/100 (swapRatio()=100). Hifi: no deadline. HIFI price is down >99% from peak, so value recovered may be small."
+  },
+  "warnings": [],
+  "payoutReserve": null
+ },
+ {
+  "id": "adx-legacy-to-adx",
+  "name": "ADX (legacy) → ADX",
+  "project": "AdEx",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0x4470BB87d77b963A013DB939BE332f927f2b992e",
+   "symbol": "ADX",
+   "decimals": 4
+  },
+  "newToken": {
+   "address": "0xADE00C28244d5CE17D72E40330B1c318cD12B7c3",
+   "symbol": "ADX",
+   "decimals": 18
+  },
+  "migrator": "0xADE00C28244d5CE17D72E40330B1c318cD12B7c3",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0xADE00C28244d5CE17D72E40330B1c318cD12B7c3"
+   },
+   {
+    "type": "call",
+    "to": "0xADE00C28244d5CE17D72E40330B1c318cD12B7c3",
+    "signature": "swap(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://www.adex.network/blog/adx-token-upgrade-swap-tokens/",
+   "https://etherscan.io/token/0xade00c28244d5ce17d72e40330b1c318cd12b7c3"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080751,
+   "holderUsed": "0xc426057cb55Da808b671D95ab4EFda4c29cb9b02",
+   "simulatedIn": "2000000000",
+   "simulatedOut": "200000000000000000000000",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "Migrator is the new ADX token; swap() mints prevAmount*1e14 (legacy has 4 decimals, new 18) = 1:1 whole-token, no deadline/pause in code. UNCERTAIN: a third-party summary cites an AdEx help-centre \"deadline\" of 2022-03-16 for self-custody swaps (page now redirects, could not confirm); the contract has no deadline logic and the swap succeeds today."
+  },
+  "warnings": [
+   {
+    "level": "warn",
+    "text": "The announced deadline has passed, but the contract still works."
+   }
+  ],
+  "payoutReserve": null
+ },
+ {
+  "id": "mln-v1-to-mln",
+  "name": "MLN (2017) → MLN",
+  "project": "Enzyme (formerly Melon)",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0xBEB9eF514a379B997e0798FDcC901Ee474B6D9A1",
+   "symbol": "MLN",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0xec67005c4E498Ec7f55E092bd1d35cbC47C91892",
+   "symbol": "MLN",
+   "decimals": 18
+  },
+  "migrator": "0x3C75D37B579E0E4896f02c0122BAA4dE05383a6A",
+  "ratio": {
+   "num": "1",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x3C75D37B579E0E4896f02c0122BAA4dE05383a6A"
+   },
+   {
+    "type": "call",
+    "to": "0x3C75D37B579E0E4896f02c0122BAA4dE05383a6A",
+    "signature": "transmute(uint256)",
+    "args": [
+     "$amount"
+    ]
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": null,
+  "officialUi": null,
+  "sources": [
+   "https://medium.com/enzymefinance/mln-token-migration-instructions-196a645fc3ac",
+   "https://medium.com/enzymefinance/mln-token-migration-event-96b1c8003876"
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26080812,
+   "holderUsed": "0xd27717D11E4747684380f25ad7C09406F8d953C6",
+   "simulatedIn": "24776500000000000000000",
+   "simulatedOut": "24776500000000000000000",
+   "method": "eth_simulateV1 approve+call from holder at latest, traceTransfers, validation=false",
+   "notes": "Alchemist contract (address given in Enzyme migration instructions), transmute() 1:1, no admin/pause. CAPACITY LIMITED: holds ~119,594 new MLN vs ~436,980 old MLN outstanding — first-come."
+  },
+  "warnings": [
+   {
+    "level": "danger",
+    "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+   }
+  ],
+  "payoutReserve": {
+   "holder": "0x3c75d37b579e0e4896f02c0122baa4de05383a6a"
+  }
+ },
+ {
+  "id": "old-mkr-to-sky",
+  "name": "Old MKR (pre-2017) → SKY",
+  "project": "Sky (MakerDAO)",
+  "chainId": 1,
+  "oldToken": {
+   "address": "0xC66eA802717bFb9833400264Dd12c2bCeAa34a6d",
+   "symbol": "MKR (old)",
+   "decimals": 18
+  },
+  "newToken": {
+   "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+   "symbol": "SKY",
+   "decimals": 18
+  },
+  "migrator": "0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
+  "ratio": {
+   "num": "22800",
+   "den": "1"
+  },
+  "steps": [
+   {
+    "type": "approve",
+    "token": "old",
+    "spender": "0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
+    "title": "Approve the MKR redeemer to take your old MKR"
+   },
+   {
+    "type": "call",
+    "to": "0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
+    "signature": "redeem()",
+    "args": [],
+    "contractLabel": "MKR redeemer",
+    "title": "Redeem old MKR for current MKR"
+   },
+   {
+    "type": "approve",
+    "token": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+    "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "tokenMeta": {
+     "symbol": "MKR",
+     "decimals": 18
+    },
+    "title": "Approve the Sky converter to use your MKR"
+   },
+   {
+    "type": "call",
+    "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "signature": "mkrToSky(address,uint256)",
+    "args": [
+     "$user",
+     "$amount"
+    ],
+    "contractLabel": "Sky MKR→SKY converter",
+    "title": "Upgrade MKR to SKY"
+   }
+  ],
+  "status": "open",
+  "deadline": null,
+  "statusCheck": {
+   "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+   "signature": "fee()",
+   "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+  },
+  "payoutReserve": {
+   "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+  },
+  "officialUi": null,
+  "sources": [
+   "https://etherscan.io/address/0x642AE78FAfBB8032Da552D619aD43F1D81E4DD7C",
+   "https://etherscan.io/token/0xC66eA802717bFb9833400264Dd12c2bCeAa34a6d"
+  ],
+  "warnings": [
+   {
+    "level": "info",
+    "text": "This is the original 2015–2017 MKR token. Maker governance's redeemer swaps it 1:1 for current MKR, which then upgrades to SKY at the current converter rate."
+   },
+   {
+    "level": "warn",
+    "text": "The redeemer is owned by Maker governance (the pause proxy), which could stop it. It holds enough MKR to cover every unredeemed old token today."
+   }
+  ],
+  "verification": {
+   "codeExists": true,
+   "simulatedAt": 26087900,
+   "holderUsed": "0xEc9cE6E59ce95248Ecef070408E7cF35bBc79989",
+   "simulatedIn": "1108780733812860500000",
+   "simulatedOut": "25280200730900000000000000",
+   "method": "eth_simulateV1 approve(OMKR→redeemer) + redeem() + approve(MKR→converter) + mkrToSky from holder, traceTransfers",
+   "notes": "Redeemer owner = MCD_PAUSE_PROXY, stopped() = 0, holds 8,909.98 MKR vs 8,899.18 OMKR unredeemed."
+  }
+ }
 ]

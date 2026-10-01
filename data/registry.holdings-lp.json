@@ -1,0 +1,2543 @@
+[
+  {
+    "id": "mkr-to-sky-univ2-lp",
+    "name": "MKR/WETH Uniswap v2 position → SKY",
+    "project": "Sky (MakerDAO)",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+      "symbol": "MKR",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x56072C95FAA701256059aa122697B133aDEd9279",
+      "symbol": "SKY",
+      "decimals": 18
+    },
+    "migrator": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+    "ratio": {
+      "num": "22800",
+      "den": "1"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0xC2aDdA861F89bBB333c90c492cB837741916A225",
+        "spender": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "amount": "$lp",
+        "tokenMeta": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "title": "Approve the Uniswap v2 router to take your MKR/WETH position",
+        "contractLabel": "Uniswap v2 MKR/WETH pool token"
+      },
+      {
+        "type": "call",
+        "to": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "signature": "removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline)",
+        "args": [
+          "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "$lp",
+          "$minOld",
+          "$minWeth",
+          "$user",
+          4102444800
+        ],
+        "hints": {
+          "3": "The least MKR you accept (1% below the expected amount)",
+          "4": "The least WETH you accept (1% below the expected amount)",
+          "6": "Any future unix time works; 4102444800 is 1 Jan 2100"
+        },
+        "contractLabel": "Uniswap v2 router",
+        "title": "Withdraw your MKR and WETH from the pool"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+      },
+      {
+        "type": "call",
+        "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+        "signature": "mkrToSky(address,uint256)",
+        "args": [
+          "$user",
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
+      "signature": "fee()",
+      "expect": "0x00000000000000000000000000000000000000000000000000b1a2bc2ec50000"
+    },
+    "officialUi": "https://upgrademkrtosky.skyeco.com/",
+    "sources": [
+      "https://developers.skyeco.com/guides/sky/token-governance-upgrade/token-holders/",
+      "https://vote.makerdao.com/executive/template-executive-vote-mkr-to-sky-upgrade-phase-one-adding-protego-to-the-chainlog-spark-proxy-spell-may-15-2025",
+      "https://etherscan.io/address/0xA1Ea1bA18E88C381C724a75F23a130420C403f9a"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This MKR sits in a Uniswap v2 liquidity position you hold. Withdrawing returns your share of MKR and WETH; the MKR is then migrated. If you're providing liquidity on purpose, you can ignore this."
+      },
+      {
+        "level": "warn",
+        "text": "A delayed-upgrade fee applies and rises over time (about 5% now, stepping up roughly every 3 months). The simulated amount is what you'd get today."
+      }
+    ],
+    "payoutReserve": {
+      "holder": "0xa1ea1ba18e88c381c724a75f23a130420c403f9a"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0xC2aDdA861F89bBB333c90c492cB837741916A225",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "lp"
+        },
+        {
+          "require": "$lp",
+          "is": "nonzero"
+        },
+        {
+          "call": "0xC2aDdA861F89bBB333c90c492cB837741916A225",
+          "signature": "getReserves()",
+          "out": {
+            "r0": 0,
+            "r1": 1
+          }
+        },
+        {
+          "call": "0xC2aDdA861F89bBB333c90c492cB837741916A225",
+          "signature": "kLast()",
+          "out": "kLast"
+        },
+        {
+          "call": "0xC2aDdA861F89bBB333c90c492cB837741916A225",
+          "signature": "totalSupply()",
+          "out": "supply"
+        },
+        {
+          "call": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0xC2aDdA861F89bBB333c90c492cB837741916A225"
+          ],
+          "out": "pooled"
+        },
+        {
+          "call": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0xC2aDdA861F89bBB333c90c492cB837741916A225"
+          ],
+          "out": "pooledWeth"
+        },
+        {
+          "set": "k",
+          "mul": [
+            "$r0",
+            "$r1"
+          ]
+        },
+        {
+          "set": "rootK",
+          "sqrt": "$k"
+        },
+        {
+          "set": "rootKLast",
+          "sqrt": "$kLast"
+        },
+        {
+          "set": "growth",
+          "sub": [
+            "$rootK",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeOn",
+          "min": [
+            "$kLast",
+            1
+          ]
+        },
+        {
+          "set": "feeNum",
+          "mul": [
+            "$supply",
+            "$growth",
+            "$feeOn"
+          ]
+        },
+        {
+          "set": "rootK5",
+          "mul": [
+            "$rootK",
+            5
+          ]
+        },
+        {
+          "set": "feeDen",
+          "sum": [
+            "$rootK5",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeLiquidity",
+          "div": [
+            "$feeNum",
+            "$feeDen"
+          ]
+        },
+        {
+          "set": "supplyAtBurn",
+          "sum": [
+            "$supply",
+            "$feeLiquidity"
+          ]
+        },
+        {
+          "set": "amount",
+          "mulDiv": [
+            "$lp",
+            "$pooled",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "wethOut",
+          "mulDiv": [
+            "$lp",
+            "$pooledWeth",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "minOld",
+          "mulDiv": [
+            "$amount",
+            99,
+            100
+          ]
+        },
+        {
+          "set": "minWeth",
+          "mulDiv": [
+            "$wethOut",
+            99,
+            100
+          ]
+        }
+      ],
+      "label": "in a Uniswap v2 MKR/WETH position",
+      "amountVars": {
+        "$lp": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "$minOld": "old",
+        "$minWeth": {
+          "symbol": "WETH",
+          "decimals": 18
+        }
+      }
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Uniswap v2 pair 0xC2aDdA861F89bBB333c90c492cB837741916A225 (MKR/WETH), 424 MKR pooled at listing. The amount replicates UniswapV2Pair.burn: _mintFee (feeTo is set on this factory) mints totalSupply*(sqrt(k)-sqrt(kLast))/(5*sqrt(k)+sqrt(kLast)) first, then pays liquidity*balance/totalSupply. Withdraw via Router02.removeLiquidity with 1% minimums."
+    }
+  },
+  {
+    "id": "matic-to-pol-univ2-lp",
+    "name": "MATIC/WETH Uniswap v2 position → POL",
+    "project": "Polygon",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+      "symbol": "MATIC",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6",
+      "symbol": "POL",
+      "decimals": 18
+    },
+    "migrator": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0x819f3450dA6f110BA6Ea52195B3beaFa246062dE",
+        "spender": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "amount": "$lp",
+        "tokenMeta": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "title": "Approve the Uniswap v2 router to take your MATIC/WETH position",
+        "contractLabel": "Uniswap v2 MATIC/WETH pool token"
+      },
+      {
+        "type": "call",
+        "to": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "signature": "removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline)",
+        "args": [
+          "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "$lp",
+          "$minOld",
+          "$minWeth",
+          "$user",
+          4102444800
+        ],
+        "hints": {
+          "3": "The least MATIC you accept (1% below the expected amount)",
+          "4": "The least WETH you accept (1% below the expected amount)",
+          "6": "Any future unix time works; 4102444800 is 1 Jan 2100"
+        },
+        "contractLabel": "Uniswap v2 router",
+        "title": "Withdraw your MATIC and WETH from the pool"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e"
+      },
+      {
+        "type": "call",
+        "to": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e",
+        "signature": "migrate(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://portal.polygon.technology",
+    "sources": [
+      "https://docs.polygon.technology/pos/concepts/tokens/matic-to-pol",
+      "https://support.polygon.technology/support/solutions/articles/82000906989-information-related-to-pol-contract-and-migration",
+      "https://polygon.technology/blog/matic-to-pol-migration-is-now-live-everything-you-need-to-know"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This MATIC sits in a Uniswap v2 liquidity position you hold. Withdrawing returns your share of MATIC and WETH; the MATIC is then migrated. If you're providing liquidity on purpose, you can ignore this."
+      }
+    ],
+    "payoutReserve": {
+      "holder": "0x29e7df7b6a1b2b07b731457f499e1696c60e2c4e"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0x819f3450dA6f110BA6Ea52195B3beaFa246062dE",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "lp"
+        },
+        {
+          "require": "$lp",
+          "is": "nonzero"
+        },
+        {
+          "call": "0x819f3450dA6f110BA6Ea52195B3beaFa246062dE",
+          "signature": "getReserves()",
+          "out": {
+            "r0": 0,
+            "r1": 1
+          }
+        },
+        {
+          "call": "0x819f3450dA6f110BA6Ea52195B3beaFa246062dE",
+          "signature": "kLast()",
+          "out": "kLast"
+        },
+        {
+          "call": "0x819f3450dA6f110BA6Ea52195B3beaFa246062dE",
+          "signature": "totalSupply()",
+          "out": "supply"
+        },
+        {
+          "call": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x819f3450dA6f110BA6Ea52195B3beaFa246062dE"
+          ],
+          "out": "pooled"
+        },
+        {
+          "call": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x819f3450dA6f110BA6Ea52195B3beaFa246062dE"
+          ],
+          "out": "pooledWeth"
+        },
+        {
+          "set": "k",
+          "mul": [
+            "$r0",
+            "$r1"
+          ]
+        },
+        {
+          "set": "rootK",
+          "sqrt": "$k"
+        },
+        {
+          "set": "rootKLast",
+          "sqrt": "$kLast"
+        },
+        {
+          "set": "growth",
+          "sub": [
+            "$rootK",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeOn",
+          "min": [
+            "$kLast",
+            1
+          ]
+        },
+        {
+          "set": "feeNum",
+          "mul": [
+            "$supply",
+            "$growth",
+            "$feeOn"
+          ]
+        },
+        {
+          "set": "rootK5",
+          "mul": [
+            "$rootK",
+            5
+          ]
+        },
+        {
+          "set": "feeDen",
+          "sum": [
+            "$rootK5",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeLiquidity",
+          "div": [
+            "$feeNum",
+            "$feeDen"
+          ]
+        },
+        {
+          "set": "supplyAtBurn",
+          "sum": [
+            "$supply",
+            "$feeLiquidity"
+          ]
+        },
+        {
+          "set": "amount",
+          "mulDiv": [
+            "$lp",
+            "$pooled",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "wethOut",
+          "mulDiv": [
+            "$lp",
+            "$pooledWeth",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "minOld",
+          "mulDiv": [
+            "$amount",
+            99,
+            100
+          ]
+        },
+        {
+          "set": "minWeth",
+          "mulDiv": [
+            "$wethOut",
+            99,
+            100
+          ]
+        }
+      ],
+      "label": "in a Uniswap v2 MATIC/WETH position",
+      "amountVars": {
+        "$lp": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "$minOld": "old",
+        "$minWeth": {
+          "symbol": "WETH",
+          "decimals": 18
+        }
+      }
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Uniswap v2 pair 0x819f3450dA6f110BA6Ea52195B3beaFa246062dE (MATIC/WETH), 1,249,931 MATIC pooled at listing. The amount replicates UniswapV2Pair.burn: _mintFee (feeTo is set on this factory) mints totalSupply*(sqrt(k)-sqrt(kLast))/(5*sqrt(k)+sqrt(kLast)) first, then pays liquidity*balance/totalSupply. Withdraw via Router02.removeLiquidity with 1% minimums."
+    }
+  },
+  {
+    "id": "sai-to-weth-univ2-lp",
+    "name": "SAI/WETH Uniswap v2 position → WETH",
+    "project": "MakerDAO (Single-Collateral Dai)",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359",
+      "symbol": "SAI",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "symbol": "WETH",
+      "decimals": 18
+    },
+    "migrator": "0xBda109309f9FafA6Dd6A9CB9f1Df4085B27Ee8eF",
+    "ratio": {
+      "num": "5285551943761727318375221",
+      "den": "1000000000000000000000000000"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0xa27C56b3969CfB8FBCE427337D98e3bd794Ec688",
+        "spender": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "amount": "$lp",
+        "tokenMeta": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "title": "Approve the Uniswap v2 router to take your SAI/WETH position",
+        "contractLabel": "Uniswap v2 SAI/WETH pool token"
+      },
+      {
+        "type": "call",
+        "to": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "signature": "removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline)",
+        "args": [
+          "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359",
+          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "$lp",
+          "$minOld",
+          "$minWeth",
+          "$user",
+          4102444800
+        ],
+        "hints": {
+          "3": "The least SAI you accept (1% below the expected amount)",
+          "4": "The least WETH you accept (1% below the expected amount)",
+          "6": "Any future unix time works; 4102444800 is 1 Jan 2100"
+        },
+        "contractLabel": "Uniswap v2 router",
+        "title": "Withdraw your SAI and WETH from the pool"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xBda109309f9FafA6Dd6A9CB9f1Df4085B27Ee8eF"
+      },
+      {
+        "type": "call",
+        "to": "0xBda109309f9FafA6Dd6A9CB9f1Df4085B27Ee8eF",
+        "signature": "cash(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://app.uniswap.org/positions",
+    "sources": [
+      "https://github.com/makerdao/sai",
+      "https://support.token.im/hc/en-us/articles/900000668366-A-Guide-to-Single-Collateral-Dai-Sai-Shutdown",
+      "https://docs.makerdao.com/clis/dai-and-collateral-redemption-during-emergency-shutdown"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This SAI sits in a Uniswap v2 liquidity position you hold. Withdrawing returns your share of SAI and WETH; the SAI is then migrated. If you're providing liquidity on purpose, you can ignore this."
+      },
+      {
+        "level": "info",
+        "text": "SAI was settled when single-collateral Dai (SCD) shut down. This is the only exit left: SAI redeems for WETH at a fixed rate."
+      }
+    ],
+    "payoutReserve": {
+      "holder": "0xbda109309f9fafa6dd6a9cb9f1df4085b27ee8ef"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0xa27C56b3969CfB8FBCE427337D98e3bd794Ec688",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "lp"
+        },
+        {
+          "require": "$lp",
+          "is": "nonzero"
+        },
+        {
+          "call": "0xa27C56b3969CfB8FBCE427337D98e3bd794Ec688",
+          "signature": "getReserves()",
+          "out": {
+            "r0": 0,
+            "r1": 1
+          }
+        },
+        {
+          "call": "0xa27C56b3969CfB8FBCE427337D98e3bd794Ec688",
+          "signature": "kLast()",
+          "out": "kLast"
+        },
+        {
+          "call": "0xa27C56b3969CfB8FBCE427337D98e3bd794Ec688",
+          "signature": "totalSupply()",
+          "out": "supply"
+        },
+        {
+          "call": "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0xa27C56b3969CfB8FBCE427337D98e3bd794Ec688"
+          ],
+          "out": "pooled"
+        },
+        {
+          "call": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0xa27C56b3969CfB8FBCE427337D98e3bd794Ec688"
+          ],
+          "out": "pooledWeth"
+        },
+        {
+          "set": "k",
+          "mul": [
+            "$r0",
+            "$r1"
+          ]
+        },
+        {
+          "set": "rootK",
+          "sqrt": "$k"
+        },
+        {
+          "set": "rootKLast",
+          "sqrt": "$kLast"
+        },
+        {
+          "set": "growth",
+          "sub": [
+            "$rootK",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeOn",
+          "min": [
+            "$kLast",
+            1
+          ]
+        },
+        {
+          "set": "feeNum",
+          "mul": [
+            "$supply",
+            "$growth",
+            "$feeOn"
+          ]
+        },
+        {
+          "set": "rootK5",
+          "mul": [
+            "$rootK",
+            5
+          ]
+        },
+        {
+          "set": "feeDen",
+          "sum": [
+            "$rootK5",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeLiquidity",
+          "div": [
+            "$feeNum",
+            "$feeDen"
+          ]
+        },
+        {
+          "set": "supplyAtBurn",
+          "sum": [
+            "$supply",
+            "$feeLiquidity"
+          ]
+        },
+        {
+          "set": "amount",
+          "mulDiv": [
+            "$lp",
+            "$pooled",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "wethOut",
+          "mulDiv": [
+            "$lp",
+            "$pooledWeth",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "minOld",
+          "mulDiv": [
+            "$amount",
+            99,
+            100
+          ]
+        },
+        {
+          "set": "minWeth",
+          "mulDiv": [
+            "$wethOut",
+            99,
+            100
+          ]
+        }
+      ],
+      "label": "in a Uniswap v2 SAI/WETH position",
+      "amountVars": {
+        "$lp": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "$minOld": "old",
+        "$minWeth": {
+          "symbol": "WETH",
+          "decimals": 18
+        }
+      }
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Uniswap v2 pair 0xa27C56b3969CfB8FBCE427337D98e3bd794Ec688 (SAI/WETH), 1,400 SAI pooled at listing. The amount replicates UniswapV2Pair.burn: _mintFee (feeTo is set on this factory) mints totalSupply*(sqrt(k)-sqrt(kLast))/(5*sqrt(k)+sqrt(kLast)) first, then pays liquidity*balance/totalSupply. Withdraw via Router02.removeLiquidity with 1% minimums."
+    }
+  },
+  {
+    "id": "nu-to-t-univ2-lp",
+    "name": "NU/WETH Uniswap v2 position → T",
+    "project": "Threshold Network",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x4fE83213D56308330EC302a8BD641f1d0113A4Cc",
+      "symbol": "NU",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+      "symbol": "T",
+      "decimals": 18
+    },
+    "migrator": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e",
+    "ratio": {
+      "num": "3259242493160745",
+      "den": "1000000000000000"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0x3a8afc58b70b34a0a5615d3A5FfE623cA1fA92B8",
+        "spender": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "amount": "$lp",
+        "tokenMeta": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "title": "Approve the Uniswap v2 router to take your NU/WETH position",
+        "contractLabel": "Uniswap v2 NU/WETH pool token"
+      },
+      {
+        "type": "call",
+        "to": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "signature": "removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline)",
+        "args": [
+          "0x4fE83213D56308330EC302a8BD641f1d0113A4Cc",
+          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "$lp",
+          "$minOld",
+          "$minWeth",
+          "$user",
+          4102444800
+        ],
+        "hints": {
+          "3": "The least NU you accept (1% below the expected amount)",
+          "4": "The least WETH you accept (1% below the expected amount)",
+          "6": "Any future unix time works; 4102444800 is 1 Jan 2100"
+        },
+        "contractLabel": "Uniswap v2 router",
+        "title": "Withdraw your NU and WETH from the pool"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e"
+      },
+      {
+        "type": "call",
+        "to": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e",
+        "signature": "wrap(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://app.uniswap.org/positions",
+    "sources": [
+      "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc",
+      "https://github.com/threshold-network/solidity-contracts/issues/53",
+      "https://etherscan.io/address/0x1CCA7E410eE41739792eA0A24e00349Dd247680e"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This NU sits in a Uniswap v2 liquidity position you hold. Withdrawing returns your share of NU and WETH; the NU is then migrated. If you're providing liquidity on purpose, you can ignore this."
+      }
+    ],
+    "payoutReserve": {
+      "holder": "0x1cca7e410ee41739792ea0a24e00349dd247680e"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0x3a8afc58b70b34a0a5615d3A5FfE623cA1fA92B8",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "lp"
+        },
+        {
+          "require": "$lp",
+          "is": "nonzero"
+        },
+        {
+          "call": "0x3a8afc58b70b34a0a5615d3A5FfE623cA1fA92B8",
+          "signature": "getReserves()",
+          "out": {
+            "r0": 0,
+            "r1": 1
+          }
+        },
+        {
+          "call": "0x3a8afc58b70b34a0a5615d3A5FfE623cA1fA92B8",
+          "signature": "kLast()",
+          "out": "kLast"
+        },
+        {
+          "call": "0x3a8afc58b70b34a0a5615d3A5FfE623cA1fA92B8",
+          "signature": "totalSupply()",
+          "out": "supply"
+        },
+        {
+          "call": "0x4fE83213D56308330EC302a8BD641f1d0113A4Cc",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x3a8afc58b70b34a0a5615d3A5FfE623cA1fA92B8"
+          ],
+          "out": "pooled"
+        },
+        {
+          "call": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x3a8afc58b70b34a0a5615d3A5FfE623cA1fA92B8"
+          ],
+          "out": "pooledWeth"
+        },
+        {
+          "set": "k",
+          "mul": [
+            "$r0",
+            "$r1"
+          ]
+        },
+        {
+          "set": "rootK",
+          "sqrt": "$k"
+        },
+        {
+          "set": "rootKLast",
+          "sqrt": "$kLast"
+        },
+        {
+          "set": "growth",
+          "sub": [
+            "$rootK",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeOn",
+          "min": [
+            "$kLast",
+            1
+          ]
+        },
+        {
+          "set": "feeNum",
+          "mul": [
+            "$supply",
+            "$growth",
+            "$feeOn"
+          ]
+        },
+        {
+          "set": "rootK5",
+          "mul": [
+            "$rootK",
+            5
+          ]
+        },
+        {
+          "set": "feeDen",
+          "sum": [
+            "$rootK5",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeLiquidity",
+          "div": [
+            "$feeNum",
+            "$feeDen"
+          ]
+        },
+        {
+          "set": "supplyAtBurn",
+          "sum": [
+            "$supply",
+            "$feeLiquidity"
+          ]
+        },
+        {
+          "set": "amount",
+          "mulDiv": [
+            "$lp",
+            "$pooled",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "wethOut",
+          "mulDiv": [
+            "$lp",
+            "$pooledWeth",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "minOld",
+          "mulDiv": [
+            "$amount",
+            99,
+            100
+          ]
+        },
+        {
+          "set": "minWeth",
+          "mulDiv": [
+            "$wethOut",
+            99,
+            100
+          ]
+        }
+      ],
+      "label": "in a Uniswap v2 NU/WETH position",
+      "amountVars": {
+        "$lp": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "$minOld": "old",
+        "$minWeth": {
+          "symbol": "WETH",
+          "decimals": 18
+        }
+      }
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Uniswap v2 pair 0x3a8afc58b70b34a0a5615d3A5FfE623cA1fA92B8 (NU/WETH), 1,110,608 NU pooled at listing. The amount replicates UniswapV2Pair.burn: _mintFee (feeTo is set on this factory) mints totalSupply*(sqrt(k)-sqrt(kLast))/(5*sqrt(k)+sqrt(kLast)) first, then pays liquidity*balance/totalSupply. Withdraw via Router02.removeLiquidity with 1% minimums."
+    },
+    "minAmount": "1000000000000000"
+  },
+  {
+    "id": "keep-to-t-univ2-lp",
+    "name": "KEEP/WETH Uniswap v2 position → T",
+    "project": "Threshold Network",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x85Eee30c52B0b379b046Fb0F85F4f3Dc3009aFEC",
+      "symbol": "KEEP",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+      "symbol": "T",
+      "decimals": 18
+    },
+    "migrator": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+    "ratio": {
+      "num": "4783188631255016",
+      "den": "1000000000000000"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0xE6f19dAb7d43317344282F803f8E8d240708174a",
+        "spender": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "amount": "$lp",
+        "tokenMeta": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "title": "Approve the Uniswap v2 router to take your KEEP/WETH position",
+        "contractLabel": "Uniswap v2 KEEP/WETH pool token"
+      },
+      {
+        "type": "call",
+        "to": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "signature": "removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline)",
+        "args": [
+          "0x85Eee30c52B0b379b046Fb0F85F4f3Dc3009aFEC",
+          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "$lp",
+          "$minOld",
+          "$minWeth",
+          "$user",
+          4102444800
+        ],
+        "hints": {
+          "3": "The least KEEP you accept (1% below the expected amount)",
+          "4": "The least WETH you accept (1% below the expected amount)",
+          "6": "Any future unix time works; 4102444800 is 1 Jan 2100"
+        },
+        "contractLabel": "Uniswap v2 router",
+        "title": "Withdraw your KEEP and WETH from the pool"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0"
+      },
+      {
+        "type": "call",
+        "to": "0xE47c80e8c23f6B4A1aE41c34837a0599D5D16bb0",
+        "signature": "wrap(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://app.uniswap.org/positions",
+    "sources": [
+      "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc",
+      "https://github.com/threshold-network/solidity-contracts/issues/53",
+      "https://etherscan.io/address/0xe47c80e8c23f6b4a1ae41c34837a0599d5d16bb0"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This KEEP sits in a Uniswap v2 liquidity position you hold. Withdrawing returns your share of KEEP and WETH; the KEEP is then migrated. If you're providing liquidity on purpose, you can ignore this."
+      },
+      {
+        "level": "danger",
+        "text": "The migrator can't pay out every remaining old token — first come, first served. Check the simulated amount before you send."
+      }
+    ],
+    "payoutReserve": {
+      "holder": "0xe47c80e8c23f6b4a1ae41c34837a0599d5d16bb0"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0xE6f19dAb7d43317344282F803f8E8d240708174a",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "lp"
+        },
+        {
+          "require": "$lp",
+          "is": "nonzero"
+        },
+        {
+          "call": "0xE6f19dAb7d43317344282F803f8E8d240708174a",
+          "signature": "getReserves()",
+          "out": {
+            "r0": 0,
+            "r1": 1
+          }
+        },
+        {
+          "call": "0xE6f19dAb7d43317344282F803f8E8d240708174a",
+          "signature": "kLast()",
+          "out": "kLast"
+        },
+        {
+          "call": "0xE6f19dAb7d43317344282F803f8E8d240708174a",
+          "signature": "totalSupply()",
+          "out": "supply"
+        },
+        {
+          "call": "0x85Eee30c52B0b379b046Fb0F85F4f3Dc3009aFEC",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0xE6f19dAb7d43317344282F803f8E8d240708174a"
+          ],
+          "out": "pooled"
+        },
+        {
+          "call": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0xE6f19dAb7d43317344282F803f8E8d240708174a"
+          ],
+          "out": "pooledWeth"
+        },
+        {
+          "set": "k",
+          "mul": [
+            "$r0",
+            "$r1"
+          ]
+        },
+        {
+          "set": "rootK",
+          "sqrt": "$k"
+        },
+        {
+          "set": "rootKLast",
+          "sqrt": "$kLast"
+        },
+        {
+          "set": "growth",
+          "sub": [
+            "$rootK",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeOn",
+          "min": [
+            "$kLast",
+            1
+          ]
+        },
+        {
+          "set": "feeNum",
+          "mul": [
+            "$supply",
+            "$growth",
+            "$feeOn"
+          ]
+        },
+        {
+          "set": "rootK5",
+          "mul": [
+            "$rootK",
+            5
+          ]
+        },
+        {
+          "set": "feeDen",
+          "sum": [
+            "$rootK5",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeLiquidity",
+          "div": [
+            "$feeNum",
+            "$feeDen"
+          ]
+        },
+        {
+          "set": "supplyAtBurn",
+          "sum": [
+            "$supply",
+            "$feeLiquidity"
+          ]
+        },
+        {
+          "set": "amount",
+          "mulDiv": [
+            "$lp",
+            "$pooled",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "wethOut",
+          "mulDiv": [
+            "$lp",
+            "$pooledWeth",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "minOld",
+          "mulDiv": [
+            "$amount",
+            99,
+            100
+          ]
+        },
+        {
+          "set": "minWeth",
+          "mulDiv": [
+            "$wethOut",
+            99,
+            100
+          ]
+        }
+      ],
+      "label": "in a Uniswap v2 KEEP/WETH position",
+      "amountVars": {
+        "$lp": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "$minOld": "old",
+        "$minWeth": {
+          "symbol": "WETH",
+          "decimals": 18
+        }
+      }
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Uniswap v2 pair 0xE6f19dAb7d43317344282F803f8E8d240708174a (KEEP/WETH), 665,078 KEEP pooled at listing. The amount replicates UniswapV2Pair.burn: _mintFee (feeTo is set on this factory) mints totalSupply*(sqrt(k)-sqrt(kLast))/(5*sqrt(k)+sqrt(kLast)) first, then pays liquidity*balance/totalSupply. Withdraw via Router02.removeLiquidity with 1% minimums."
+    },
+    "minAmount": "1000000000000000"
+  },
+  {
+    "id": "rpl-v1-to-rpl-univ2-lp",
+    "name": "RPL/WETH Uniswap v2 position → RPL",
+    "project": "Rocket Pool",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0xB4EFd85c19999D84251304bDA99E90B92300Bd93",
+      "symbol": "RPL",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f",
+      "symbol": "RPL",
+      "decimals": 18
+    },
+    "migrator": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0x70EA56e46266f0137BAc6B75710e3546f47C855D",
+        "spender": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "amount": "$lp",
+        "tokenMeta": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "title": "Approve the Uniswap v2 router to take your RPL/WETH position",
+        "contractLabel": "Uniswap v2 RPL/WETH pool token"
+      },
+      {
+        "type": "call",
+        "to": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "signature": "removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline)",
+        "args": [
+          "0xB4EFd85c19999D84251304bDA99E90B92300Bd93",
+          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "$lp",
+          "$minOld",
+          "$minWeth",
+          "$user",
+          4102444800
+        ],
+        "hints": {
+          "3": "The least RPL you accept (1% below the expected amount)",
+          "4": "The least WETH you accept (1% below the expected amount)",
+          "6": "Any future unix time works; 4102444800 is 1 Jan 2100"
+        },
+        "contractLabel": "Uniswap v2 router",
+        "title": "Withdraw your RPL and WETH from the pool"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f"
+      },
+      {
+        "type": "call",
+        "to": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f",
+        "signature": "swapTokens(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://app.uniswap.org/positions",
+    "sources": [
+      "https://medium.com/rocket-pool/rocket-pool-rpl-token-upgrade-new-addresses-e96c12c55adf"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This RPL sits in a Uniswap v2 liquidity position you hold. Withdrawing returns your share of RPL and WETH; the RPL is then migrated. If you're providing liquidity on purpose, you can ignore this."
+      }
+    ],
+    "payoutReserve": {
+      "holder": "0xd33526068d116ce69f19a9ee46f0bd304f21a51f"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0x70EA56e46266f0137BAc6B75710e3546f47C855D",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "lp"
+        },
+        {
+          "require": "$lp",
+          "is": "nonzero"
+        },
+        {
+          "call": "0x70EA56e46266f0137BAc6B75710e3546f47C855D",
+          "signature": "getReserves()",
+          "out": {
+            "r0": 0,
+            "r1": 1
+          }
+        },
+        {
+          "call": "0x70EA56e46266f0137BAc6B75710e3546f47C855D",
+          "signature": "kLast()",
+          "out": "kLast"
+        },
+        {
+          "call": "0x70EA56e46266f0137BAc6B75710e3546f47C855D",
+          "signature": "totalSupply()",
+          "out": "supply"
+        },
+        {
+          "call": "0xB4EFd85c19999D84251304bDA99E90B92300Bd93",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x70EA56e46266f0137BAc6B75710e3546f47C855D"
+          ],
+          "out": "pooled"
+        },
+        {
+          "call": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x70EA56e46266f0137BAc6B75710e3546f47C855D"
+          ],
+          "out": "pooledWeth"
+        },
+        {
+          "set": "k",
+          "mul": [
+            "$r0",
+            "$r1"
+          ]
+        },
+        {
+          "set": "rootK",
+          "sqrt": "$k"
+        },
+        {
+          "set": "rootKLast",
+          "sqrt": "$kLast"
+        },
+        {
+          "set": "growth",
+          "sub": [
+            "$rootK",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeOn",
+          "min": [
+            "$kLast",
+            1
+          ]
+        },
+        {
+          "set": "feeNum",
+          "mul": [
+            "$supply",
+            "$growth",
+            "$feeOn"
+          ]
+        },
+        {
+          "set": "rootK5",
+          "mul": [
+            "$rootK",
+            5
+          ]
+        },
+        {
+          "set": "feeDen",
+          "sum": [
+            "$rootK5",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeLiquidity",
+          "div": [
+            "$feeNum",
+            "$feeDen"
+          ]
+        },
+        {
+          "set": "supplyAtBurn",
+          "sum": [
+            "$supply",
+            "$feeLiquidity"
+          ]
+        },
+        {
+          "set": "amount",
+          "mulDiv": [
+            "$lp",
+            "$pooled",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "wethOut",
+          "mulDiv": [
+            "$lp",
+            "$pooledWeth",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "minOld",
+          "mulDiv": [
+            "$amount",
+            99,
+            100
+          ]
+        },
+        {
+          "set": "minWeth",
+          "mulDiv": [
+            "$wethOut",
+            99,
+            100
+          ]
+        }
+      ],
+      "label": "in a Uniswap v2 RPL/WETH position",
+      "amountVars": {
+        "$lp": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "$minOld": "old",
+        "$minWeth": {
+          "symbol": "WETH",
+          "decimals": 18
+        }
+      }
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Uniswap v2 pair 0x70EA56e46266f0137BAc6B75710e3546f47C855D (RPL/WETH), 5,286 RPL pooled at listing. The amount replicates UniswapV2Pair.burn: _mintFee (feeTo is set on this factory) mints totalSupply*(sqrt(k)-sqrt(kLast))/(5*sqrt(k)+sqrt(kLast)) first, then pays liquidity*balance/totalSupply. Withdraw via Router02.removeLiquidity with 1% minimums."
+    }
+  },
+  {
+    "id": "knc-legacy-to-knc-univ2-lp",
+    "name": "KNC/WETH Uniswap v2 position → KNC",
+    "project": "Kyber Network",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0xdd974D5C2e2928deA5F71b9825b8b646686BD200",
+      "symbol": "KNC",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+      "symbol": "KNC",
+      "decimals": 18
+    },
+    "migrator": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0xf49C43Ae0fAf37217bDcB00DF478cF793eDd6687",
+        "spender": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "amount": "$lp",
+        "tokenMeta": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "title": "Approve the Uniswap v2 router to take your KNC/WETH position",
+        "contractLabel": "Uniswap v2 KNC/WETH pool token"
+      },
+      {
+        "type": "call",
+        "to": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "signature": "removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline)",
+        "args": [
+          "0xdd974D5C2e2928deA5F71b9825b8b646686BD200",
+          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "$lp",
+          "$minOld",
+          "$minWeth",
+          "$user",
+          4102444800
+        ],
+        "hints": {
+          "3": "The least KNC you accept (1% below the expected amount)",
+          "4": "The least WETH you accept (1% below the expected amount)",
+          "6": "Any future unix time works; 4102444800 is 1 Jan 2100"
+        },
+        "contractLabel": "Uniswap v2 router",
+        "title": "Withdraw your KNC and WETH from the pool"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202"
+      },
+      {
+        "type": "call",
+        "to": "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+        "signature": "mintWithOldKnc(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://kyberswap.com/kyberdao/stake-knc",
+    "sources": [
+      "https://blog.kyberswap.com/knc-token-migration-guide/",
+      "https://support.kyberswap.com/hc/en-us/articles/15983607020825-How-to-Migrate-KNCL-to-KNC-v2",
+      "https://medium.com/kybernetwork/knc-token-migration-guide-fda08bfe62c2"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This KNC sits in a Uniswap v2 liquidity position you hold. Withdrawing returns your share of KNC and WETH; the KNC is then migrated. If you're providing liquidity on purpose, you can ignore this."
+      }
+    ],
+    "payoutReserve": null,
+    "holding": {
+      "reads": [
+        {
+          "call": "0xf49C43Ae0fAf37217bDcB00DF478cF793eDd6687",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "lp"
+        },
+        {
+          "require": "$lp",
+          "is": "nonzero"
+        },
+        {
+          "call": "0xf49C43Ae0fAf37217bDcB00DF478cF793eDd6687",
+          "signature": "getReserves()",
+          "out": {
+            "r0": 0,
+            "r1": 1
+          }
+        },
+        {
+          "call": "0xf49C43Ae0fAf37217bDcB00DF478cF793eDd6687",
+          "signature": "kLast()",
+          "out": "kLast"
+        },
+        {
+          "call": "0xf49C43Ae0fAf37217bDcB00DF478cF793eDd6687",
+          "signature": "totalSupply()",
+          "out": "supply"
+        },
+        {
+          "call": "0xdd974D5C2e2928deA5F71b9825b8b646686BD200",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0xf49C43Ae0fAf37217bDcB00DF478cF793eDd6687"
+          ],
+          "out": "pooled"
+        },
+        {
+          "call": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0xf49C43Ae0fAf37217bDcB00DF478cF793eDd6687"
+          ],
+          "out": "pooledWeth"
+        },
+        {
+          "set": "k",
+          "mul": [
+            "$r0",
+            "$r1"
+          ]
+        },
+        {
+          "set": "rootK",
+          "sqrt": "$k"
+        },
+        {
+          "set": "rootKLast",
+          "sqrt": "$kLast"
+        },
+        {
+          "set": "growth",
+          "sub": [
+            "$rootK",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeOn",
+          "min": [
+            "$kLast",
+            1
+          ]
+        },
+        {
+          "set": "feeNum",
+          "mul": [
+            "$supply",
+            "$growth",
+            "$feeOn"
+          ]
+        },
+        {
+          "set": "rootK5",
+          "mul": [
+            "$rootK",
+            5
+          ]
+        },
+        {
+          "set": "feeDen",
+          "sum": [
+            "$rootK5",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeLiquidity",
+          "div": [
+            "$feeNum",
+            "$feeDen"
+          ]
+        },
+        {
+          "set": "supplyAtBurn",
+          "sum": [
+            "$supply",
+            "$feeLiquidity"
+          ]
+        },
+        {
+          "set": "amount",
+          "mulDiv": [
+            "$lp",
+            "$pooled",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "wethOut",
+          "mulDiv": [
+            "$lp",
+            "$pooledWeth",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "minOld",
+          "mulDiv": [
+            "$amount",
+            99,
+            100
+          ]
+        },
+        {
+          "set": "minWeth",
+          "mulDiv": [
+            "$wethOut",
+            99,
+            100
+          ]
+        }
+      ],
+      "label": "in a Uniswap v2 KNC/WETH position",
+      "amountVars": {
+        "$lp": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "$minOld": "old",
+        "$minWeth": {
+          "symbol": "WETH",
+          "decimals": 18
+        }
+      }
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Uniswap v2 pair 0xf49C43Ae0fAf37217bDcB00DF478cF793eDd6687 (KNC/WETH), 56,993 KNC pooled at listing. The amount replicates UniswapV2Pair.burn: _mintFee (feeTo is set on this factory) mints totalSupply*(sqrt(k)-sqrt(kLast))/(5*sqrt(k)+sqrt(kLast)) first, then pays liquidity*balance/totalSupply. Withdraw via Router02.removeLiquidity with 1% minimums."
+    }
+  },
+  {
+    "id": "matic-to-pol-sushi-lp",
+    "name": "MATIC/WETH SushiSwap position → POL",
+    "project": "Polygon",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+      "symbol": "MATIC",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6",
+      "symbol": "POL",
+      "decimals": 18
+    },
+    "migrator": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0x7f8F7Dd53D1F3ac1052565e3ff451D7fE666a311",
+        "spender": "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+        "amount": "$lp",
+        "tokenMeta": {
+          "symbol": "SLP",
+          "decimals": 18
+        },
+        "title": "Approve the SushiSwap router to take your MATIC/WETH position",
+        "contractLabel": "SushiSwap MATIC/WETH pool token"
+      },
+      {
+        "type": "call",
+        "to": "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+        "signature": "removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline)",
+        "args": [
+          "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "$lp",
+          "$minOld",
+          "$minWeth",
+          "$user",
+          4102444800
+        ],
+        "hints": {
+          "3": "The least MATIC you accept (1% below the expected amount)",
+          "4": "The least WETH you accept (1% below the expected amount)",
+          "6": "Any future unix time works; 4102444800 is 1 Jan 2100"
+        },
+        "contractLabel": "SushiSwap router",
+        "title": "Withdraw your MATIC and WETH from the pool"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e"
+      },
+      {
+        "type": "call",
+        "to": "0x29e7DF7b6A1B2b07b731457f499E1696c60E2C4e",
+        "signature": "migrate(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://portal.polygon.technology",
+    "sources": [
+      "https://docs.polygon.technology/pos/concepts/tokens/matic-to-pol",
+      "https://support.polygon.technology/support/solutions/articles/82000906989-information-related-to-pol-contract-and-migration",
+      "https://polygon.technology/blog/matic-to-pol-migration-is-now-live-everything-you-need-to-know"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This MATIC sits in a SushiSwap liquidity position you hold. Withdrawing returns your share of MATIC and WETH; the MATIC is then migrated. If you're providing liquidity on purpose, you can ignore this."
+      }
+    ],
+    "payoutReserve": {
+      "holder": "0x29e7df7b6a1b2b07b731457f499e1696c60e2c4e"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0x7f8F7Dd53D1F3ac1052565e3ff451D7fE666a311",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "lp"
+        },
+        {
+          "require": "$lp",
+          "is": "nonzero"
+        },
+        {
+          "call": "0x7f8F7Dd53D1F3ac1052565e3ff451D7fE666a311",
+          "signature": "getReserves()",
+          "out": {
+            "r0": 0,
+            "r1": 1
+          }
+        },
+        {
+          "call": "0x7f8F7Dd53D1F3ac1052565e3ff451D7fE666a311",
+          "signature": "kLast()",
+          "out": "kLast"
+        },
+        {
+          "call": "0x7f8F7Dd53D1F3ac1052565e3ff451D7fE666a311",
+          "signature": "totalSupply()",
+          "out": "supply"
+        },
+        {
+          "call": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x7f8F7Dd53D1F3ac1052565e3ff451D7fE666a311"
+          ],
+          "out": "pooled"
+        },
+        {
+          "call": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x7f8F7Dd53D1F3ac1052565e3ff451D7fE666a311"
+          ],
+          "out": "pooledWeth"
+        },
+        {
+          "set": "k",
+          "mul": [
+            "$r0",
+            "$r1"
+          ]
+        },
+        {
+          "set": "rootK",
+          "sqrt": "$k"
+        },
+        {
+          "set": "rootKLast",
+          "sqrt": "$kLast"
+        },
+        {
+          "set": "growth",
+          "sub": [
+            "$rootK",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeOn",
+          "min": [
+            "$kLast",
+            1
+          ]
+        },
+        {
+          "set": "feeNum",
+          "mul": [
+            "$supply",
+            "$growth",
+            "$feeOn"
+          ]
+        },
+        {
+          "set": "rootK5",
+          "mul": [
+            "$rootK",
+            5
+          ]
+        },
+        {
+          "set": "feeDen",
+          "sum": [
+            "$rootK5",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeLiquidity",
+          "div": [
+            "$feeNum",
+            "$feeDen"
+          ]
+        },
+        {
+          "set": "supplyAtBurn",
+          "sum": [
+            "$supply",
+            "$feeLiquidity"
+          ]
+        },
+        {
+          "set": "amount",
+          "mulDiv": [
+            "$lp",
+            "$pooled",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "wethOut",
+          "mulDiv": [
+            "$lp",
+            "$pooledWeth",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "minOld",
+          "mulDiv": [
+            "$amount",
+            99,
+            100
+          ]
+        },
+        {
+          "set": "minWeth",
+          "mulDiv": [
+            "$wethOut",
+            99,
+            100
+          ]
+        }
+      ],
+      "label": "in a SushiSwap MATIC/WETH position",
+      "amountVars": {
+        "$lp": {
+          "symbol": "SLP",
+          "decimals": 18
+        },
+        "$minOld": "old",
+        "$minWeth": {
+          "symbol": "WETH",
+          "decimals": 18
+        }
+      }
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "SushiSwap pair 0x7f8F7Dd53D1F3ac1052565e3ff451D7fE666a311 (MATIC/WETH), 43,360 MATIC pooled at listing. The amount replicates UniswapV2Pair.burn: _mintFee (feeTo is set on this factory) mints totalSupply*(sqrt(k)-sqrt(kLast))/(5*sqrt(k)+sqrt(kLast)) first, then pays liquidity*balance/totalSupply. Withdraw via Router02.removeLiquidity with 1% minimums."
+    }
+  },
+  {
+    "id": "nu-to-t-sushi-lp",
+    "name": "NU/WETH SushiSwap position → T",
+    "project": "Threshold Network",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x4fE83213D56308330EC302a8BD641f1d0113A4Cc",
+      "symbol": "NU",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+      "symbol": "T",
+      "decimals": 18
+    },
+    "migrator": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e",
+    "ratio": {
+      "num": "3259242493160745",
+      "den": "1000000000000000"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0x04444d365324134e58104B1D874D00dc68dCEA53",
+        "spender": "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+        "amount": "$lp",
+        "tokenMeta": {
+          "symbol": "SLP",
+          "decimals": 18
+        },
+        "title": "Approve the SushiSwap router to take your NU/WETH position",
+        "contractLabel": "SushiSwap NU/WETH pool token"
+      },
+      {
+        "type": "call",
+        "to": "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+        "signature": "removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline)",
+        "args": [
+          "0x4fE83213D56308330EC302a8BD641f1d0113A4Cc",
+          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "$lp",
+          "$minOld",
+          "$minWeth",
+          "$user",
+          4102444800
+        ],
+        "hints": {
+          "3": "The least NU you accept (1% below the expected amount)",
+          "4": "The least WETH you accept (1% below the expected amount)",
+          "6": "Any future unix time works; 4102444800 is 1 Jan 2100"
+        },
+        "contractLabel": "SushiSwap router",
+        "title": "Withdraw your NU and WETH from the pool"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e"
+      },
+      {
+        "type": "call",
+        "to": "0x1CCA7E410eE41739792eA0A24e00349Dd247680e",
+        "signature": "wrap(uint256)",
+        "args": [
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": null,
+    "officialUi": "https://www.sushi.com/ethereum/pool",
+    "sources": [
+      "https://github.com/threshold-network/solidity-contracts/blob/main/docs/rfc-2-vending-machine.adoc",
+      "https://github.com/threshold-network/solidity-contracts/issues/53",
+      "https://etherscan.io/address/0x1CCA7E410eE41739792eA0A24e00349Dd247680e"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This NU sits in a SushiSwap liquidity position you hold. Withdrawing returns your share of NU and WETH; the NU is then migrated. If you're providing liquidity on purpose, you can ignore this."
+      }
+    ],
+    "payoutReserve": {
+      "holder": "0x1cca7e410ee41739792ea0a24e00349dd247680e"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0x04444d365324134e58104B1D874D00dc68dCEA53",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "lp"
+        },
+        {
+          "require": "$lp",
+          "is": "nonzero"
+        },
+        {
+          "call": "0x04444d365324134e58104B1D874D00dc68dCEA53",
+          "signature": "getReserves()",
+          "out": {
+            "r0": 0,
+            "r1": 1
+          }
+        },
+        {
+          "call": "0x04444d365324134e58104B1D874D00dc68dCEA53",
+          "signature": "kLast()",
+          "out": "kLast"
+        },
+        {
+          "call": "0x04444d365324134e58104B1D874D00dc68dCEA53",
+          "signature": "totalSupply()",
+          "out": "supply"
+        },
+        {
+          "call": "0x4fE83213D56308330EC302a8BD641f1d0113A4Cc",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x04444d365324134e58104B1D874D00dc68dCEA53"
+          ],
+          "out": "pooled"
+        },
+        {
+          "call": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x04444d365324134e58104B1D874D00dc68dCEA53"
+          ],
+          "out": "pooledWeth"
+        },
+        {
+          "set": "k",
+          "mul": [
+            "$r0",
+            "$r1"
+          ]
+        },
+        {
+          "set": "rootK",
+          "sqrt": "$k"
+        },
+        {
+          "set": "rootKLast",
+          "sqrt": "$kLast"
+        },
+        {
+          "set": "growth",
+          "sub": [
+            "$rootK",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeOn",
+          "min": [
+            "$kLast",
+            1
+          ]
+        },
+        {
+          "set": "feeNum",
+          "mul": [
+            "$supply",
+            "$growth",
+            "$feeOn"
+          ]
+        },
+        {
+          "set": "rootK5",
+          "mul": [
+            "$rootK",
+            5
+          ]
+        },
+        {
+          "set": "feeDen",
+          "sum": [
+            "$rootK5",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeLiquidity",
+          "div": [
+            "$feeNum",
+            "$feeDen"
+          ]
+        },
+        {
+          "set": "supplyAtBurn",
+          "sum": [
+            "$supply",
+            "$feeLiquidity"
+          ]
+        },
+        {
+          "set": "amount",
+          "mulDiv": [
+            "$lp",
+            "$pooled",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "wethOut",
+          "mulDiv": [
+            "$lp",
+            "$pooledWeth",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "minOld",
+          "mulDiv": [
+            "$amount",
+            99,
+            100
+          ]
+        },
+        {
+          "set": "minWeth",
+          "mulDiv": [
+            "$wethOut",
+            99,
+            100
+          ]
+        }
+      ],
+      "label": "in a SushiSwap NU/WETH position",
+      "amountVars": {
+        "$lp": {
+          "symbol": "SLP",
+          "decimals": 18
+        },
+        "$minOld": "old",
+        "$minWeth": {
+          "symbol": "WETH",
+          "decimals": 18
+        }
+      }
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "SushiSwap pair 0x04444d365324134e58104B1D874D00dc68dCEA53 (NU/WETH), 89,319 NU pooled at listing. The amount replicates UniswapV2Pair.burn: _mintFee (feeTo is set on this factory) mints totalSupply*(sqrt(k)-sqrt(kLast))/(5*sqrt(k)+sqrt(kLast)) first, then pays liquidity*balance/totalSupply. Withdraw via Router02.removeLiquidity with 1% minimums."
+    },
+    "minAmount": "1000000000000000"
+  },
+  {
+    "id": "fei-to-dai-univ2-lp",
+    "name": "FEI/WETH Uniswap v2 position → DAI",
+    "project": "Fei Protocol",
+    "chainId": 1,
+    "oldToken": {
+      "address": "0x956F47F50A910163D8BF957Cf5846D573E7f87CA",
+      "symbol": "FEI",
+      "decimals": 18
+    },
+    "newToken": {
+      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "symbol": "DAI",
+      "decimals": 18
+    },
+    "migrator": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce",
+    "ratio": {
+      "num": "1",
+      "den": "1"
+    },
+    "steps": [
+      {
+        "type": "approve",
+        "token": "0x94B0A3d511b6EcDb17eBF877278Ab030acb0A878",
+        "spender": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "amount": "$lp",
+        "tokenMeta": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "title": "Approve the Uniswap v2 router to take your FEI/WETH position",
+        "contractLabel": "Uniswap v2 FEI/WETH pool token"
+      },
+      {
+        "type": "call",
+        "to": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+        "signature": "removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline)",
+        "args": [
+          "0x956F47F50A910163D8BF957Cf5846D573E7f87CA",
+          "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "$lp",
+          "$minOld",
+          "$minWeth",
+          "$user",
+          4102444800
+        ],
+        "hints": {
+          "3": "The least FEI you accept (1% below the expected amount)",
+          "4": "The least WETH you accept (1% below the expected amount)",
+          "6": "Any future unix time works; 4102444800 is 1 Jan 2100"
+        },
+        "contractLabel": "Uniswap v2 router",
+        "title": "Withdraw your FEI and WETH from the pool"
+      },
+      {
+        "type": "approve",
+        "token": "old",
+        "spender": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce"
+      },
+      {
+        "type": "call",
+        "to": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce",
+        "signature": "redeem(address,uint256,uint256)",
+        "args": [
+          "$user",
+          "$amount",
+          "$amount"
+        ]
+      }
+    ],
+    "status": "open",
+    "deadline": null,
+    "statusCheck": {
+      "to": "0x7842186CDd11270C4Af8C0A99A5E0589c7F249ce",
+      "signature": "redeemPaused()",
+      "expect": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "officialUi": "https://app.uniswap.org/positions",
+    "sources": [
+      "https://github.com/fei-protocol/fei-protocol-core/blob/develop/protocol-configuration/mainnetAddresses.ts",
+      "https://github.com/code-423n4/2022-09-tribe/blob/main/contracts/peg/SimpleFeiDaiPSM.sol"
+    ],
+    "warnings": [
+      {
+        "level": "info",
+        "text": "This FEI sits in a Uniswap v2 liquidity position you hold. Withdrawing returns your share of FEI and WETH; the FEI is then migrated. If you're providing liquidity on purpose, you can ignore this."
+      }
+    ],
+    "payoutReserve": {
+      "holder": "0x7842186cdd11270c4af8c0a99a5e0589c7f249ce"
+    },
+    "holding": {
+      "reads": [
+        {
+          "call": "0x94B0A3d511b6EcDb17eBF877278Ab030acb0A878",
+          "signature": "balanceOf(address)",
+          "args": [
+            "$user"
+          ],
+          "out": "lp"
+        },
+        {
+          "require": "$lp",
+          "is": "nonzero"
+        },
+        {
+          "call": "0x94B0A3d511b6EcDb17eBF877278Ab030acb0A878",
+          "signature": "getReserves()",
+          "out": {
+            "r0": 0,
+            "r1": 1
+          }
+        },
+        {
+          "call": "0x94B0A3d511b6EcDb17eBF877278Ab030acb0A878",
+          "signature": "kLast()",
+          "out": "kLast"
+        },
+        {
+          "call": "0x94B0A3d511b6EcDb17eBF877278Ab030acb0A878",
+          "signature": "totalSupply()",
+          "out": "supply"
+        },
+        {
+          "call": "0x956F47F50A910163D8BF957Cf5846D573E7f87CA",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x94B0A3d511b6EcDb17eBF877278Ab030acb0A878"
+          ],
+          "out": "pooled"
+        },
+        {
+          "call": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "signature": "balanceOf(address)",
+          "args": [
+            "0x94B0A3d511b6EcDb17eBF877278Ab030acb0A878"
+          ],
+          "out": "pooledWeth"
+        },
+        {
+          "set": "k",
+          "mul": [
+            "$r0",
+            "$r1"
+          ]
+        },
+        {
+          "set": "rootK",
+          "sqrt": "$k"
+        },
+        {
+          "set": "rootKLast",
+          "sqrt": "$kLast"
+        },
+        {
+          "set": "growth",
+          "sub": [
+            "$rootK",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeOn",
+          "min": [
+            "$kLast",
+            1
+          ]
+        },
+        {
+          "set": "feeNum",
+          "mul": [
+            "$supply",
+            "$growth",
+            "$feeOn"
+          ]
+        },
+        {
+          "set": "rootK5",
+          "mul": [
+            "$rootK",
+            5
+          ]
+        },
+        {
+          "set": "feeDen",
+          "sum": [
+            "$rootK5",
+            "$rootKLast"
+          ]
+        },
+        {
+          "set": "feeLiquidity",
+          "div": [
+            "$feeNum",
+            "$feeDen"
+          ]
+        },
+        {
+          "set": "supplyAtBurn",
+          "sum": [
+            "$supply",
+            "$feeLiquidity"
+          ]
+        },
+        {
+          "set": "amount",
+          "mulDiv": [
+            "$lp",
+            "$pooled",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "wethOut",
+          "mulDiv": [
+            "$lp",
+            "$pooledWeth",
+            "$supplyAtBurn"
+          ]
+        },
+        {
+          "set": "minOld",
+          "mulDiv": [
+            "$amount",
+            99,
+            100
+          ]
+        },
+        {
+          "set": "minWeth",
+          "mulDiv": [
+            "$wethOut",
+            99,
+            100
+          ]
+        }
+      ],
+      "label": "in a Uniswap v2 FEI/WETH position",
+      "amountVars": {
+        "$lp": {
+          "symbol": "UNI-V2",
+          "decimals": 18
+        },
+        "$minOld": "old",
+        "$minWeth": {
+          "symbol": "WETH",
+          "decimals": 18
+        }
+      }
+    },
+    "verification": {
+      "codeExists": true,
+      "holderUsed": "",
+      "method": "site engine (lib/scan.js) eth_simulateV1, traceTransfers, validation:false",
+      "notes": "Uniswap v2 pair 0x94B0A3d511b6EcDb17eBF877278Ab030acb0A878 (FEI/WETH), 1,294 FEI pooled at listing. The amount replicates UniswapV2Pair.burn: _mintFee (feeTo is set on this factory) mints totalSupply*(sqrt(k)-sqrt(kLast))/(5*sqrt(k)+sqrt(kLast)) first, then pays liquidity*balance/totalSupply. Withdraw via Router02.removeLiquidity with 1% minimums."
+    }
+  }
+]
