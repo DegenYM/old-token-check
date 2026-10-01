@@ -11,6 +11,7 @@
 - **A verified list.** Each of the 70 open paths in [`data/`](data) names the old token, the new one, the official migrator and the exact calls. Before listing, every path was simulated from a real holder and checked against official docs. The 49 candidates that failed (closed, paused, defunded, unverifiable) are in `data/rejected.*.json` and are never shown as claimable.
 - **Balances straight from the chain.** Explorer holder lists for old tokens are often stale, so balances are read with `balanceOf` through Multicall3.
 - **Many wallets at once.** Paste up to 100 addresses or ENS names (including offchain ones like `name.base.eth`) in any shape (one per line, a spreadsheet column, a CSV export, explorer links) or upload a `.csv`/`.txt`; text on the same line becomes that wallet's label. Results come back sorted by value, empty wallets fold into one line, and everything downloads as a CSV. Labels and files never leave your browser.
+- **Withdrawals you never finished.** If you withdrew from Polygon to Ethereum and never sent the final claim, it finds the burn (via Alchemy's transfers API, the one check that needs a key), checks Ethereum's `processedExits` for it, fetches the proof from Polygon's official proof service and simulates `exit()` from your address. Tokens whose exits moved to another bridge (USDT → USDT0 after its cutoff block) are skipped.
 - **Dates you won't miss.** Unlock dates and migration deadlines can go straight into your calendar: an `.ics` file (Apple Calendar, Outlook, any calendar app) built in the browser, or a Google Calendar link that only carries the last four characters of your address. Reminders fire 7 days and 1 day before a deadline.
 - **Staked and locked tokens too.** Old tokens often sit in a staking, vote-escrow, escrow or grant contract instead of the wallet: MKR in Maker's chiefs, vote proxies, vote delegates, LockStake and Aave; veOCEAN, unclaimed Ocean rewards and fees; Velodrome v1 veNFTs and gauge rewards; staked or escrowed KWENTA; OGV lockups; KEEP stakes and grants; NU, KNC, RBN, dQUICK, TRIBE rewards; and old tokens still sitting in Uniswap v2 / SushiSwap liquidity positions (MKR, MATIC, NU, KEEP, RPL, KNC, SAI, FEI). Each is described as a small read program (see [research/HOLDINGS.md](research/HOLDINGS.md)), and the full exit plus migration is simulated from your address. Locks that end in the future are simulated at their unlock date and shown as **Unlocks on &lt;date&gt;**.
 
@@ -40,6 +41,8 @@ No build step and no dependencies. It's plain HTML, CSS and ES modules.
 ./tools/build.sh          # copies only the public site into dist/
 npx wrangler deploy       # Cloudflare Workers static assets (see wrangler.jsonc)
 ```
+
+The Polygon withdrawal check needs an Alchemy key restricted to your domain: put `ALCHEMY_API=<key>` in `.env` (never committed); `tools/build.sh` writes it into `dist/config.js` only.
 
 `python3 tools/build_stats.py` refreshes the headline numbers in `data/stats.json`; `python3 tools/make_og.py` redraws the share card.
 

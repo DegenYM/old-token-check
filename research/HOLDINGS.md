@@ -71,9 +71,9 @@ Entries with `holding` are excluded from `data/stats.json` totals (they would do
   then withdraws the grant. Needs a grant → stake contract → operator walk.
 - Velodrome v1 veNFTs attached to a gauge (need `Gauge.withdrawToken` on the right gauge first; they are skipped).
 - Vote-proxy **hot** wallets (the MKR goes to the cold wallet; check that address instead).
-- L2 → L1 withdrawals that were never finalized (Polygon PoS exits, Arbitrum outbox, Linea claims). Finding a user's
-  old burns needs an indexer with full history; the public Blockscout instances don't have it (Polygon's is missing
-  2021-era logs), and public RPCs cap log ranges at ~10k blocks.
+- L2 → L1 withdrawals on Arbitrum (outbox) and Linea (message claims). Polygon PoS exits are covered by
+  `lib/bridges.js` (Alchemy transfers API for the burns; public Blockscout lacks 2021-era Polygon logs and public RPCs
+  cap log ranges at ~10k blocks).
 - LP tokens staked in a farm (Sushi MasterChef etc.), index tokens (DPI), Uniswap v3/v4 positions.
 
 ## Verification bar (same as the wallet registry)

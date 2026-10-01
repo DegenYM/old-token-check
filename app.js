@@ -2,9 +2,11 @@
 // Nothing here can sign or send a transaction: there is no wallet code at all.
 
 import { CHAINS, explorerAddressUrl } from './chains.js';
-import { TIP_ADDRESS, TIP_ENS, PRICE_API } from './config.js';
+import { TIP_ADDRESS, TIP_ENS, PRICE_API, ALCHEMY_KEY } from './config.js';
 import { loadRegistry, scanChain, analyzeFinding, outSymbol, outDecimals, amountsMatch, heldToken, holdingLabel, makeClient } from './lib/scan.js';
 import { resolveNames, normalizeName } from './lib/ens.js';
+import { findPolygonExits } from './lib/bridges.js';
+import { hexToBigInt, toHex } from './lib/evm.js';
 import { checkAddress, isAddress, toChecksumAddress, formatUnits, parseFraction } from './lib/evm.js';
 import qrcode from './lib/vendor/qrcode.mjs';
 
@@ -328,18 +330,20 @@ async function runScan(users, labels = new Map()) {
 
   $('#progress').hidden = false;
   $('#progress-note').textContent = '';
-  $('#chain-list').innerHTML = chainIds.map((id) => `
+  const withdrawals = !!ALCHEMY_KEY;
+  const chip = (id, name) => `
     <li id="chain-${id}" class="chain" data-state="pending">
       <span class="dot" aria-hidden="true"></span>
-      <span>${esc(chainName(id))}</span>
+      <span>${esc(name)}</span>
       <span class="chain-state">waiting</span>
-    </li>`).join('');
+    </li>`;
+  $('#chain-list').innerHTML = chainIds.map((id) => chip(id, chainName(id))).join('') + (withdrawals ? chip('polygon-exits', 'Polygon withdrawals') : '');
 
   const results = $('#results');
   results.innerHTML = `
     <div class="summary" id="summary">
       <h2>Checking ${multi ? plural(users.length, 'address', 'addresses') : esc(labels.get(users[0]) || short(users[0]))}…</h2>
-      <p>Reading balances for ${plural(registry.entries.length, 'migration path')} on ${plural(chainIds.length, 'chain')}.</p>
+      <p>Reading balances for ${plural(registry.entries.length, 'migration path')} on ${plural(chainIds.length, 'chain')}${withdrawals ? ', and looking for Polygon withdrawals that were never claimed' : ''}.</p>
     </div>
     ${users.map((u) => `
       <section class="addr-group" id="addr-${u}" aria-label="Results for ${esc(labels.get(u) || u)}"${multi ? ' hidden' : ''}>
@@ -354,7 +358,47 @@ async function runScan(users, labels = new Map()) {
   const failedChains = [];
   const unsupportedSim = new Set();
 
-  await Promise.all(chainIds.map(async (chainId) => {
+  // Withdrawals started on Polygon and never claimed on Ethereum (needs the Alchemy key)
+  let exitsChecked = false;
+  let exitsWaiting = 0;
+  const exitsJob = async () => {
+    if (!withdrawals) return;
+    setChain('polygon-exits', 'scanning', 'looking for withdrawals');
+    try {
+      const client = makeClient(1);
+      const block = hexToBigInt(await client.request('eth_blockNumber'));
+      const ctx = { chainId: 1, ok: true, block: Number(block), blockHex: toHex(block), client };
+      const { findings, waiting } = await findPolygonExits({ key: ALCHEMY_KEY, users, ethClient: client });
+      exitsChecked = true;
+      exitsWaiting = waiting;
+      if (!findings.length) { setChain('polygon-exits', 'done', 'nothing unclaimed'); return; }
+      for (const f of findings) insertCard(f, pendingCard(f));
+      let done = 0;
+      let kept = 0;
+      const n = findings.length;
+      setChain('polygon-exits', 'simulating', `simulating 0/${n}`);
+      await mapLimit(findings, SIM_CONCURRENCY, async (f) => {
+        let r;
+        try { r = await analyzeFinding(f, ctx); }
+        catch (e) { r = { ...f, status: 'sim-unavailable', sim: { supported: true, ok: false, error: e.message, calls: [] } }; }
+        // Claimed meanwhile, or a token whose exits moved to another bridge: nothing to show
+        const why = JSON.stringify((r.sim && r.sim.calls) || []);
+        if (r.status !== 'ready' && /EXIT_ALREADY_PROCESSED|EXIT_DISABLED/.test(why)) {
+          document.getElementById(cardId(f))?.remove();
+        } else {
+          all.push(r);
+          kept++;
+          insertCard(f, resultCard(r, null), true);
+        }
+        done++;
+        setChain('polygon-exits', done === n ? 'done' : 'simulating', done === n ? (kept ? `found ${kept}` : 'nothing unclaimed') : `simulating ${done}/${n}`);
+      });
+    } catch (e) {
+      setChain('polygon-exits', 'error', "couldn't check", e.message);
+    }
+  };
+
+  await Promise.all([exitsJob(), ...chainIds.map(async (chainId) => {
     const entries = byChain.get(chainId);
     setChain(chainId, 'scanning', 'reading balances');
     const scan = await scanChain(chainId, entries, users);
@@ -382,13 +426,15 @@ async function runScan(users, labels = new Map()) {
       setChain(chainId, done === n ? 'done' : 'simulating', done === n ? `found ${n}` : `simulating ${done}/${n}`);
       if (done === n) document.getElementById(`chain-${chainId}`)?.setAttribute('data-found', 'true');
     });
-  }));
+  })]);
 
   // Prices last, in one request, then re-render with USD values
   const prices = await fetchPrices(all);
-  for (const r of all) insertCard(r, resultCard(r, prices));
+  for (const r of all) {
+    try { insertCard(r, resultCard(r, prices)); } catch (e) { console.error('card render failed', r.entry.id, e); }
+  }
 
-  const checkedLine = `Checked ${plural(registry.entries.length, 'migration path')} on ${plural(chainIds.length - failedChains.length, 'chain')}${failedChains.length ? ` — ${listJoin(failedChains.map(chainName))} couldn't be checked, try again later` : ''}.`;
+  const checkedLine = `Checked ${plural(registry.entries.length, 'migration path')} on ${plural(chainIds.length - failedChains.length, 'chain')}${exitsChecked ? ' and past Polygon withdrawals' : ''}${failedChains.length ? ` — ${listJoin(failedChains.map(chainName))} couldn't be checked, try again later` : ''}.`;
   if (!multi) {
     if (!all.length) {
       document.getElementById(`addr-${users[0]}`).querySelector('.cards').innerHTML = `
@@ -428,10 +474,11 @@ async function runScan(users, labels = new Map()) {
   lastScan = { all, users, labels, prices };
 
   renderSummary(all, users, prices);
-  collapseChains(chainIds, failedChains, all);
+  collapseChains(chainIds, failedChains, all, exitsChecked);
 
   const notes = [];
   if (failedChains.length) notes.push(`Couldn't reach ${listJoin(failedChains.map(chainName))} (the RPC didn't answer or refused). Results there are incomplete.`);
+  if (exitsWaiting) notes.push(`${plural(exitsWaiting, 'recent Polygon withdrawal')} ${exitsWaiting === 1 ? "isn't" : "aren't"} provable yet (waiting for Polygon's next checkpoint, usually a few hours). Check again later.`);
   if (unsupportedSim.size) notes.push(`${listJoin([...unsupportedSim].map(chainName))} couldn't be simulated through public RPCs, so those results aren't marked ready.`);
   $('#progress-note').textContent = notes.join(' ');
 }
@@ -577,12 +624,16 @@ function burst(el) {
 }
 
 /** After a scan, one quiet line replaces the per-chain chips; chains that failed keep their chip. */
-function collapseChains(chainIds, failedChains, all) {
-  const found = chainIds.filter((id) => all.some((r) => r.entry.chainId === id));
+function collapseChains(chainIds, failedChains, all, exitsChecked) {
+  const found = chainIds.filter((id) => all.some((r) => r.entry.chainId === id && !r.entry.bridge)).map(chainName);
+  const exits = all.some((r) => r.entry.bridge);
   const ok = chainIds.length - failedChains.length;
   const line = document.createElement('li');
   line.className = 'chain-summary';
-  line.textContent = `${plural(ok, 'chain')} checked${found.length ? ` · found on ${listJoin(found.map(chainName))}` : ' · nothing found'}`;
+  const what = [];
+  if (found.length) what.push(`found on ${listJoin(found)}`);
+  if (exits) what.push('unclaimed Polygon withdrawals found');
+  line.textContent = `${plural(ok, 'chain')}${exitsChecked ? ' and Polygon withdrawals' : ''} checked · ${what.length ? what.join(' · ') : 'nothing found'}`;
   const list = $('#chain-list');
   for (const li of [...list.children]) if (li.dataset.state !== 'error') li.remove();
   list.prepend(line);
@@ -615,6 +666,12 @@ function insertCard(f, html, animate = false) {
 
 /* ------------------------------------------------------------- prices */
 
+// DefiLlama ids for each chain's native coin (outputs paid as ETH, POL, …)
+const NATIVE_PRICE = {
+  1: 'coingecko:ethereum', 10: 'coingecko:ethereum', 42161: 'coingecko:ethereum', 8453: 'coingecko:ethereum',
+  137: 'coingecko:polygon-ecosystem-token', 56: 'coingecko:binancecoin', 43114: 'coingecko:avalanche-2', 100: 'coingecko:dai',
+};
+
 async function fetchPrices(results) {
   const prices = new Map();
   if (!PRICE_API || !results.length) return prices;
@@ -622,8 +679,9 @@ async function fetchPrices(results) {
   for (const r of results) {
     const slug = CHAINS[r.entry.chainId]?.llama;
     if (!slug) continue;
-    for (const a of outputsOf(r)) if (a.token) keys.add(`${slug}:${a.token}`.toLowerCase());
+    for (const a of outputsOf(r)) keys.add(a.token ? `${slug}:${a.token}`.toLowerCase() : NATIVE_PRICE[r.entry.chainId]);
   }
+  keys.delete(undefined);
   if (!keys.size) return prices;
   try {
     const ctl = new AbortController();
@@ -651,7 +709,7 @@ function usdFor(r, prices) {
   const slug = CHAINS[r.entry.chainId]?.llama;
   let usd = 0, priced = 0, partial = false;
   for (const a of outputsOf(r)) {
-    const p = a.token && slug ? prices.get(`${slug}:${a.token}`.toLowerCase()) : undefined;
+    const p = a.token ? (slug ? prices.get(`${slug}:${a.token}`.toLowerCase()) : undefined) : prices.get(NATIVE_PRICE[r.entry.chainId]);
     if (p == null) { partial = true; continue; }
     usd += toFloat(a.amount, a.decimals) * p;
     priced++;
@@ -737,10 +795,11 @@ function resultCard(r, prices) {
   const newAmt = lead ? `${lead.approx ? '~' : ''}${esc(fmtAmount(lead.amount, lead.decimals))} ${esc(lead.symbol)}` : '';
   const oldAmt = `${esc(fmtAmount(r.balance, held.decimals))} ${esc(held.symbol)}`;
   const headline = lead
-    ? `${ready && held !== e.newToken ? `<strong class="roll"><span class="roll-old" aria-hidden="true">${oldAmt}</span><span class="roll-new">${newAmt}</span></strong>` : `<strong>${newAmt}</strong>`}${outs.length > 1 ? `<span class="plus">+ ${esc(outs.slice(1).map((o) => o.symbol).join(', '))}</span>` : ''}${usd != null ? `<span class="usd">${usd > 0 && usd < 0.01 ? '' : '≈ '}${esc(usdCompact(usd, true))}${partial ? '+' : ''}</span>` : ''}`
+    ? `${ready && held !== e.newToken && !e.bridge ? `<strong class="roll"><span class="roll-old" aria-hidden="true">${oldAmt}</span><span class="roll-new">${newAmt}</span></strong>` : `<strong>${newAmt}</strong>`}${outs.length > 1 ? `<span class="plus">+ ${esc(outs.slice(1).map((o) => o.symbol).join(', '))}</span>` : ''}${usd != null ? `<span class="usd">${usd > 0 && usd < 0.01 ? '' : '≈ '}${esc(usdCompact(usd, true))}${partial ? '+' : ''}</span>` : ''}`
     : `<strong>${oldAmt}</strong>`;
 
-  const meta = `<b>${esc(e.oldToken.symbol)} → ${esc(e.newToken ? e.newToken.symbol : sym)}</b><span class="sep">·</span>${esc(chain.name)}<span class="sep">·</span>${e.holding ? 'you have' : 'you hold'} ${oldAmt}${label ? ` ${esc(label)}` : ''}<span class="sep">·</span>migrator`;
+  const route = e.bridge ? e.bridge.route : `${e.oldToken.symbol} → ${e.newToken ? e.newToken.symbol : sym}`;
+  const meta = `<b>${esc(route)}</b><span class="sep">·</span>${esc(chain.name)}<span class="sep">·</span>${e.holding ? 'you have' : 'you hold'} ${oldAmt}${label ? ` ${esc(label)}` : ''}<span class="sep">·</span>${e.bridge ? 'bridge' : 'migrator'}`;
   const monoLine = `<p class="card-mono">${explorerLink(e.chainId, e.migrator)}</p>`;
 
   // notes: verification first, then registry warnings, then deadline
@@ -834,19 +893,25 @@ function resultCard(r, prices) {
 
 function contractsHtml(r) {
   const e = r.entry;
-  const contracts = [
+  const contracts = (e.bridge ? [
+    { role: 'Withdrawal started on Polygon', href: e.bridge.burnUrl, text: e.bridge.burnTx },
+    e.newToken ? { role: `Token on Ethereum · ${e.newToken.symbol}`, addr: e.newToken.address } : null,
+    { role: 'Polygon PoS bridge (RootChainManager)', addr: e.migrator },
+  ] : [
     { role: `Old token · ${e.oldToken.symbol}`, addr: e.oldToken.address },
     e.newToken ? { role: `New token · ${e.newToken.symbol}`, addr: e.newToken.address } : null,
     { role: 'Official migrator', addr: e.migrator },
-  ].filter(Boolean);
+  ]).filter(Boolean);
   for (const s of r.steps || []) {
-    if (!contracts.some((c) => c.addr.toLowerCase() === s.to.toLowerCase())) contracts.push({ role: s.contractLabel ? `${s.contractLabel}` : `Step contract · ${s.fnName}`, addr: s.to });
+    if (!contracts.some((c) => c.addr && c.addr.toLowerCase() === s.to.toLowerCase())) contracts.push({ role: s.contractLabel ? `${s.contractLabel}` : `Step contract · ${s.fnName}`, addr: s.to });
   }
-  if (r.reserve && r.reserve.holder && !contracts.some((c) => c.addr.toLowerCase() === r.reserve.holder.toLowerCase())) {
+  if (r.reserve && r.reserve.holder && !contracts.some((c) => c.addr && c.addr.toLowerCase() === r.reserve.holder.toLowerCase())) {
     contracts.push({ role: 'Pays out from', addr: r.reserve.holder });
   }
   return `<ul class="contracts">${contracts.map((c) => `
-    <li><span class="c-role">${esc(c.role)}</span><span class="c-addr">${explorerLink(e.chainId, c.addr)} ${copyBtn(c.addr)}</span></li>`).join('')}
+    <li><span class="c-role">${esc(c.role)}</span><span class="c-addr">${c.href
+      ? `<a href="${esc(c.href)}" target="_blank" rel="noopener noreferrer" class="mono">${esc(short(c.text))}</a> ${copyBtn(c.text)}`
+      : `${explorerLink(e.chainId, c.addr)} ${copyBtn(c.addr)}`}</span></li>`).join('')}
   </ul>`;
 }
 
@@ -913,10 +978,10 @@ function howToHtml(r, chain) {
           <span class="mono">${esc(f.label)}</span>
           <span class="f-type">${esc(f.type)} · field ${k + 1}</span>
         </div>
-        <div class="f-val"><code>${esc(f.value)}</code>${copyBtn(f.value)}</div>
+        <div class="f-val"><code>${esc(f.value.length > 160 ? `${f.value.slice(0, 66)}…${f.value.slice(-12)}` : f.value)}</code>${copyBtn(f.value)}</div>
         ${f.raw && f.decimals != null
           ? `<p class="f-hint">= ${esc(formatUnits(BigInt(f.value), f.decimals, f.decimals))} ${esc(f.symbol || '')}. Raw units with ${esc(f.decimals)} decimals — paste exactly as shown, don't convert.</p>`
-          : f.hint ? `<p class="f-hint">${esc(f.hint)}</p>` : ''}
+          : f.hint ? `<p class="f-hint">${esc(f.hint)}${f.value.length > 160 ? ` (${num((f.value.length - 2) / 2)} bytes)` : ''}</p>` : ''}
       </div>`).join('');
     const valueRow = s.value ? `<p class="fine">Also enter ${esc(formatUnits(BigInt(s.value), 18, 18))} ${esc(chain.native)} in the <span class="mono">payableAmount</span> field.</p>` : '';
     const spenderWarn = s.kind === 'approve' && !s.spenderIsMigrator
