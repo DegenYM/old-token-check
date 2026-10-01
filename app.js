@@ -3,7 +3,8 @@
 
 import { CHAINS, explorerAddressUrl } from './chains.js';
 import { TIP_ADDRESS, TIP_ENS, PRICE_API } from './config.js';
-import { loadRegistry, scanChain, analyzeFinding, outSymbol, outDecimals, amountsMatch, heldToken, holdingLabel } from './lib/scan.js';
+import { loadRegistry, scanChain, analyzeFinding, outSymbol, outDecimals, amountsMatch, heldToken, holdingLabel, makeClient } from './lib/scan.js';
+import { resolveNames, normalizeName } from './lib/ens.js';
 import { checkAddress, isAddress, toChecksumAddress, formatUnits, parseFraction } from './lib/evm.js';
 import qrcode from './lib/vendor/qrcode.mjs';
 
@@ -142,7 +143,8 @@ function qrSvg(text) {
 
 const ADDRESS_RE = /(^|[^0-9a-zA-Z])(0x[0-9a-fA-F]{40})(?![0-9a-zA-Z])/g;
 const NEAR_RE = /(^|[^0-9a-zA-Z])(0x(?:[0-9a-fA-F]{20,39}|[0-9a-fA-F]{41,50}))(?![0-9a-zA-Z])/g;
-const ENS_RE = /(^|[\s,;:"'])([a-z0-9-]+(?:\.[a-z0-9-]+)*\.eth)(?=$|[\s,;:"'])/gi;
+// Anything ending in .eth; a URL or query prefix (app.ens.domains/foo.eth, ?id=foo.eth) is cut off
+const NAME_RE = /(^|[\s,;"'(])([^\s,;"'()]+\.eth)(?=$|[\s,;"'.):])/gi;
 
 /**
  * Pull every EVM address out of free text: one per line, comma lists, a spreadsheet column,
@@ -154,6 +156,9 @@ function parseAddresses(text) {
   const labels = new Map();
   const skipped = [];
   const seen = new Set();
+  const names = []; // ENS names, resolved when the check starts: [{ name, label }]
+  const badNames = [];
+  const seenNames = new Set();
   let dupes = 0;
   for (const line of text.split(/\r?\n/)) {
     const found = [...line.matchAll(ADDRESS_RE)].map((m) => m[2]);
@@ -166,10 +171,19 @@ function parseAddresses(text) {
       const label = found.length === 1 ? cleanLabel(line.replace(a, ' ')) : '';
       if (label) labels.set(cs, label);
     }
+    if (found.length) continue; // an address on the line wins; a name next to it is just its label
+    const raw = [...line.matchAll(NAME_RE)].map((m) => m[2]);
+    for (const r of raw) {
+      const name = normalizeName(r.split(/[/=?#@]/).pop());
+      if (!name) { badNames.push(r); continue; }
+      if (seenNames.has(name)) { dupes++; continue; }
+      seenNames.add(name);
+      const rest = raw.length === 1 ? cleanLabel(line.replace(r, ' ')) : '';
+      names.push({ name, label: rest ? `${rest} (${name})` : name });
+    }
   }
   const near = [...text.matchAll(NEAR_RE)].map((m) => m[2]);
-  const ens = [...text.matchAll(ENS_RE)].map((m) => m[2]);
-  return { valid, labels, skipped, dupes, near, ens, empty: !text.trim() };
+  return { valid, labels, skipped, dupes, near, names, badNames, empty: !text.trim() };
 }
 
 /** "  Cold wallet:  " -> "Cold wallet"; drops URLs, numbers and other non-labels */
@@ -184,14 +198,14 @@ function batchNotes(p) {
   if (p.dupes) out.push(`${plural(p.dupes, 'duplicate')} removed`);
   if (p.skipped.length) out.push(`${num(p.skipped.length)} skipped because the checksum doesn't match (${p.skipped.slice(0, 2).map(short).join(', ')}${p.skipped.length > 2 ? '…' : ''})`);
   if (p.valid.length && p.near.length) out.push(`${num(p.near.length)} ignored, not a full address`);
-  if (p.ens.length) out.push("ENS names aren't supported yet");
+  if (p.badNames.length) out.push(`${num(p.badNames.length)} ENS ${p.badNames.length === 1 ? 'name' : 'names'} with emoji or accents skipped (not supported yet)`);
   return out;
 }
 
 function noAddressError(p) {
   if (p.empty) return 'Paste at least one wallet address to check.';
   if (p.skipped.length) return `${short(p.skipped[0])} has a mixed-case checksum that doesn't match — there may be a typo.`;
-  if (p.ens.length) return `ENS names like ${p.ens[0]} aren't supported yet. Paste the 0x address instead.`;
+  if (p.badNames.length) return `ENS names with emoji or accents (like ${p.badNames[0]}) aren't supported yet. Paste the 0x address instead.`;
   if (p.near.length) return `"${p.near[0].length > 50 ? `${p.near[0].slice(0, 50)}…` : p.near[0]}" isn't a full EVM address (0x followed by 40 hex characters).`;
   return 'No EVM address found. Paste addresses that start with 0x followed by 40 hex characters.';
 }
@@ -203,7 +217,7 @@ function scheduleStatus() { clearTimeout(statusTimer); statusTimer = setTimeout(
 function updateStatus() {
   const el = $('#addr-status');
   const p = parseAddresses($('#addresses').value);
-  const n = p.valid.length;
+  const n = p.valid.length + p.names.length;
   if (n > MAX_ADDRESSES) {
     el.dataset.tone = 'bad';
     el.innerHTML = `<b>${num(n)}</b> addresses. The limit is ${MAX_ADDRESSES} per check, so split the list.`;
@@ -212,8 +226,11 @@ function updateStatus() {
   }
   delete el.dataset.tone;
   const notes = batchNotes(p);
-  if (n < 2 && !notes.length) { el.hidden = true; return; }
-  el.innerHTML = `${n ? `<b>${num(n)}</b> ${n === 1 ? 'address' : 'addresses'} ready to check` : ''}${notes.length ? `<span class="muted">${n ? ' · ' : ''}${esc(notes.join(' · '))}</span>` : ''}`;
+  if (n < 2 && !notes.length && !p.names.length) { el.hidden = true; return; }
+  const parts = [];
+  if (p.valid.length) parts.push(`<b>${num(p.valid.length)}</b> ${p.valid.length === 1 ? 'address' : 'addresses'}`);
+  if (p.names.length) parts.push(`<b>${num(p.names.length)}</b> ENS ${p.names.length === 1 ? 'name' : 'names'}`);
+  el.innerHTML = `${parts.length ? `${parts.join(' and ')} ready to check` : ''}${notes.length ? `<span class="muted">${n ? ' · ' : ''}${esc(notes.join(' · '))}</span>` : ''}`;
   el.hidden = false;
 }
 
@@ -224,9 +241,13 @@ async function loadList(file) {
   let text;
   try { text = await file.text(); } catch { return showInputError(`Couldn't read ${file.name}.`); }
   const p = parseAddresses(text);
-  if (!p.valid.length && !p.skipped.length) return showInputError(`No EVM addresses found in ${file.name}.`);
+  if (!p.valid.length && !p.skipped.length && !p.names.length) return showInputError(`No EVM addresses or ENS names found in ${file.name}.`);
   showInputError('');
-  ta.value = [...p.valid.map((a) => (p.labels.has(a) ? `${p.labels.get(a)}: ${a}` : a)), ...p.skipped].join('\n');
+  ta.value = [
+    ...p.valid.map((a) => (p.labels.has(a) ? `${p.labels.get(a)}: ${a}` : a)),
+    ...p.names.map((n) => (n.label !== n.name ? `${n.label.replace(` (${n.name})`, '')}: ${n.name}` : n.name)),
+    ...p.skipped,
+  ].join('\n');
   autosize(ta);
   updateStatus();
   // What the file had that the tidy list no longer shows (shown until the list is edited)
@@ -239,7 +260,7 @@ async function loadList(file) {
   ta.focus();
   ta.setSelectionRange(0, 0);
   ta.scrollTop = 0;
-  toast(`Loaded ${plural(p.valid.length, 'address', 'addresses')} from ${file.name}`);
+  toast(`Loaded ${plural(p.valid.length + p.names.length, 'address', 'addresses')} from ${file.name}`);
 }
 
 function showInputError(msg) {
@@ -252,17 +273,36 @@ async function onSubmit(ev) {
   ev.preventDefault();
   if (running) return;
   const parsed = parseAddresses($('#addresses').value);
-  const { valid } = parsed;
-  if (!valid.length) return showInputError(noAddressError(parsed));
-  if (valid.length > MAX_ADDRESSES) return showInputError(`That's ${num(valid.length)} addresses. You can check up to ${MAX_ADDRESSES} at once, so split the list.`);
+  const count = parsed.valid.length + parsed.names.length;
+  if (!count) return showInputError(noAddressError(parsed));
+  if (count > MAX_ADDRESSES) return showInputError(`That's ${num(count)} addresses. You can check up to ${MAX_ADDRESSES} at once, so split the list.`);
   showInputError('');
   running = true;
   const btn = $('#submit');
   btn.disabled = true;
   btn.dataset.busy = 'true';
-  btn.textContent = 'Checking';
+  btn.textContent = parsed.names.length ? 'Resolving' : 'Checking';
   try {
-    await runScan(valid, parsed.labels);
+    const users = [...parsed.valid];
+    const labels = new Map(parsed.labels);
+    if (parsed.names.length) {
+      let res;
+      try { res = await resolveNames(makeClient(1), parsed.names.map((n) => n.name)); }
+      catch (e) { res = parsed.names.map((n) => ({ name: n.name, address: null, error: e.message })); }
+      const failed = [];
+      res.forEach((r, i) => {
+        if (!r.address) { failed.push(r); return; }
+        if (!users.includes(r.address)) users.push(r.address);
+        if (!labels.has(r.address)) labels.set(r.address, parsed.names[i].label);
+      });
+      if (failed.length) {
+        const why = failed.find((f) => f.error && f.error !== 'unsupported name');
+        showInputError(`${listJoin(failed.map((f) => f.name))} ${failed.length === 1 ? "doesn't" : "don't"} resolve to an address${why ? ` (${why.error})` : ''}${users.length ? ', so it was skipped' : ''}.`);
+      }
+      if (!users.length) return;
+      btn.textContent = 'Checking';
+    }
+    await runScan(users, labels);
   } finally {
     running = false;
     btn.disabled = false;
@@ -282,6 +322,7 @@ async function runScan(users, labels = new Map()) {
   const byChain = groupBy(registry.entries, (e) => e.chainId);
   const chainIds = [...byChain.keys()];
   const multi = users.length > 1;
+  const showHead = multi || labels.has(users[0]);
 
   $('#progress').hidden = false;
   $('#progress-note').textContent = '';
@@ -295,12 +336,12 @@ async function runScan(users, labels = new Map()) {
   const results = $('#results');
   results.innerHTML = `
     <div class="summary" id="summary">
-      <h2>Checking ${multi ? plural(users.length, 'address', 'addresses') : short(users[0])}…</h2>
+      <h2>Checking ${multi ? plural(users.length, 'address', 'addresses') : esc(labels.get(users[0]) || short(users[0]))}…</h2>
       <p>Reading balances for ${plural(registry.entries.length, 'migration path')} on ${plural(chainIds.length, 'chain')}.</p>
     </div>
     ${users.map((u) => `
       <section class="addr-group" id="addr-${u}" aria-label="Results for ${esc(labels.get(u) || u)}"${multi ? ' hidden' : ''}>
-        ${multi ? `<header class="addr-head">${labels.has(u) ? `<span class="addr-label">${esc(labels.get(u))}</span>` : ''}<span class="mono">${esc(u)}</span><span class="addr-count"></span></header>` : ''}
+        ${showHead ? `<header class="addr-head">${labels.has(u) ? `<span class="addr-label">${esc(labels.get(u))}</span>` : ''}<span class="mono">${esc(u)}</span><span class="addr-count"></span></header>` : ''}
         <div class="cards"></div>
       </section>`).join('')}`;
 
