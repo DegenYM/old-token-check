@@ -255,7 +255,7 @@ p { margin: 0; }
 .addr-head .addr-count { color: var(--text-3); font-size: 14px; font-variant-numeric: tabular-nums; }
 .addr-label { color: var(--text); font-weight: 600; font-size: 15px; overflow-wrap: anywhere; }
 
-.summary-actions { margin-top: 20px; }
+.summary-actions { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
 .btn-soft {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 10px 16px;
@@ -267,7 +267,7 @@ p { margin: 0; }
   cursor: pointer;
   transition: border-color 120ms var(--ease-out);
 }
-.btn-soft:hover { border-color: var(--text-3); }
+.btn-soft:hover { border-color: var(--text-3); text-decoration: none; }
 .btn-soft svg { flex: none; color: var(--text-2); }
 
 .cards { display: grid; gap: 18px; }
@@ -353,6 +353,10 @@ p { margin: 0; }
 .note[data-level="good"] svg { color: var(--teal); }
 .note[data-level="later"] svg { color: var(--teal); }
 .note .num { font-variant-numeric: tabular-nums; }
+.note-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 6px; font-size: 14.5px; }
+.note-actions svg { margin-top: 0; color: var(--text-3); }
+.note-actions .text-btn, .note-actions a { font-weight: 600; }
+.note-actions .sep { color: var(--text-3); }
 
 .card-rule { margin: 24px 0 20px; border: 0; border-top: 1px dashed var(--line-2); }
 

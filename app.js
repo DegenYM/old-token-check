@@ -273,9 +273,12 @@ async function onSubmit(ev) {
 
 /* -------------------------------------------------------------- scan */
 
-let lastScan = null; // for the CSV download
+let lastScan = null; // for the CSV and calendar downloads
+let currentLabels = new Map();
 
 async function runScan(users, labels = new Map()) {
+  currentLabels = labels;
+  calByCard.clear();
   const byChain = groupBy(registry.entries, (e) => e.chainId);
   const chainIds = [...byChain.keys()];
   const multi = users.length > 1;
@@ -413,7 +416,7 @@ function renderSummary(all, users, prices) {
     el.innerHTML = `
     <h2>Old tokens in ${num(holders)} of ${plural(users.length, 'address', 'addresses')}${total > 0 ? `, ${total < 0.01 ? '' : 'about '}<span class="count" data-to="${total}">${usdCompact(total, true)}</span> ready to migrate` : ''}.</h2>
     <p>${num(all.length)} found: ${parts.join('; ')}. Sorted by value; each one has step-by-step instructions.</p>
-    <p class="summary-actions"><button type="button" class="btn-soft" data-csv>${ICON.download}Download results (CSV)</button></p>`;
+    <p class="summary-actions">${ready.length ? shareLink(total) : ''}<button type="button" class="btn-soft" data-csv>${ICON.download}Download results (CSV)</button>${calendarAllButton(all)}</p>`;
     if (ready.length) celebrate(el);
     return;
   }
@@ -423,8 +426,27 @@ function renderSummary(all, users, prices) {
       ? `${all.length === 1 ? 'It can' : all.length === 2 ? 'Both can' : `All ${num(all.length)} can`} be migrated by you right now.`
       : `${parts.join('; ')}.`}
       Each one below has step-by-step instructions.</p>
+    ${ready.length ? `<p class="summary-actions">${shareLink(total)}</p>` : ''}
 `;
   if (ready.length) celebrate(el);
+}
+
+/* -------------------------------------------------------------- share */
+
+/** "~$13.6K": rounded so a shared post can't be matched to one wallet's exact balance */
+function roundUsd(v) {
+  const trim = (x) => x.replace(/\.0$/, '');
+  if (v >= 1e6) return `$${trim((v / 1e6).toFixed(1))}M`;
+  if (v >= 1e3) return `$${trim((v / 1e3).toFixed(v >= 1e5 ? 0 : 1))}K`;
+  return `$${Math.round(v / 10) * 10}`;
+}
+
+/** A pre-filled post for X. No address and no token list, only a rounded total. */
+function shareLink(total) {
+  const found = total >= 100 ? `Found ~${roundUsd(total)} in old tokens` : 'Found old tokens';
+  const text = `${found} I could still migrate through the official contracts.\n\nFree, read-only, no wallet connection:`;
+  const href = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent('https://oldtokencheck.com/?s=share')}`;
+  return `<a class="btn-soft" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${ICON.share}Share on X</a>`;
 }
 
 /* ------------------------------------------------------------- found! */
@@ -602,6 +624,8 @@ const ICON = {
   info: '<svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v5.5M12 7.8v.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   clock: '<svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   download: '<svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"><path d="M12 4.5v10m0 0l-4-4m4 4l4-4M5 18.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  share: '<svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"><path d="M12 14.5v-10m0 0l-4 4m4-4l4 4M5.5 13.5v4A1.5 1.5 0 007 19h10a1.5 1.5 0 001.5-1.5v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  calendar: '<svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"><rect x="4.5" y="5.5" width="15" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 10h15M9 3.5v4M15 3.5v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
 };
 
 function pendingCard(f) {
@@ -685,7 +709,7 @@ function resultCard(r, prices) {
     const match = amountsMatch(r.received, r.expected);
     notes.push(note('good', `Simulated from your address at <a href="${esc(blockUrl)}" target="_blank" rel="noopener noreferrer">block <span class="num">${esc(num(r.simBlock))}</span></a> with your full balance: ${stepsText} succeeded and you'd receive ${gotText}.${match ? '' : ` That differs slightly from the ${esc(rateText(e.ratio))} ratio; the simulated amount is what counts.`} <span class="muted">Checked with ${esc(METHOD_LABEL[r.method] || 'a simulation')}.</span>`));
   } else if (r.status === 'locked') {
-    notes.push(note('later', `Locked until <strong>${esc(fmtDate(r.lockedUntil, true))}</strong> (${esc(timeLeft(r.lockedUntil * 1000 - Date.now()))} from now). We simulated the full exit from your address as if it were that day: ${stepsText} succeeded and you'd receive ${gotText} at today's rate. <span class="muted">Checked with ${esc(METHOD_LABEL[r.method] || 'a simulation')} at a pinned future time.</span>`));
+    notes.push(note('later', `Locked until <strong>${esc(fmtDate(r.lockedUntil, true))}</strong> (${esc(timeLeft(r.lockedUntil * 1000 - Date.now()))} from now). We simulated the full exit from your address as if it were that day: ${stepsText} succeeded and you'd receive ${gotText} at today's rate. <span class="muted">Checked with ${esc(METHOD_LABEL[r.method] || 'a simulation')} at a pinned future time.</span>${calendarActions(r, 'unlock')}`));
   } else if (r.status === 'reserve-low') {
     notes.push(note('danger', `The payout contract ${explorerLink(e.chainId, r.reserve.holder, short(r.reserve.holder))} holds only ${esc(fmtAmount(r.reserve.amount, dec))} ${esc(sym)}, less than the ${esc(fmtAmount(r.expected, dec))} ${esc(sym)} your balance would convert to. ${simOk ? `The simulation still returned ${gotText}.` : r.sim && r.sim.calls && r.sim.calls.some((c) => !c.ok) ? `The simulation failed: <span class="mono">${esc((r.sim.calls.find((c) => !c.ok) || {}).error || '')}</span>.` : ''} Consider migrating part of your balance, and expect a failed transaction to cost gas.`));
   } else if (r.status === 'sim-mismatch') {
@@ -718,7 +742,7 @@ function resultCard(r, prices) {
     const w = r.steps[waitAt];
     notes.push(note('later', `This takes time: after <span class="mono">${esc(r.steps[waitAt - 1].fnName)}</span> the contract makes you wait ${esc(humanDuration(w.waitSeconds))} before <span class="mono">${esc(w.fnName)}</span>. The simulation already fast-forwarded through that wait.`));
   }
-  if (e.deadline) notes.push(deadlineNote(e.deadline, simOk));
+  if (e.deadline) notes.push(deadlineNote(r, simOk));
 
   // action line
   const nTx = (r.steps || []).length;
@@ -802,12 +826,16 @@ function rateText(ratio) {
   } catch { return `${ratio.num}/${ratio.den}`; }
 }
 
-function deadlineNote(iso, simOk) {
+/** A full timestamp is used as-is; a bare date means the START of that day (UTC). Some deadlines
+ *  are enforced on-chain at 00:00 UTC, so ending the countdown later would mislead. */
+function deadlineMs(iso) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso));
-  if (!m) return '';
-  // A full timestamp is used as-is; a bare date counts to the START of that day (UTC). Some
-  // deadlines are enforced on-chain at 00:00 UTC, so ending the countdown later would mislead.
-  const end = /T\d{2}:\d{2}/.test(String(iso)) ? Date.parse(iso) : Date.UTC(+m[1], +m[2] - 1, +m[3]);
+  if (!m) return NaN;
+  return /T\d{2}:\d{2}/.test(String(iso)) ? Date.parse(iso) : Date.UTC(+m[1], +m[2] - 1, +m[3]);
+}
+
+function deadlineNote(r, simOk) {
+  const end = deadlineMs(r.entry.deadline);
   if (!Number.isFinite(end)) return '';
   const txt = fmtDate(end / 1000, true);
   const ms = end - Date.now();
@@ -816,7 +844,7 @@ function deadlineNote(iso, simOk) {
       ? `The official deadline (${esc(txt)}) has passed, but the contract still works. It could close at any time.`
       : `The official deadline (${esc(txt)}) has passed.`);
   }
-  return `<li class="note countdown" data-level="warn" data-deadline="${end}">${ICON.clock}<span>Official deadline <strong>${esc(txt)}</strong> — <strong class="cd-left">${esc(timeLeft(ms))}</strong> left.</span></li>`;
+  return `<li class="note countdown" data-level="warn" data-deadline="${end}">${ICON.clock}<span>Official deadline <strong>${esc(txt)}</strong> — <strong class="cd-left">${esc(timeLeft(ms))}</strong> left.${calendarActions(r, 'deadline')}</span></li>`;
 }
 
 function timeLeft(ms) {
@@ -894,6 +922,8 @@ function tickCountdowns() {
 
 async function onCopyClick(ev) {
   if (ev.target.closest('button[data-csv]')) return downloadCsv();
+  const ics = ev.target.closest('button[data-ics]');
+  if (ics) return downloadIcs(ics.dataset.ics);
   const btn = ev.target.closest('button[data-copy]');
   if (!btn) return;
   const value = btn.dataset.copy;
@@ -918,6 +948,141 @@ async function onCopyClick(ev) {
   btn.classList.toggle('copied', ok);
   toast(ok ? 'Copied to clipboard' : "Couldn't copy — the text is selected, copy it manually");
   setTimeout(() => { btn.textContent = label; btn.classList.remove('copied'); }, 1600);
+}
+
+/* ----------------------------------------------------------- calendar */
+//
+// Unlock dates and deadlines as calendar events. The .ics file is built in the browser and names
+// the full address (it stays on your device). The Google Calendar link goes to Google, so it only
+// carries the last four characters of the address.
+
+const calByCard = new Map(); // "<card id>|<kind>" -> event, filled as cards render
+
+function resultEvent(r, kind) {
+  const e = r.entry;
+  const held = heldToken(e);
+  const what = `${fmtAmount(r.balance, held.decimals)} ${held.symbol}${e.holding ? ` ${holdingLabel(e, shortVars(r.vars))}` : ''}`;
+  const where = e.project || chainName(e.chainId);
+  if (kind === 'unlock') {
+    const t = Number(r.lockedUntil);
+    return { kind, group: `unlock:${t}:${e.id}`, start: t, end: t + 3600, when: t, alarms: ['PT0S', '-P1D'],
+      title: `Unlocks: ${what} → ${outSymbol(e)}`, groupTitle: `Unlocks: ${e.oldToken.symbol} → ${outSymbol(e)} (${where})`, what, user: r.user, entry: e };
+  }
+  const end = Math.floor(deadlineMs(e.deadline) / 1000);
+  return { kind, group: `deadline:${end}:${where}`, start: end - 7200, end, when: end, alarms: ['-P7D', '-P1D'],
+    title: `Deadline: ${e.name}`, groupTitle: `Deadline: ${where}`, what, user: r.user, entry: e };
+}
+
+/** Events for every result with a date still ahead */
+function resultEvents(r) {
+  const out = [];
+  if (r.status === 'locked' && r.lockedUntil) out.push(resultEvent(r, 'unlock'));
+  if (r.entry.deadline && deadlineMs(r.entry.deadline) > Date.now()) out.push(resultEvent(r, 'deadline'));
+  return out;
+}
+
+function eventText(list, full) {
+  const first = list[0];
+  const when = fmtDate(first.when, true);
+  const intro = first.kind === 'unlock'
+    ? `Unlocks ${when}. From then you can migrate it through the official contracts.`
+    : `Official deadline ${when}. Migrate before then; afterwards it may no longer be possible.`;
+  const lines = list.map((ev) => {
+    const label = full && currentLabels.get(ev.user);
+    return `- ${ev.what} on ${chainName(ev.entry.chainId)}, wallet ${full ? ev.user : `ending ${ev.user.slice(-4)}`}${label ? ` (${label})` : ''}`;
+  });
+  const users = [...new Set(list.map((ev) => ev.user))];
+  const link = full ? `https://oldtokencheck.com/?address=${users.join(',')}` : 'https://oldtokencheck.com';
+  return `${intro}\n\n${lines.join('\n')}\n\nStep-by-step instructions: ${link}`;
+}
+
+const icsTime = (unix) => new Date(unix * 1000).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+const icsEsc = (t) => String(t).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+
+/** RFC 5545 line folding: at most 75 octets per line, continuations start with a space */
+function icsFold(line) {
+  const enc = new TextEncoder();
+  if (enc.encode(line).length <= 75) return line;
+  const out = [];
+  let cur = '';
+  let len = 0;
+  for (const ch of line) {
+    const b = enc.encode(ch).length;
+    if (len + b > (out.length ? 74 : 75)) { out.push(cur); cur = ''; len = 0; }
+    cur += ch;
+    len += b;
+  }
+  out.push(cur);
+  return out.join('\r\n ');
+}
+
+/** Stable per event and wallet set, so importing the file again updates instead of duplicating */
+function icsUid(key) {
+  let h = 0x811c9dc5;
+  for (const c of key) { h ^= c.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+  return `otc-${h.toString(16)}-${key.length}@oldtokencheck.com`;
+}
+
+function icsCalendar(groups) {
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Old Token Check//oldtokencheck.com//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
+  for (const list of groups) {
+    const first = list[0];
+    const title = list.length === 1 ? first.title : `${first.groupTitle}, ${list.length} positions`;
+    const users = [...new Set(list.map((ev) => ev.user))].sort();
+    lines.push('BEGIN:VEVENT', `UID:${icsUid(`${first.group}|${users.join(',')}|${list.length === 1 ? first.entry.id : ''}`)}`,
+      `DTSTAMP:${icsTime(Date.now() / 1000)}`, `DTSTART:${icsTime(first.start)}`, `DTEND:${icsTime(first.end)}`,
+      `SUMMARY:${icsEsc(title)}`, `DESCRIPTION:${icsEsc(eventText(list, true))}`, `URL:https://oldtokencheck.com/?address=${users.join(',')}`);
+    for (const a of first.alarms) lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsEsc(title)}`, `TRIGGER:${a}`, 'END:VALARM');
+    lines.push('END:VEVENT');
+  }
+  lines.push('END:VCALENDAR');
+  return `${lines.map(icsFold).join('\r\n')}\r\n`;
+}
+
+/** The two calendar actions under an unlock or deadline note */
+function calendarActions(r, kind) {
+  const ev = resultEvent(r, kind);
+  if (!Number.isFinite(ev.when) || ev.when * 1000 <= Date.now()) return '';
+  const key = `${cardId(r)}|${kind}`;
+  calByCard.set(key, ev);
+  const google = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.title)}&dates=${icsTime(ev.start)}/${icsTime(ev.end)}&details=${encodeURIComponent(eventText([ev], false))}`;
+  return `<span class="note-actions">${ICON.calendar}<button type="button" class="text-btn" data-ics="${esc(key)}">Add to calendar</button><span class="sep" aria-hidden="true">·</span><a href="${esc(google)}" target="_blank" rel="noopener noreferrer">Google Calendar</a></span>`;
+}
+
+/** One-file download for a single card ("<card>|<kind>") or, with "all", every date in the scan */
+function downloadIcs(key) {
+  let groups;
+  let name;
+  if (key === 'all') {
+    if (!lastScan) return;
+    const byGroup = groupBy(lastScan.all.flatMap(resultEvents), (ev) => ev.group);
+    groups = [...byGroup.values()].sort((a, b) => a[0].start - b[0].start);
+    name = 'old-token-check-dates.ics';
+  } else {
+    const ev = calByCard.get(key);
+    if (!ev) return;
+    groups = [[ev]];
+    name = `${ev.kind}-${ev.entry.oldToken.symbol.toLowerCase()}-${new Date(ev.when * 1000).toISOString().slice(0, 10)}.ics`;
+  }
+  if (!groups.length) return;
+  downloadFile(icsCalendar(groups), 'text/calendar;charset=utf-8', name);
+  toast(groups.length === 1 ? 'Calendar file downloaded. Open it to add the event.' : `Calendar file with ${plural(groups.length, 'event')} downloaded`);
+}
+
+function calendarAllButton(all) {
+  const n = new Set(all.flatMap(resultEvents).map((ev) => ev.group)).size;
+  return n ? `<button type="button" class="btn-soft" data-ics="all">${ICON.calendar}Add ${plural(n, 'date')} to calendar</button>` : '';
+}
+
+function downloadFile(text, type, name) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
 /* -------------------------------------------------------------- CSV */
@@ -952,14 +1117,7 @@ function downloadCsv() {
     return `"${t.replace(/"/g, '""')}"`;
   };
   const csv = rows.map((row) => row.map(cell).join(',')).join('\r\n');
-  const url = URL.createObjectURL(new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `old-token-check-${new Date().toISOString().slice(0, 10)}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  downloadFile(`\ufeff${csv}`, 'text/csv;charset=utf-8', `old-token-check-${new Date().toISOString().slice(0, 10)}.csv`);
   toast(`Downloaded ${plural(all.length, 'row')}`);
 }
 
